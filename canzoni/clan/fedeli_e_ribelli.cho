@@ -1,5 +1,5 @@
-{title: Fedeli e Ribelli}
-{tag: Clan}
+{title:Fedeli e Ribelli}
+{tag:Clan}
 {columns: 2}
 
 [Lam]Il mondo non sempre è come tu [Sol]pensi
@@ -14,7 +14,7 @@
 [Lam]Siam tutti uguali, siam tutti [Sol]diversi
 [Lam]Per restare fedeli a noi [Mi7]stessi
 
-{soc}
+{start_of_chorus}
 [Fa]Qualcuno dice sei la mia [Mi7]dipendenza
 [Lam]È vero, di te, io non so stare [Fa]senza
 [Sol]Quando ti indosso scompare la mia [Lam]arroganza
@@ -29,7 +29,7 @@
 [Sol]Fedeli e ribelli, liberi e [Lam]fieri
 [Fa]Dopo tanto tempo non ci siamo mai [Mi7]arresi
 
-{eoc}
+{end_of_chorus}
 
 [Fa]Credo da quando le ho [Mi7]pronunciate
 [Lam]Alle parole più belle mai [Fa]cantate

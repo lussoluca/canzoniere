@@ -1,5 +1,5 @@
-{title: La notte più lunga}
-{tag: Branco}
+{title:La notte più lunga}
+{tag:Branco}
 {columns: 2}
 
 [Mim]Le ombre incerte del villaggio, [Sol]Mowgli non ti fan paura
@@ -11,12 +11,12 @@
 [Mim]Salta Akela, forza, salta! [Sol]La tua preda è lì che attende
 [La]Un capo branco mai si arrende [Mim]"tu lo devi far".
 
-{soc}
+{start_of_chorus}
 [Mim]A, o, a, e Mowgli tornerà
 [Sol]A, o, a, la tigre tremerà
 [La]A, o, a, la giungla lo saprà
 [Mim]A, o, a, che il fiore rosso ha!
-{eoc}
+{end_of_chorus}
 
 [Mim]Corri Mowgli con Akela [Sol]verso lo stesso destino
 [La]questa notte fratellino [Mim]vi tocca morir.
@@ -27,12 +27,12 @@
 [Mim]"Ha mangiato il nostro cibo", [Sol]"Taci, vecchio, è solo un uomo"
 [La]"Ha dormito al nostro fianco, [Mim]"E non lo rifarà"!
 
-{soc}
+{start_of_chorus}
 [Mim]A, o, a, e Mowgli tornerà
 [Sol]A, o, a, la tigre tremerà
 [La]A, o, a, la giungla lo saprà
 [Mim]A, o, a, che il fiore rosso ha!
-{eoc}
+{end_of_chorus}
 
 [Mim]Bianchi i denti di Bagheera, [Sol]scintillanti nella notte
 [La]per difendere l’onore, [Mim]presto scoprirà.
@@ -43,9 +43,9 @@
 [Mim]Lo striato abbrustolito, [Sol]col terrore nelle vene
 [La]Corre via, scappa lontano, [Mim]ma ancora non sa…
 
-{soc}
+{start_of_chorus}
 [Mim]A, o, a, che Mowgli tornerà
 [Sol]A, o, a, la pelle di Shere Khan
 [La]A, o, a, in testa porterà
 [Mim]A, o, a, la rupe tacerà!
-{eoc}
+{end_of_chorus}
