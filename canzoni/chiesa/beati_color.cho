@@ -1,10 +1,11 @@
-{t: Beati coloro}
-{tab: chiesa}
-{soc}
+{title:Beati coloro}
+{tag:Chiesa}
+
+{start_of_chorus}
 [Mi] Alleluia [Sol#-] Alleluia [Fa#-] Alleluia [La] Alleluia [Do#-] Alleluia [Fa#] Alleluia [Fa#-]
 
 [Mi] Alleluia [Sol#-] Alleluia [Fa#-] Alleluia [La] Alleluia [Do#-] Alleluia [Fa#-] Alleluia [Si] Alleluia [Mi]
-{eoc}
+{end_of_chorus}
 [Mi] Beati coloro che sanno ascoltare [Si]
 (Beati coloro che sanno ascoltare)
 
