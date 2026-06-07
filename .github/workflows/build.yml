@@ -64,14 +64,15 @@ jobs:
 
         if events:
             items = '\n'.join(
-                f'                    <li><a href="canzonieri/{n}.pdf" class="event-link" download>⬇️ {d}</a></li>'
+                '                    <li><a href="canzonieri/' + n + '.pdf" class="event-link" download>⬇️ ' + d + '</a></li>'
                 for n, d in events
             )
-            event_section = f"""
-                <h2>🗓️ Canzonieri per eventi</h2>
-                <ul class="event-list">
-{items}
-                </ul>"""
+            event_section = (
+                '\n                <h2>🗓️ Canzonieri per eventi</h2>\n'
+                '                <ul class="event-list">\n' +
+                items +
+                '\n                </ul>'
+            )
         else:
             event_section = ''
 
