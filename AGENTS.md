@@ -1,5 +1,13 @@
 # AGENTS.md
 
+## Web editor
+
+The `editor/` directory contains a SvelteKit (Svelte 5) app to manage the songs in `canzoni/`: list/search by category and tag, create/edit/delete songs, and a visual editor to place chords on lyrics (click a character to add a chord, click a pill to edit/remove it, drag a pill to move it). Saving writes standard ChordPro to `canzoni/<category>/<file>.cho`.
+
+- Run: `cd editor && npm install && npm run dev`
+- E2E tests (Playwright, isolated in `editor/e2e/.tmp-songs`): `cd editor && npm test`
+- The songs directory can be overridden with the `SONGS_DIR` env var.
+
 ## Build the final PDF
 
 The final PDF is built with `make build` and is available at `canzoniere.pdf`. It is generated from the ChordPro files in the repository using the ChordPro parser with the configuration in `chordpro.json`. The PDF is formatted for A4 paper size.
