@@ -61,6 +61,15 @@ export async function listSongsByCategory(category: string): Promise<SongListIte
 	return songs;
 }
 
+export async function listAllSongs(): Promise<SongListItem[]> {
+	const songs: SongListItem[] = [];
+	for (const category of await listCategories()) {
+		songs.push(...(await listSongsByCategory(category)));
+	}
+	songs.sort((a, b) => a.title.localeCompare(b.title, 'it'));
+	return songs;
+}
+
 export async function readSong(category: string, file: string): Promise<string> {
 	return fs.readFile(safeJoin(category, file), 'utf-8');
 }

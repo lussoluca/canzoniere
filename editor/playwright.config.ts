@@ -13,7 +13,8 @@ export default defineConfig({
 		reuseExistingServer: false,
 		timeout: 120_000,
 		env: {
-			SONGS_DIR: 'e2e/.tmp-songs'
+			SONGS_DIR: 'e2e/.tmp-songs',
+			SONGBOOKS_DIR: 'e2e/.tmp-songbooks'
 		}
 	}
 });

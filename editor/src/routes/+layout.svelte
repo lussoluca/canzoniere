@@ -16,6 +16,10 @@
 
 <header class="topbar">
 	<a href="/" class="brand">🎸 Canzoniere</a>
+	<nav>
+		<a href="/">Canzoni</a>
+		<a href="/songbooks">Canzonieri</a>
+	</nav>
 </header>
 
 <main>
@@ -38,6 +42,21 @@
 		position: sticky;
 		top: 0;
 		z-index: 10;
+		display: flex;
+		align-items: center;
+		gap: 1.4rem;
+	}
+	.topbar nav {
+		display: flex;
+		gap: 1rem;
+	}
+	.topbar nav a {
+		color: #cdd7da;
+		text-decoration: none;
+		font-size: 0.92rem;
+	}
+	.topbar nav a:hover {
+		color: #fff;
 	}
 	.brand {
 		color: #fff;

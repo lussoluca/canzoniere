@@ -220,6 +220,52 @@ test('move a song to a different category', async ({ page }) => {
 	expect(fs.readFileSync(back, 'utf-8')).toContain('{tag:Varie}');
 });
 
+test('event songbooks: list, view, create, edit, delete', async ({ page }) => {
+	const TMP_BOOKS = path.resolve('e2e/.tmp-songbooks');
+
+	// list shows the seeded songbook
+	await goto(page, '/songbooks');
+	const seeded = page.getByTestId('songbook-row').filter({ hasText: 'uscita_2026' });
+	await expect(seeded).toHaveCount(1);
+	await expect(seeded).toContainText('1');
+
+	// view: the entry resolves to the song title
+	await seeded.getByRole('link').click();
+	await expect(page.getByTestId('songbook-entry')).toContainText('Stella del mattino');
+
+	// create a new songbook
+	await goto(page, '/songbooks');
+	await page.getByTestId('new-songbook-name').fill('Campo Estivo');
+	await page.getByTestId('new-songbook-create').click();
+	await page.waitForURL('**/songbooks/campo_estivo');
+
+	// add both available songs, reorder, save
+	await page.getByTestId('picker-add').first().click();
+	await page.getByTestId('picker-add').first().click();
+	await expect(page.getByTestId('songbook-entry')).toHaveCount(2);
+	await page.getByTestId('songbook-save').click();
+	await expect(page.getByTestId('songbook-status')).toHaveText('Salvato ✓');
+
+	const file = path.join(TMP_BOOKS, 'campo_estivo.txt');
+	const lines = fs.readFileSync(file, 'utf-8').trim().split('\n');
+	expect(lines).toHaveLength(2);
+	for (const l of lines) expect(l).toMatch(/^(clan|reparto|varie)\/.+\.cho$/);
+
+	// remove one entry and save again
+	await page.getByTestId('entry-remove').first().click();
+	await page.getByTestId('songbook-save').click();
+	await expect(page.getByTestId('songbook-status')).toHaveText('Salvato ✓');
+	expect(fs.readFileSync(file, 'utf-8').trim().split('\n')).toHaveLength(1);
+
+	// delete the songbook from the list
+	await goto(page, '/songbooks');
+	page.on('dialog', (d) => d.accept());
+	const row = page.getByTestId('songbook-row').filter({ hasText: 'campo_estivo' });
+	await row.getByRole('button', { name: 'Elimina' }).click();
+	await expect(row).toHaveCount(0);
+	expect(fs.existsSync(file)).toBe(false);
+});
+
 test('delete a song from the category page', async ({ page }) => {
 	await goto(page, '/c/varie');
 	page.on('dialog', (d) => d.accept());

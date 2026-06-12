@@ -26,3 +26,4 @@ vite.config.ts.timestamp-*
 /test-results
 /playwright-report
 /e2e/.tmp-songs
+/e2e/.tmp-songbooks
