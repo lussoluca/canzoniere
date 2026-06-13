@@ -1,6 +1,6 @@
 // Fixed set of categories = directories under canzoni/.
 // The ChordPro {tag:...} directive is derived from the category (used by the PDF TOC).
-export const CATEGORIES = ['branco', 'canti_scout', 'chiesa', 'clan', 'reparto', 'varie'];
+export const CATEGORIES = ['branco', 'reparto', 'clan', 'canti_scout', 'chiesa', 'varie'];
 
 export function categoryLabel(category: string): string {
 	const spaced = category.replace(/_/g, ' ');

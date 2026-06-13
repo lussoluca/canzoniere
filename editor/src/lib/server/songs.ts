@@ -28,10 +28,11 @@ function safeJoin(...parts: string[]): string {
 
 export async function listCategories(): Promise<string[]> {
 	const entries = await fs.readdir(SONGS_DIR, { withFileTypes: true });
-	return entries
-		.filter((e) => e.isDirectory() && CATEGORIES.includes(e.name))
-		.map((e) => e.name)
-		.sort();
+	const present = new Set(
+		entries.filter((e) => e.isDirectory() && CATEGORIES.includes(e.name)).map((e) => e.name)
+	);
+	// keep the fixed CATEGORIES order
+	return CATEGORIES.filter((c) => present.has(c));
 }
 
 export async function listCategorySummaries(): Promise<CategorySummary[]> {
