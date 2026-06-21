@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Chord } from '$lib/chordpro';
+	import { sanitizeChord } from '$lib/chords';
 
 	interface Props {
 		line: { type: 'lyric'; text: string; chords: Chord[] };
@@ -41,7 +42,7 @@
 	}
 
 	function commitChord() {
-		const value = chordInput.trim();
+		const value = sanitizeChord(chordInput);
 		if (editingPos === null) return;
 		if (editingIdx !== null) {
 			if (value === '') {

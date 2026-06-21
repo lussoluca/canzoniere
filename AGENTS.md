@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Detailed project architecture is described in [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Repository layout
 
 - `canzoni/<category>/*.cho` — the songs, in ChordPro format. Categories are a fixed set of six directories: `branco`, `canti_scout`, `chiesa`, `clan`, `reparto`, `varie`. Every song carries a `{tag:...}` directive that mirrors its category label (e.g. `canti_scout` → `{tag:Canti scout}`); the PDF table of contents groups songs by this tag.

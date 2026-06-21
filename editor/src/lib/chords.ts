@@ -39,6 +39,58 @@ export function englishChordToLatin(chord: string): string {
 		.join('/');
 }
 
+// case-insensitive lookups for sanitization
+const LATIN_NOTE_CANON: Record<string, string> = {
+	do: 'Do',
+	re: 'Re',
+	mi: 'Mi',
+	fa: 'Fa',
+	sol: 'Sol',
+	la: 'La',
+	si: 'Si'
+};
+const EN_NOTE_CANON: Record<string, string> = {
+	a: 'La',
+	b: 'Si',
+	c: 'Do',
+	d: 'Re',
+	e: 'Mi',
+	f: 'Fa',
+	g: 'Sol'
+};
+// "sol" before "si" so "sol#" is not parsed as "si"
+const LATIN_NOTE_CI_RE = /^(do|re|mi|fa|sol|si|la)([#b]?)(.*)$/i;
+const ENGLISH_NOTE_CI_RE = /^([a-g])([#b]?)(.*)$/i;
+
+// minor marker is lowercase "m" in latin notation; an all-caps input like "LAM"
+// yields suffix "M" which must become "m" (Lam, not LaM)
+function normalizeSuffix(suffix: string): string {
+	return suffix.replace(/^M/, 'm');
+}
+
+/**
+ * Normalize a chord typed in the visual editor into the latin format ChordPro
+ * expects (e.g. "g" -> "Sol", "em" -> "Mim", "D/f#" -> "Re/Fa#").
+ * English note names are converted to latin and note case is fixed; the suffix
+ * (m, 7, maj7, sus4, …) is preserved verbatim. Unparseable parts are returned
+ * trimmed but otherwise unchanged.
+ */
+export function sanitizeChord(chord: string): string {
+	return chord
+		.trim()
+		.split('/')
+		.map((raw) => {
+			const part = raw.trim();
+			if (part === '') return part;
+			const latin = part.match(LATIN_NOTE_CI_RE);
+			if (latin) return LATIN_NOTE_CANON[latin[1].toLowerCase()] + latin[2] + normalizeSuffix(latin[3]);
+			const en = part.match(ENGLISH_NOTE_CI_RE);
+			if (en) return EN_NOTE_CANON[en[1].toLowerCase()] + en[2] + normalizeSuffix(en[3]);
+			return part;
+		})
+		.join('/');
+}
+
 /** Transpose a latin chord by `delta` semitones; accidentals are normalized to sharps. */
 export function transposeChord(chord: string, delta: number): string {
 	return chord
