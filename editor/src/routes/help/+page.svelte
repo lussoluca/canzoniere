@@ -116,7 +116,8 @@
 			<dd>
 				Usa <strong>↑</strong>/<strong>↓</strong> sulla riga per cambiare l'ordine delle categorie.
 				L'ordine scelto vale ovunque (home, elenchi, selettori) e viene salvato nel file
-				<code>.categories.json</code> dentro <code>canzoni/</code>.
+				<code>.categories.json</code> dentro <code>canzoni/</code>; le categorie non ancora elencate
+				lì vengono mostrate in coda in ordine alfabetico.
 			</dd>
 			<dt>Eliminare</dt>
 			<dd>
