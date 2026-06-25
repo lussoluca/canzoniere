@@ -91,6 +91,27 @@ export function sanitizeChord(chord: string): string {
 		.join('/');
 }
 
+// suffix after the note+accidental: chord-quality letters (m, maj, min, dim, aug, sus,
+// add), extension digits, accidentals on extensions, and bracketing. Anything else
+// (e.g. the "dg" in "sdg") makes the chord invalid.
+const VALID_SUFFIX_RE = /^[adgijmnsu0-9#b+\-°()]*$/i;
+
+/**
+ * True when `chord` is a recognizable chord: every "/" part is a latin or english
+ * note (optionally with accidental) followed only by valid chord-suffix characters.
+ * Empty input is not valid. Used to reject typos like "sdg" before saving.
+ */
+export function isValidChord(chord: string): boolean {
+	const parts = chord.trim().split('/');
+	if (parts.length === 0) return false;
+	return parts.every((raw) => {
+		const part = raw.trim();
+		if (part === '') return false;
+		const m = part.match(LATIN_NOTE_CI_RE) ?? part.match(ENGLISH_NOTE_CI_RE);
+		return m !== null && VALID_SUFFIX_RE.test(m[3]);
+	});
+}
+
 /** Transpose a latin chord by `delta` semitones; accidentals are normalized to sharps. */
 export function transposeChord(chord: string, delta: number): string {
 	return chord

@@ -266,6 +266,59 @@ test('event songbooks: list, view, create, edit, delete', async ({ page }) => {
 	expect(fs.existsSync(file)).toBe(false);
 });
 
+test('undo/redo: text edits and structural changes', async ({ page }) => {
+	await goto(page, '/new?category=reparto');
+	const title = page.getByTestId('meta-title');
+	const undo = page.getByTestId('undo');
+	const redo = page.getByTestId('redo');
+
+	// nothing to undo yet on a fresh editor
+	await expect(undo).toBeDisabled();
+
+	// two text edits, each its own history entry (debounce coalesces a burst into one)
+	await title.fill('Primo Titolo');
+	await page.waitForTimeout(500);
+	await title.fill('Secondo Titolo');
+	await page.waitForTimeout(500);
+
+	await undo.click();
+	await expect(title).toHaveValue('Primo Titolo');
+	await undo.click();
+	await expect(title).toHaveValue('');
+
+	// redo walks forward again
+	await redo.click();
+	await expect(title).toHaveValue('Primo Titolo');
+	await redo.click();
+	await expect(title).toHaveValue('Secondo Titolo');
+
+	// structural change: add a line and give it text (a blank lyric line cannot survive a
+	// serialize round-trip, so type something so the snapshot is faithful)
+	await page.getByTestId('add-lyric').click();
+	const lyricLines = page.getByTestId('lyric-line');
+	await expect(lyricLines).toHaveCount(1);
+	await lyricLines.first().hover();
+	await lyricLines.first().getByTestId('edit-lyric-text').click();
+	await lyricLines.first().getByTestId('lyric-text-input').fill('Riga di testo');
+	await lyricLines.first().getByTestId('lyric-text-input').press('Enter');
+	await expect(lyricLines.first().getByTestId('lyric-text')).toContainText('Riga di testo');
+	await page.waitForTimeout(500);
+
+	// undo removes the line, redo brings it back with its text
+	await undo.click();
+	await expect(lyricLines).toHaveCount(0);
+	await redo.click();
+	await expect(lyricLines).toHaveCount(1);
+	await expect(lyricLines.first().getByTestId('lyric-text')).toContainText('Riga di testo');
+
+	// a fresh edit after undo discards the redo branch
+	await undo.click();
+	await expect(lyricLines).toHaveCount(0);
+	await title.fill('Ramo Nuovo');
+	await page.waitForTimeout(500);
+	await expect(redo).toBeDisabled();
+});
+
 test('delete a song from the category page', async ({ page }) => {
 	await goto(page, '/c/varie');
 	page.on('dialog', (d) => d.accept());

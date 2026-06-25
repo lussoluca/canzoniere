@@ -19,6 +19,7 @@
 	<nav>
 		<a href="/">Canzoni</a>
 		<a href="/songbooks">Canzonieri</a>
+		<a href="/help">Guida</a>
 	</nav>
 </header>
 

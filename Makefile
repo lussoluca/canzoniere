@@ -1,3 +1,5 @@
+.PHONY: editor build events export-chordpro-config
+
 editor:
 	cd editor && npm run dev
 

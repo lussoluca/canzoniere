@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { goto, beforeNavigate } from '$app/navigation';
 	import { parse, serialize, type Song, type Line } from '$lib/chordpro';
 	import { categoryLabel } from '$lib/categories';
 	import { englishChordToLatin, transposeChord } from '$lib/chords';
@@ -25,6 +26,123 @@
 	let status = $state('');
 	let saving = $state(false);
 
+	// snapshot of the content as it lives on disk; updated on every successful save
+	let savedContent = $state(serialize(initial));
+
+	// the song serialized in its current state, regardless of the active tab
+	let currentContent = $derived.by(() => {
+		if (tab === 'raw') {
+			const parsed = parse(raw);
+			return serialize({ meta: parsed.meta, lines: parsed.lines });
+		}
+		return serialize(song);
+	});
+
+	let dirty = $derived(currentContent !== savedContent || category !== savedCategory);
+
+	// --- undo/redo: snapshot history of the whole document ---
+	type Snapshot = { content: string; category: string };
+	const HISTORY_LIMIT = 50;
+	let history: Snapshot[] = $state([{ content: serialize(initial), category: initialCategory }]);
+	let histIdx = $state(0);
+	// true while restoring a snapshot, so the capture effect ignores the change it causes
+	let restoring = false;
+	let captureTimer: ReturnType<typeof setTimeout> | null = null;
+
+	let canUndo = $derived(histIdx > 0);
+	let canRedo = $derived(histIdx < history.length - 1);
+
+	function pushHistory(snap: Snapshot) {
+		const top = history[histIdx];
+		if (snap.content === top.content && snap.category === top.category) return;
+		// drop any redo branch, then append
+		let next = history.slice(0, histIdx + 1);
+		next.push(snap);
+		if (next.length > HISTORY_LIMIT) next = next.slice(next.length - HISTORY_LIMIT);
+		history = next;
+		histIdx = history.length - 1;
+	}
+
+	// commit any pending debounced capture immediately (used before structural edits/saves)
+	function flushCapture() {
+		if (!captureTimer) return;
+		clearTimeout(captureTimer);
+		captureTimer = null;
+		pushHistory({ content: currentContent, category });
+	}
+
+	// debounced capture: coalesces a burst of keystrokes into a single history entry
+	$effect(() => {
+		const snapshot = { content: currentContent, category };
+		if (restoring) {
+			restoring = false;
+			return;
+		}
+		const top = history[histIdx];
+		if (snapshot.content === top.content && snapshot.category === top.category) return;
+		if (captureTimer) clearTimeout(captureTimer);
+		captureTimer = setTimeout(() => {
+			captureTimer = null;
+			pushHistory(snapshot);
+		}, 400);
+	});
+
+	function restoreTo(idx: number) {
+		if (idx < 0 || idx >= history.length) return;
+		if (captureTimer) {
+			clearTimeout(captureTimer);
+			captureTimer = null;
+		}
+		restoring = true;
+		histIdx = idx;
+		const snap = history[idx];
+		const parsed = parse(snap.content);
+		song = { meta: parsed.meta, lines: parsed.lines };
+		category = snap.category;
+		if (tab === 'raw') raw = snap.content;
+	}
+
+	function undo() {
+		if (canUndo) restoreTo(histIdx - 1);
+	}
+	function redo() {
+		if (canRedo) restoreTo(histIdx + 1);
+	}
+
+	beforeNavigate(({ cancel }) => {
+		if (dirty && !confirm('Ci sono modifiche non salvate. Vuoi davvero uscire?')) {
+			cancel();
+		}
+	});
+
+	onMount(() => {
+		const handler = (e: BeforeUnloadEvent) => {
+			if (dirty) {
+				e.preventDefault();
+				e.returnValue = '';
+			}
+		};
+		window.addEventListener('beforeunload', handler);
+
+		const keyHandler = (e: KeyboardEvent) => {
+			if (!(e.metaKey || e.ctrlKey)) return;
+			const k = e.key.toLowerCase();
+			if (k === 'z' && !e.shiftKey) {
+				e.preventDefault();
+				undo();
+			} else if ((k === 'z' && e.shiftKey) || k === 'y') {
+				e.preventDefault();
+				redo();
+			}
+		};
+		window.addEventListener('keydown', keyHandler);
+
+		return () => {
+			window.removeEventListener('beforeunload', handler);
+			window.removeEventListener('keydown', keyHandler);
+		};
+	});
+
 	// the {tag:...} directive mirrors the category (the PDF TOC groups songs by tag)
 	function syncTagToCategory() {
 		song.meta.tags = [categoryLabel(category)];
@@ -45,6 +163,7 @@
 
 	// apply a transformation to every chord of the song, in whichever tab is active
 	function applyToChords(fn: (chord: string) => string) {
+		flushCapture();
 		if (tab === 'raw') {
 			const parsed = parse(raw);
 			song.meta = parsed.meta;
@@ -59,6 +178,7 @@
 	}
 
 	function addLine(afterIdx: number | null, line: Line) {
+		flushCapture();
 		if (afterIdx === null) {
 			song.lines.push(line);
 		} else {
@@ -67,6 +187,7 @@
 	}
 
 	function deleteLine(idx: number) {
+		flushCapture();
 		song.lines.splice(idx, 1);
 	}
 
@@ -108,6 +229,7 @@
 					}
 				);
 				if (!res.ok) throw new Error(await res.text());
+				savedContent = content;
 				status = 'Salvato ✓';
 				if (moved) {
 					await goto(`/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`);
@@ -120,6 +242,7 @@
 					body: JSON.stringify({ category, file: newFile, content })
 				});
 				if (!res.ok) throw new Error(await res.text());
+				savedContent = content;
 				status = 'Creato ✓';
 				await goto(`/edit/${encodeURIComponent(category)}/${encodeURIComponent(newFile)}`);
 			}
@@ -171,6 +294,26 @@
 	<button class:active={tab === 'raw'} onclick={() => switchTab('raw')} data-testid="tab-raw">
 		ChordPro
 	</button>
+	<span class="history-tools">
+		<button
+			class="btn"
+			onclick={undo}
+			disabled={!canUndo}
+			title="Annulla (Ctrl+Z)"
+			data-testid="undo"
+		>
+			↶
+		</button>
+		<button
+			class="btn"
+			onclick={redo}
+			disabled={!canRedo}
+			title="Ripeti (Ctrl+Shift+Z)"
+			data-testid="redo"
+		>
+			↷
+		</button>
+	</span>
 	<span class="spacer"></span>
 	<span class="chord-tools">
 		Accordi:
@@ -199,8 +342,13 @@
 			+1
 		</button>
 	</span>
+	{#if dirty}
+		<span class="dirty" data-testid="dirty-indicator" title="Ci sono modifiche non salvate">
+			● Modifiche non salvate
+		</span>
+	{/if}
 	<span class="status" data-testid="save-status">{status}</span>
-	<button class="btn primary" onclick={save} disabled={saving} data-testid="save">
+	<button class="btn primary" onclick={save} disabled={saving || !dirty} data-testid="save">
 		{mode === 'new' ? 'Crea' : 'Salva'}
 	</button>
 </div>
@@ -313,6 +461,16 @@
 	.spacer {
 		flex: 1;
 	}
+	.history-tools {
+		display: flex;
+		gap: 0.2rem;
+		margin-left: 0.4rem;
+	}
+	.history-tools button {
+		font-size: 1rem;
+		line-height: 1;
+		padding: 0.3rem 0.5rem;
+	}
 	.chord-tools {
 		display: flex;
 		align-items: center;
@@ -324,6 +482,12 @@
 	.status {
 		font-size: 0.85rem;
 		color: #2d6a4f;
+	}
+	.dirty {
+		font-size: 0.82rem;
+		color: #b54708;
+		font-weight: 600;
+		white-space: nowrap;
 	}
 	.sheet {
 		background: #fff;
@@ -343,9 +507,9 @@
 	.line-tools {
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
+		gap: 3px;
 		visibility: hidden;
-		width: 2.6rem;
+		width: 3.6rem;
 		flex-direction: row;
 	}
 	.line-wrap:hover .line-tools {
@@ -356,8 +520,9 @@
 		background: #eee;
 		border-radius: 4px;
 		cursor: pointer;
-		font-size: 0.7rem;
-		padding: 1px 5px;
+		font-size: 1.05rem;
+		line-height: 1;
+		padding: 3px 7px;
 		color: #666;
 	}
 	.line-tools button:hover {

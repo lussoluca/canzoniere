@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Chord } from '$lib/chordpro';
-	import { sanitizeChord } from '$lib/chords';
+	import { sanitizeChord, isValidChord } from '$lib/chords';
 
 	interface Props {
 		line: { type: 'lyric'; text: string; chords: Chord[] };
@@ -12,6 +12,7 @@
 	let editingPos: number | null = $state(null);
 	let editingIdx: number | null = $state(null); // index into line.chords when editing an existing chord
 	let chordInput = $state('');
+	let chordError = $state(false);
 	let inputEl: HTMLInputElement | undefined = $state();
 
 	// --- inline lyric text editing ---
@@ -44,6 +45,12 @@
 	function commitChord() {
 		const value = sanitizeChord(chordInput);
 		if (editingPos === null) return;
+		// empty value deletes an existing chord; non-empty must be a valid chord
+		if (value !== '' && !isValidChord(value)) {
+			chordError = true;
+			inputEl?.focus();
+			return;
+		}
 		if (editingIdx !== null) {
 			if (value === '') {
 				line.chords.splice(editingIdx, 1);
@@ -65,6 +72,7 @@
 		editingPos = null;
 		editingIdx = null;
 		chordInput = '';
+		chordError = false;
 	}
 
 	function onChordKeydown(e: KeyboardEvent) {
@@ -158,8 +166,11 @@
 				<input
 					bind:this={inputEl}
 					bind:value={chordInput}
+					oninput={() => (chordError = false)}
 					onkeydown={onChordKeydown}
+					class:invalid={chordError}
 					placeholder="Accordo"
+					title={chordError ? 'Accordo non valido' : undefined}
 					data-testid="chord-input"
 				/>
 				<button class="ok" onclick={commitChord} data-testid="chord-save" title="Conferma">✓</button>
@@ -259,6 +270,10 @@
 		border-radius: 4px;
 		padding: 1px 4px;
 	}
+	.chord-popover input.invalid {
+		border-color: #e5383b;
+		background: #fbeae9;
+	}
 	.chord-popover button {
 		border: none;
 		border-radius: 4px;
@@ -297,7 +312,9 @@
 		background: none;
 		cursor: pointer;
 		color: #999;
-		font-size: 0.85em;
+		font-size: 1.3em;
+		padding: 0 0.15em;
+		line-height: 1;
 	}
 	.lyric-line:hover .edit-text {
 		visibility: visible;
