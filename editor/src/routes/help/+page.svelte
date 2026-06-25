@@ -14,6 +14,7 @@
 		<a href="#canzoni">Canzoni</a>
 		<a href="#editor">Editor della canzone</a>
 		<a href="#accordi">Strumenti per gli accordi</a>
+		<a href="#categorie">Categorie</a>
 		<a href="#canzonieri">Canzonieri</a>
 	</nav>
 
@@ -90,6 +91,40 @@
 			<li><strong>−1</strong> — traspone tutti gli accordi un semitono più in basso.</li>
 			<li><strong>+1</strong> — traspone tutti gli accordi un semitono più in alto.</li>
 		</ul>
+	</section>
+
+	<section id="categorie">
+		<h3>Categorie</h3>
+		<p>
+			Dalla voce <strong>Categorie</strong> del menu gestisci le cartelle in cui sono organizzate le
+			canzoni. Le modifiche si riflettono direttamente sul filesystem. La categoria determina anche
+			il <code>{`{tag:…}`}</code> usato per raggruppare i brani nell'indice del PDF.
+		</p>
+		<dl>
+			<dt>Creare</dt>
+			<dd>
+				Scrivi un nome nel campo in alto e premi <strong>Crea</strong>. Il nome viene reso minuscolo
+				e gli spazi sostituiti con <code>_</code> (viene creata una cartella vuota).
+			</dd>
+			<dt>Rinominare</dt>
+			<dd>
+				Premi <strong>Rinomina</strong> sulla riga, scrivi il nuovo nome e salva. La cartella viene
+				rinominata e il <code>{`{tag:…}`}</code> di tutte le canzoni al suo interno viene riscritto di
+				conseguenza.
+			</dd>
+			<dt>Riordinare</dt>
+			<dd>
+				Usa <strong>↑</strong>/<strong>↓</strong> sulla riga per cambiare l'ordine delle categorie.
+				L'ordine scelto vale ovunque (home, elenchi, selettori) e viene salvato nel file
+				<code>.categories.json</code> dentro <code>canzoni/</code>.
+			</dd>
+			<dt>Eliminare</dt>
+			<dd>
+				Premi <strong>Elimina</strong> sulla riga. Se la categoria contiene canzoni ti viene chiesto
+				in quale categoria esistente spostarle; dopo lo spostamento la cartella viene rimossa. Non è
+				possibile eliminare l'unica categoria rimasta.
+			</dd>
+		</dl>
 	</section>
 
 	<section id="canzonieri">

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { parse, serialize } from '$lib/chordpro';
-import { CATEGORIES, categoryLabel } from '$lib/categories';
+import { categoryLabel, sortCategories, isValidCategoryName } from '$lib/categories';
 
 // Songs live in the repo's canzoni/ directory; override with SONGS_DIR (used by tests).
 const SONGS_DIR = path.resolve(process.env.SONGS_DIR ?? path.join(process.cwd(), '..', 'canzoni'));
@@ -26,13 +26,114 @@ function safeJoin(...parts: string[]): string {
 	return full;
 }
 
-export async function listCategories(): Promise<string[]> {
+// Persisted custom category order. Categories are directories (no inherent
+// order), so the manual ordering set in the manager lives in this manifest.
+const ORDER_FILE = path.join(SONGS_DIR, '.categories.json');
+
+async function readOrder(): Promise<string[]> {
+	try {
+		const parsed = JSON.parse(await fs.readFile(ORDER_FILE, 'utf-8'));
+		return Array.isArray(parsed) ? parsed.filter((c): c is string => typeof c === 'string') : [];
+	} catch {
+		return [];
+	}
+}
+
+async function writeOrder(order: string[]): Promise<void> {
+	await fs.writeFile(ORDER_FILE, JSON.stringify(order, null, '\t') + '\n', 'utf-8');
+}
+
+async function listCategoryDirs(): Promise<string[]> {
 	const entries = await fs.readdir(SONGS_DIR, { withFileTypes: true });
-	const present = new Set(
-		entries.filter((e) => e.isDirectory() && CATEGORIES.includes(e.name)).map((e) => e.name)
-	);
-	// keep the fixed CATEGORIES order
-	return CATEGORIES.filter((c) => present.has(c));
+	return entries.filter((e) => e.isDirectory() && !e.name.startsWith('.')).map((e) => e.name);
+}
+
+export async function listCategories(): Promise<string[]> {
+	const dirs = await listCategoryDirs();
+	const order = await readOrder();
+	// saved order first (existing dirs only), then any new/unlisted dirs by default sort
+	const known = order.filter((c) => dirs.includes(c));
+	const rest = sortCategories(dirs.filter((c) => !known.includes(c)));
+	return [...known, ...rest];
+}
+
+// Persist a manual category order; unknown names are dropped and any missing
+// existing dirs are appended (default sort) so the manifest stays complete.
+export async function setCategoryOrder(order: string[]): Promise<void> {
+	const dirs = await listCategoryDirs();
+	const clean = order.filter((c) => dirs.includes(c));
+	const missing = sortCategories(dirs.filter((c) => !clean.includes(c)));
+	await writeOrder([...clean, ...missing]);
+}
+
+export async function categoryExists(category: string): Promise<boolean> {
+	try {
+		const stat = await fs.stat(safeJoin(category));
+		return stat.isDirectory();
+	} catch {
+		return false;
+	}
+}
+
+export async function createCategory(name: string): Promise<void> {
+	if (!isValidCategoryName(name)) {
+		throw new Error('nome categoria non valido (usa lettere minuscole, numeri e _)');
+	}
+	if (await categoryExists(name)) throw new Error(`la categoria "${name}" esiste già`);
+	await fs.mkdir(safeJoin(name));
+}
+
+export async function renameCategory(oldName: string, newName: string): Promise<void> {
+	if (!isValidCategoryName(newName)) {
+		throw new Error('nome categoria non valido (usa lettere minuscole, numeri e _)');
+	}
+	if (!(await categoryExists(oldName))) throw new Error(`la categoria "${oldName}" non esiste`);
+	if (newName === oldName) return;
+	if (await categoryExists(newName)) throw new Error(`la categoria "${newName}" esiste già`);
+	await fs.rename(safeJoin(oldName), safeJoin(newName));
+	// the {tag:...} directive mirrors the category label: rewrite it in every song
+	await retagCategory(newName);
+	// keep the rename's position in the manual order, if one is set
+	const order = await readOrder();
+	if (order.includes(oldName)) {
+		await writeOrder(order.map((c) => (c === oldName ? newName : c)));
+	}
+}
+
+export async function deleteCategory(name: string, targetCategory: string): Promise<void> {
+	if (!(await categoryExists(name))) throw new Error(`la categoria "${name}" non esiste`);
+	if (!(await categoryExists(targetCategory))) {
+		throw new Error(`la categoria di destinazione "${targetCategory}" non esiste`);
+	}
+	if (targetCategory === name) throw new Error('scegli una categoria di destinazione diversa');
+	const files = (await fs.readdir(safeJoin(name))).filter((f) => f.endsWith('.cho'));
+	// guard against name collisions before moving anything
+	for (const file of files) {
+		if (await songExists(targetCategory, file)) {
+			throw new Error(`${targetCategory}/${file} esiste già: rinomina o sposta prima quella canzone`);
+		}
+	}
+	for (const file of files) {
+		await moveSong(name, file, targetCategory);
+	}
+	await fs.rmdir(safeJoin(name));
+	// drop the deleted category from the manual order, if one is set
+	const order = await readOrder();
+	if (order.includes(name)) {
+		await writeOrder(order.filter((c) => c !== name));
+	}
+}
+
+// Rewrite the {tag:...} of every song in a category to match its current label.
+async function retagCategory(category: string): Promise<void> {
+	const dir = safeJoin(category);
+	const files = (await fs.readdir(dir)).filter((f) => f.endsWith('.cho'));
+	const label = categoryLabel(category);
+	for (const file of files) {
+		const song = parse(await fs.readFile(path.join(dir, file), 'utf-8'));
+		song.meta.tags = [label];
+		await fs.writeFile(path.join(dir, file), serialize(song), 'utf-8');
+	}
 }
 
 export async function listCategorySummaries(): Promise<CategorySummary[]> {

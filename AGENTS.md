@@ -4,7 +4,7 @@ Detailed project architecture is described in [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ## Repository layout
 
-- `canzoni/<category>/*.cho` — the songs, in ChordPro format. Categories are a fixed set of six directories: `branco`, `canti_scout`, `chiesa`, `clan`, `reparto`, `varie`. Every song carries a `{tag:...}` directive that mirrors its category label (e.g. `canti_scout` → `{tag:Canti scout}`); the PDF table of contents groups songs by this tag.
+- `canzoni/<category>/*.cho` — the songs, in ChordPro format. Categories are the directories under `canzoni/`; they are managed from the editor (create/rename/delete) and the historical set is `branco`, `canti_scout`, `chiesa`, `clan`, `reparto`, `varie`. Every song carries a `{tag:...}` directive that mirrors its category label (e.g. `canti_scout` → `{tag:Canti scout}`); the PDF table of contents groups songs by this tag.
 - `canzonieri/*.txt` — event songbooks: one song per line as a path relative to `canzoni/` (e.g. `chiesa/tu_sei.cho`), `#` lines are comments, order matters.
 - `songbook/` — Go tool that renders an event songbook `.txt` into a lyrics-only PDF (from the repo root: `go run ./songbook -input canzonieri/<name>.txt -output canzonieri/<name>.pdf`; `-songs` defaults to `canzoni`).
 - `editor/` — SvelteKit web app to manage songs and event songbooks (see below).
@@ -14,6 +14,7 @@ Detailed project architecture is described in [ARCHITECTURE.md](ARCHITECTURE.md)
 The `editor/` directory contains a SvelteKit (Svelte 5) app:
 
 - Home lists the categories as folders; each category page lists its songs with search, delete, and "move to another category" (moving rewrites the `{tag:...}` to match).
+- Categories section: create, rename, reorder and delete categories (the changes hit the filesystem). Renaming a category renames its directory and rewrites the `{tag:...}` of every song inside; deleting one asks for an existing target category and moves all its songs there before removing the empty directory. The manual order is persisted in `canzoni/.categories.json` (categories not listed there fall back to the historical scout order, then alphabetical).
 - Song editor: metadata form (title, artist, columns, category — the tag is derived from the category on save, never edited directly) plus two synced tabs:
   - visual editor — chords as pills above the lyrics: click a character to add a chord, click a pill to edit/remove it, drag a pill to move it; line tools to edit text (Enter commits, Esc discards), add/delete lines, chorus markers and comments;
   - ChordPro tab — raw source with syntax highlighting (metadata, chords, chorus markers, comments).

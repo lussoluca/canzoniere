@@ -327,3 +327,52 @@ test('delete a song from the category page', async ({ page }) => {
 	await expect(row).toHaveCount(0);
 	expect(fs.existsSync(path.join(TMP, 'varie', 'stella_del_mattino.cho'))).toBe(false);
 });
+
+test('category manager: create, rename, delete with song move', async ({ page }) => {
+	// create a new category from the manager
+	await goto(page, '/categories');
+	await page.getByTestId('new-category-name').fill('Estate 2026');
+	await page.getByTestId('new-category-create').click();
+	const row = page.getByTestId('category-row').filter({ hasText: 'estate_2026' });
+	await expect(row).toHaveCount(1);
+	expect(fs.existsSync(path.join(TMP, 'estate_2026'))).toBe(true);
+
+	// rename it (folder is renamed on disk)
+	await row.getByRole('button', { name: 'Rinomina' }).click();
+	await page.getByTestId('edit-category-name').fill('estate_2027');
+	await page.getByRole('button', { name: 'Salva' }).click();
+	const renamed = page.getByTestId('category-row').filter({ hasText: 'estate_2027' });
+	await expect(renamed).toHaveCount(1);
+	expect(fs.existsSync(path.join(TMP, 'estate_2026'))).toBe(false);
+	expect(fs.existsSync(path.join(TMP, 'estate_2027'))).toBe(true);
+
+	// reorder: move the new (last) category to the top, persisted to disk
+	const rows = page.getByTestId('category-row');
+	const last = (await rows.count()) - 1;
+	await rows.nth(last).getByRole('button', { name: 'Sposta su' }).click();
+	await expect(rows.nth(last)).not.toContainText('estate_2027');
+	const orderFile = path.join(TMP, '.categories.json');
+	expect(fs.existsSync(orderFile)).toBe(true);
+	const order = JSON.parse(fs.readFileSync(orderFile, 'utf-8'));
+	expect(order.indexOf('estate_2027')).toBeLessThan(order.length - 1);
+
+	// put a song in it, then delete the category moving the song to clan
+	fs.writeFileSync(
+		path.join(TMP, 'estate_2027', 'sole.cho'),
+		'{title:Sole}\n{tag:Estate 2027}\n\n[Do]Sole\n',
+		'utf-8'
+	);
+	await goto(page, '/categories');
+	const target = page.getByTestId('category-row').filter({ hasText: 'estate_2027' });
+	page.on('dialog', (d) => {
+		if (d.type() === 'prompt') d.accept('clan');
+		else d.accept();
+	});
+	await target.getByRole('button', { name: 'Elimina' }).click();
+	await expect(page.getByTestId('category-row').filter({ hasText: 'estate_2027' })).toHaveCount(0);
+	expect(fs.existsSync(path.join(TMP, 'estate_2027'))).toBe(false);
+	// the song moved to clan with its tag rewritten
+	const moved = path.join(TMP, 'clan', 'sole.cho');
+	expect(fs.existsSync(moved)).toBe(true);
+	expect(fs.readFileSync(moved, 'utf-8')).toContain('{tag:Clan}');
+});
