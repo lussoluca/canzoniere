@@ -22,6 +22,9 @@
 		font-family:
 			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 		-webkit-text-size-adjust: 100%;
+		/* Only pan gestures: no pinch zoom, no double-tap zoom (font size is
+		   controlled in-app). */
+		touch-action: pan-x pan-y;
 	}
 
 	.app {
