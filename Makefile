@@ -9,11 +9,11 @@ build:
 
 events:
 	@rm -f canzonieri/*.pdf
-	cd songbook && go build -o songbook .
+	cd printer && go build -o printer .
 	@for f in canzonieri/*.txt; do \
 		out=$${f%.txt}.pdf; \
 		echo "Building $$out"; \
-		./songbook/songbook -input=$$f -output=$$out -songs=canzoni; \
+		./printer/printer -input=$$f -output=$$out -songs=canzoni; \
 	done
 
 export-chordpro-config:

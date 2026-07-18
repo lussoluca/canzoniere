@@ -30,7 +30,7 @@ L'app legge e scrive direttamente i file `.cho` in `canzoni/` e i file `.txt` in
 ### Canzonieri per eventi
 
 - Elenco, creazione ed eliminazione dei canzonieri in `canzonieri/`.
-- Modifica di un canzoniere: aggiunta, rimozione e riordino delle canzoni (mostrate per titolo). Il salvataggio scrive il file `.txt` nel formato usato dal tool Go in `songbook/` (un percorso `categoria/file.cho` per riga).
+- Modifica di un canzoniere: aggiunta, rimozione e riordino delle canzoni (mostrate per titolo). Il salvataggio scrive il file `.txt` nel formato usato dal tool Go in `printer/` (un percorso `categoria/file.cho` per riga).
 
 ## Comandi
 

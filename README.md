@@ -28,11 +28,11 @@ Dettagli e funzionalità: [`editor/README.md`](editor/README.md).
 
 ## 🎵 Creare un canzoniere personalizzato
 
-Per generare un canzoniere PDF (solo testo) da una lista di canzoni c'è il tool Go in [`songbook/`](songbook/README.md).
+Per generare un canzoniere PDF (solo testo) da una lista di canzoni c'è il tool Go in [`printer/`](printer/README.md).
 
 ```bash
-cd songbook && go build -o songbook . && cd ..
-./songbook/songbook -input=canzonieri/mio_evento.txt -output=canzonieri/mio_evento.pdf
+cd printer && go build -o printer . && cd ..
+./printer/printer -input=canzonieri/mio_evento.txt -output=canzonieri/mio_evento.pdf
 ```
 
-Formato della lista, opzioni e dettagli: [`songbook/README.md`](songbook/README.md).
+Formato della lista, opzioni e dettagli: [`printer/README.md`](printer/README.md).

@@ -272,7 +272,7 @@ func main() {
 	flag.Parse()
 
 	if *input == "" {
-		fmt.Fprintln(os.Stderr, "usage: songbook -input <titles.txt> [-output <out.pdf>] [-songs <dir>]")
+		fmt.Fprintln(os.Stderr, "usage: printer -input <titles.txt> [-output <out.pdf>] [-songs <dir>]")
 		os.Exit(1)
 	}
 

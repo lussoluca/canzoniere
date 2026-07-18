@@ -1,4 +1,4 @@
-# songbook
+# printer
 
 Tool in Go che genera un canzoniere PDF (solo testo, accordi rimossi) a partire da una lista di canzoni. Le canzoni sono i file ChordPro in `canzoni/`; la lista è un file di testo, di norma in `canzonieri/`.
 
@@ -9,8 +9,8 @@ Tool in Go che genera un canzoniere PDF (solo testo, accordi rimossi) a partire 
 ## Build del tool
 
 ```bash
-cd songbook
-go build -o songbook .
+cd printer
+go build -o printer .
 cd ..
 ```
 
@@ -35,13 +35,13 @@ I file `.txt` in `canzonieri/` si possono creare e modificare anche con l'editor
 ## Generare il PDF
 
 ```bash
-./songbook/songbook \
+./printer/printer \
   -input=canzonieri/mio_evento.txt \
   -output=canzonieri/mio_evento.pdf \
   -songs=canzoni
 ```
 
-In alternativa, senza compilare il binario: `go run ./songbook -input=canzonieri/mio_evento.txt -output=canzonieri/mio_evento.pdf`.
+In alternativa, senza compilare il binario: `go run ./printer -input=canzonieri/mio_evento.txt -output=canzonieri/mio_evento.pdf`.
 
 ### Opzioni
 

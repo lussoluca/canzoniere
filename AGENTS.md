@@ -6,7 +6,7 @@ Detailed project architecture is described in [ARCHITECTURE.md](ARCHITECTURE.md)
 
 - `canzoni/<category>/*.cho` — the songs, in ChordPro format. Categories are the directories under `canzoni/`; they are managed from the editor (create/rename/delete) and the historical set is `branco`, `canti_scout`, `chiesa`, `clan`, `reparto`, `varie`. Every song carries a `{tag:...}` directive that mirrors its category label (e.g. `canti_scout` → `{tag:Canti scout}`); the PDF table of contents groups songs by this tag.
 - `canzonieri/*.txt` — event songbooks: one song per line as a path relative to `canzoni/` (e.g. `chiesa/tu_sei.cho`), `#` lines are comments, order matters.
-- `songbook/` — Go tool that renders an event songbook `.txt` into a lyrics-only PDF (from the repo root: `go run ./songbook -input canzonieri/<name>.txt -output canzonieri/<name>.pdf`; `-songs` defaults to `canzoni`).
+- `printer/` — Go tool that renders an event songbook `.txt` into a lyrics-only PDF (from the repo root: `go run ./printer -input canzonieri/<name>.txt -output canzonieri/<name>.pdf`; `-songs` defaults to `canzoni`).
 - `editor/` — SvelteKit web app to manage songs and event songbooks (see below).
 
 ## Web editor
