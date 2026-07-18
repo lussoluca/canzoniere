@@ -8,6 +8,8 @@ Detailed project architecture is described in [ARCHITECTURE.md](ARCHITECTURE.md)
 - `canzonieri/*.txt` — event songbooks: one song per line as a path relative to `canzoni/` (e.g. `chiesa/tu_sei.cho`), `#` lines are comments, order matters.
 - `printer/` — Go tool that renders an event songbook `.txt` into a lyrics-only PDF (from the repo root: `go run ./printer -input canzonieri/<name>.txt -output canzonieri/<name>.pdf`; `-songs` defaults to `canzoni`).
 - `editor/` — SvelteKit web app to manage songs and event songbooks (see below).
+- `reader/` — SvelteKit static web app to read songs from a tablet/phone (search, transpose, simplify/hide chords, per-song prefs in localStorage). Songs and songbooks are bundled at build time via `import.meta.glob`; every page is prerendered and a service worker makes it work offline. Deployed by CI to GitHub Pages under `/canzoniere/app/`. Run: `cd reader && npm install && npm run dev`.
+- `shared/` — framework-agnostic TypeScript modules used by both web apps: ChordPro parse/serialize (`chordpro.ts`), chord helpers (`chords.ts`: convert/sanitize/validate/simplify/transpose), category helpers (`categories.ts`). The editor re-exports them from `editor/src/lib/`; the reader imports them via the `$songlib` alias.
 
 ## Web editor
 
