@@ -5,9 +5,11 @@
 	interface Props {
 		line: { type: 'lyric'; text: string; chords: Chord[] };
 		usedChords?: string[];
+		// display-only transform for the chord pills (e.g. simplification)
+		displayChord?: (chord: string) => string;
 	}
 
-	let { line = $bindable(), usedChords = [] }: Props = $props();
+	let { line = $bindable(), usedChords = [], displayChord = (c) => c }: Props = $props();
 
 	// --- chord popover state ---
 	let editingPos: number | null = $state(null);
@@ -142,10 +144,11 @@
 		const sorted = line.chords.map((c, idx) => ({ ...c, idx })).sort((a, b) => a.pos - b.pos);
 		let minLeft = 0;
 		return sorted.map((c) => {
+			const label = displayChord(c.chord);
 			const left = Math.max(c.pos, minLeft);
 			// estimated pill width in parent ch units: 0.85em mono text + padding, plus a small gap
-			minLeft = left + c.chord.length * 0.85 + 0.8;
-			return { ...c, left };
+			minLeft = left + label.length * 0.85 + 0.8;
+			return { ...c, label, left };
 		});
 	});
 </script>
@@ -164,7 +167,7 @@
 					onpointermove={onPillPointerMove}
 					onpointerup={() => onPillPointerUp(c.idx)}
 				>
-					{c.chord}
+					{c.label}
 				</button>
 			</span>
 		{/each}

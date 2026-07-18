@@ -437,3 +437,33 @@ test('the chord popover offers the chords already used as one-click suggestions'
 	await expect(secondLine.getByTestId('chord-pill')).toHaveCount(2);
 	await expect(secondLine.getByTestId('chord-pill').nth(1)).toHaveText('Do');
 });
+
+test('the simplify toggle shows basic triads without touching the song', async ({ page }) => {
+	fs.writeFileSync(
+		path.join(TMP, 'varie', 'prova_semplifica.cho'),
+		'{title:Prova semplifica}\n{tag:Varie}\n\n[Lam7]Stella del [Re7sus4]mattino [Sol/Si]brilla\nnel [Fa#m7b5]cielo di [Lam]settembre\n',
+		'utf-8'
+	);
+	await goto(page, '/edit/varie/prova_semplifica.cho');
+
+	const pills = page.getByTestId('chord-pill');
+	await expect(pills.nth(0)).toHaveText('Lam7');
+
+	// toggle on: pills and diagrams show the simplified chords, deduplicated
+	await page.getByTestId('simplify-toggle').click();
+	await expect(pills.nth(0)).toHaveText('Lam');
+	await expect(pills.nth(1)).toHaveText('Re');
+	await expect(pills.nth(2)).toHaveText('Sol');
+	await expect(pills.nth(3)).toHaveText('Fa#m');
+	const diagrams = page.getByTestId('chord-diagram');
+	await expect(diagrams).toHaveCount(4); // Lam7 and Lam collapse into Lam
+	await expect(diagrams.nth(0)).toHaveAttribute('data-chord', 'Lam');
+
+	// the song is untouched: no dirty flag, raw tab still has the originals
+	await expect(page.getByTestId('dirty-indicator')).toHaveCount(0);
+
+	// toggle off: originals come back
+	await page.getByTestId('simplify-toggle').click();
+	await expect(pills.nth(0)).toHaveText('Lam7');
+	await expect(diagrams).toHaveCount(5);
+});

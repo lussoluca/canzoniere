@@ -121,6 +121,23 @@ export function isValidChord(chord: string): boolean {
 	});
 }
 
+// a suffix is minor when it opens with a minor mark (m, min, -, but not maj)
+// or describes a diminished chord, which simplifies to the minor triad
+const MINOR_SUFFIX_RE = /^(m(?!aj)|min|-)|dim|ø|°/;
+
+/**
+ * Reduce a chord to its basic triad: extensions (7, 9, sus4, add9, maj7, …)
+ * are dropped, diminished and half-diminished become minor, augmented becomes
+ * major, and the bass note after "/" is removed (Lam7 -> Lam, Re7sus4 -> Re,
+ * Fa#m7b5 -> Fa#m, Sol/Si -> Sol). Unparseable chords are returned unchanged.
+ */
+export function simplifyChord(chord: string): string {
+	const base = chord.split('/')[0].trim();
+	const m = base.match(LATIN_NOTE_RE) ?? base.match(ENGLISH_NOTE_RE);
+	if (!m) return chord;
+	return m[1] + m[2] + (MINOR_SUFFIX_RE.test(m[3]) ? 'm' : '');
+}
+
 /** Transpose a latin chord by `delta` semitones; accidentals are normalized to sharps. */
 export function transposeChord(chord: string, delta: number): string {
 	return chord

@@ -3,7 +3,7 @@
 	import { goto, beforeNavigate } from '$app/navigation';
 	import { parse, serialize, type Song, type Line } from '$lib/chordpro';
 	import { categoryLabel } from '$lib/categories';
-	import { englishChordToLatin, transposeChord } from '$lib/chords';
+	import { englishChordToLatin, simplifyChord, transposeChord } from '$lib/chords';
 	import { slugify } from '$lib/slug';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
@@ -194,6 +194,12 @@
 		return out;
 	});
 
+	// simplification is a display mode: pills and diagrams show the reduced
+	// triads, the song (and the saved file) keeps the original chords
+	let simplify = $state(false);
+	let displayChord = $derived(simplify ? simplifyChord : (c: string) => c);
+	let panelChords = $derived(simplify ? [...new Set(usedChords.map(simplifyChord))] : usedChords);
+
 	function addLine(afterIdx: number | null, line: Line) {
 		flushCapture();
 		if (afterIdx === null) {
@@ -336,6 +342,16 @@
 		Accordi:
 		<button
 			class="btn"
+			class:toggled={simplify}
+			onclick={() => (simplify = !simplify)}
+			aria-pressed={simplify}
+			title="Mostra gli accordi semplificati (triadi di base). Non modifica la canzone."
+			data-testid="simplify-toggle"
+		>
+			Semplifica
+		</button>
+		<button
+			class="btn"
 			onclick={() => applyToChords(englishChordToLatin)}
 			title="Converti gli accordi da notazione inglese (A, B, C) a latina (La, Si, Do)"
 			data-testid="convert-latin"
@@ -392,7 +408,7 @@
 				</div>
 				<div class="line-body">
 					{#if line.type === 'lyric'}
-						<LyricLineEditor bind:line={song.lines[idx] as typeof line} {usedChords} />
+						<LyricLineEditor bind:line={song.lines[idx] as typeof line} {usedChords} {displayChord} />
 					{:else if line.type === 'empty'}
 						<div class="empty-line"></div>
 					{:else if line.type === 'chorus_start'}
@@ -430,10 +446,10 @@
 
 	<aside class="chords-panel" data-testid="chord-diagrams">
 		<h3>Accordi</h3>
-		{#if usedChords.length === 0}
+		{#if panelChords.length === 0}
 			<p class="no-chords">Nessun accordo</p>
 		{:else}
-			{#each usedChords as chord (chord)}
+			{#each panelChords as chord (chord)}
 				<ChordDiagram name={chord} />
 			{/each}
 		{/if}
@@ -508,6 +524,10 @@
 		font-size: 0.82rem;
 		color: #777;
 		margin-right: 0.6rem;
+	}
+	.chord-tools .toggled {
+		background: #2f3e46;
+		color: #ffd166;
 	}
 	.status {
 		font-size: 0.85rem;
