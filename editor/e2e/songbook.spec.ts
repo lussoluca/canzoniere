@@ -414,3 +414,26 @@ test('the visual editor shows chord diagrams for the chords in use', async ({ pa
 	await expect(unknown).toHaveCount(1);
 	await expect(unknown).toContainText('nessun diagramma');
 });
+
+test('the chord popover offers the chords already used as one-click suggestions', async ({ page }) => {
+	fs.writeFileSync(
+		path.join(TMP, 'varie', 'prova_suggerimenti.cho'),
+		'{title:Prova suggerimenti}\n{tag:Varie}\n\n[Do]Stella del mattino brilla\nnel [Sol]cielo di settembre\n',
+		'utf-8'
+	);
+	await goto(page, '/edit/varie/prova_suggerimenti.cho');
+
+	// open the popover on the second line: both song chords are offered
+	const secondLine = page.getByTestId('lyric-line').nth(1);
+	await secondLine.getByTestId('lyric-text').locator('button[data-pos="10"]').click();
+	const suggestions = page.getByTestId('chord-suggestion');
+	await expect(suggestions).toHaveCount(2);
+	await expect(suggestions.nth(0)).toHaveText('Do');
+	await expect(suggestions.nth(1)).toHaveText('Sol');
+
+	// one click inserts the chord and closes the popover
+	await suggestions.nth(0).click();
+	await expect(page.getByTestId('chord-popover')).toHaveCount(0);
+	await expect(secondLine.getByTestId('chord-pill')).toHaveCount(2);
+	await expect(secondLine.getByTestId('chord-pill').nth(1)).toHaveText('Do');
+});

@@ -4,9 +4,10 @@
 
 	interface Props {
 		line: { type: 'lyric'; text: string; chords: Chord[] };
+		usedChords?: string[];
 	}
 
-	let { line = $bindable() }: Props = $props();
+	let { line = $bindable(), usedChords = [] }: Props = $props();
 
 	// --- chord popover state ---
 	let editingPos: number | null = $state(null);
@@ -66,6 +67,12 @@
 	function removeChord() {
 		if (editingIdx !== null) line.chords.splice(editingIdx, 1);
 		closePopover();
+	}
+
+	// insert a chord already used elsewhere in the song with a single click
+	function pickChord(chord: string) {
+		chordInput = chord;
+		commitChord();
 	}
 
 	function closePopover() {
@@ -163,23 +170,39 @@
 		{/each}
 		{#if editingPos !== null}
 			<div class="chord-popover" style={`left: ${editingPos}ch`} data-testid="chord-popover">
-				<input
-					bind:this={inputEl}
-					bind:value={chordInput}
-					oninput={() => (chordError = false)}
-					onkeydown={onChordKeydown}
-					class:invalid={chordError}
-					placeholder="Accordo"
-					title={chordError ? 'Accordo non valido' : undefined}
-					data-testid="chord-input"
-				/>
-				<button class="ok" onclick={commitChord} data-testid="chord-save" title="Conferma">✓</button>
-				{#if editingIdx !== null}
-					<button class="del" onclick={removeChord} data-testid="chord-remove" title="Rimuovi">
-						✕
-					</button>
+				<div class="popover-row">
+					<input
+						bind:this={inputEl}
+						bind:value={chordInput}
+						oninput={() => (chordError = false)}
+						onkeydown={onChordKeydown}
+						class:invalid={chordError}
+						placeholder="Accordo"
+						title={chordError ? 'Accordo non valido' : undefined}
+						data-testid="chord-input"
+					/>
+					<button class="ok" onclick={commitChord} data-testid="chord-save" title="Conferma">✓</button>
+					{#if editingIdx !== null}
+						<button class="del" onclick={removeChord} data-testid="chord-remove" title="Rimuovi">
+							✕
+						</button>
+					{/if}
+					<button class="cancel" onclick={closePopover} title="Annulla">esc</button>
+				</div>
+				{#if usedChords.length > 0}
+					<div class="suggestions" data-testid="chord-suggestions">
+						{#each usedChords as c (c)}
+							<button
+								class="suggestion"
+								onclick={() => pickChord(c)}
+								title={`Inserisci ${c}`}
+								data-testid="chord-suggestion"
+							>
+								{c}
+							</button>
+						{/each}
+					</div>
 				{/if}
-				<button class="cancel" onclick={closePopover} title="Annulla">esc</button>
 			</div>
 		{/if}
 	</div>
@@ -254,13 +277,38 @@
 		position: absolute;
 		top: -0.3em;
 		display: flex;
-		gap: 2px;
+		flex-direction: column;
+		gap: 4px;
 		background: #fff;
 		border: 1px solid #2f3e46;
 		border-radius: 6px;
 		padding: 3px;
 		z-index: 5;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+	.popover-row {
+		display: flex;
+		gap: 2px;
+	}
+	.suggestions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 3px;
+		max-width: 16rem;
+	}
+	.suggestion {
+		border: none;
+		border-radius: 4px;
+		background: #e8edf0;
+		color: #2f3e46;
+		font-family: inherit;
+		font-size: 0.8em;
+		font-weight: 700;
+		padding: 1px 6px;
+		cursor: pointer;
+	}
+	.suggestion:hover {
+		background: #ffd166;
 	}
 	.chord-popover input {
 		width: 7ch;

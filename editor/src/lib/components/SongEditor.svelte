@@ -392,7 +392,7 @@
 				</div>
 				<div class="line-body">
 					{#if line.type === 'lyric'}
-						<LyricLineEditor bind:line={song.lines[idx] as typeof line} />
+						<LyricLineEditor bind:line={song.lines[idx] as typeof line} {usedChords} />
 					{:else if line.type === 'empty'}
 						<div class="empty-line"></div>
 					{:else if line.type === 'chorus_start'}
