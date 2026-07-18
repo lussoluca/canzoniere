@@ -29,10 +29,24 @@ jobs:
     - name: Build songbook tool
       run: cd songbook && go build -o songbook .
 
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Build reader app
+      env:
+        BASE_PATH: /canzoniere/app
+      run: |
+        cd reader
+        npm ci
+        npm run build
+
     - name: Prepare public directory
       run: |
         mkdir -p public/canzonieri
         cp canzoniere.pdf public/
+        cp -r reader/build public/app
 
     - name: Build event songbooks
       run: |
@@ -155,7 +169,9 @@ jobs:
         <body>
             <div class="container">
                 <h1>📖 Canzoniere Alessandria 2</h1>
-                <p>Scarica il canzoniere completo in formato PDF:</p>
+                <p>Sfoglia i canti online (con trasposizione e semplificazione degli accordi, funziona anche offline):</p>
+                <a href="app/" class="download-btn">📱 Apri il canzoniere</a>
+                <p>Oppure scarica il canzoniere completo in formato PDF:</p>
                 <a href="canzoniere.pdf" class="download-btn" download>⬇️ Scarica Canzoniere PDF</a>
                 {event_section}
                 <div class="info">
