@@ -7,6 +7,7 @@
 	import { slugify } from '$lib/slug';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
+	import ChordDiagram from './ChordDiagram.svelte';
 
 	interface Props {
 		initial: Song;
@@ -176,6 +177,22 @@
 		}
 		if (tab === 'raw') raw = serialize(song);
 	}
+
+	// unique chords in order of first appearance, same criterion ChordPro uses
+	// for the diagrams in the PDF (diagrams.sorted = false)
+	let usedChords = $derived.by(() => {
+		const seen = new Set<string>();
+		const out: string[] = [];
+		for (const line of song.lines) {
+			if (line.type !== 'lyric') continue;
+			for (const c of line.chords) {
+				if (!c.chord || seen.has(c.chord)) continue;
+				seen.add(c.chord);
+				out.push(c.chord);
+			}
+		}
+		return out;
+	});
 
 	function addLine(afterIdx: number | null, line: Line) {
 		flushCapture();
@@ -354,6 +371,7 @@
 </div>
 
 {#if tab === 'visual'}
+	<div class="visual-layout">
 	<div class="sheet" data-testid="visual-editor">
 		{#if song.lines.length === 0}
 			<p class="hint">
@@ -408,6 +426,18 @@
 				fine ritornello
 			</button>
 		</div>
+	</div>
+
+	<aside class="chords-panel" data-testid="chord-diagrams">
+		<h3>Accordi</h3>
+		{#if usedChords.length === 0}
+			<p class="no-chords">Nessun accordo</p>
+		{:else}
+			{#each usedChords as chord (chord)}
+				<ChordDiagram name={chord} />
+			{/each}
+		{/if}
+	</aside>
 	</div>
 {:else}
 	<ChordProEditor bind:value={raw} />
@@ -489,12 +519,48 @@
 		font-weight: 600;
 		white-space: nowrap;
 	}
+	.visual-layout {
+		display: flex;
+		gap: 0.8rem;
+		align-items: flex-start;
+	}
 	.sheet {
+		flex: 1;
+		min-width: 0;
 		background: #fff;
 		border-radius: 8px;
 		padding: 1rem 1.2rem;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 		overflow-x: auto;
+	}
+	.chords-panel {
+		position: sticky;
+		top: 0.5rem;
+		flex-shrink: 0;
+		width: 140px;
+		max-height: calc(100vh - 1rem);
+		overflow-y: auto;
+		background: #fff;
+		border-radius: 8px;
+		padding: 0.8rem 0.6rem;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.chords-panel h3 {
+		margin: 0;
+		font-size: 0.78rem;
+		color: #777;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+	.no-chords {
+		color: #999;
+		font-size: 0.82rem;
+		margin: 0;
 	}
 	.hint {
 		color: #999;

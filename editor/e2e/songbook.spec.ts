@@ -376,3 +376,41 @@ test('category manager: create, rename, delete with song move', async ({ page })
 	expect(fs.existsSync(moved)).toBe(true);
 	expect(fs.readFileSync(moved, 'utf-8')).toContain('{tag:Clan}');
 });
+
+test('the visual editor shows chord diagrams for the chords in use', async ({ page }) => {
+	fs.writeFileSync(
+		path.join(TMP, 'varie', 'prova_diagrammi.cho'),
+		'{title:Prova diagrammi}\n{tag:Varie}\n\n[Do]Stella del mattino brilla\nnel [Sol]cielo di settembre\n',
+		'utf-8'
+	);
+	await goto(page, '/edit/varie/prova_diagrammi.cho');
+
+	// the seed song uses Do and Sol: one diagram each, in order of appearance
+	const panel = page.getByTestId('chord-diagrams');
+	const diagrams = panel.getByTestId('chord-diagram');
+	await expect(diagrams).toHaveCount(2);
+	await expect(diagrams.nth(0)).toHaveAttribute('data-chord', 'Do');
+	await expect(diagrams.nth(1)).toHaveAttribute('data-chord', 'Sol');
+
+	// adding a chord updates the panel immediately
+	const firstLine = page.getByTestId('lyric-line').nth(0);
+	await firstLine.getByTestId('lyric-text').locator('button[data-pos="7"]').click();
+	await page.getByTestId('chord-input').fill('Mim');
+	await page.getByTestId('chord-input').press('Enter');
+	await expect(diagrams).toHaveCount(3);
+	await expect(panel.locator('[data-chord="Mim"]')).toBeVisible();
+
+	// a duplicate chord does not add a second diagram
+	await firstLine.getByTestId('lyric-text').locator('button[data-pos="12"]').click();
+	await page.getByTestId('chord-input').fill('Do');
+	await page.getByTestId('chord-input').press('Enter');
+	await expect(diagrams).toHaveCount(3);
+
+	// a chord ChordPro has no diagram for gets the "nessun diagramma" placeholder
+	await firstLine.getByTestId('lyric-text').locator('button[data-pos="14"]').click();
+	await page.getByTestId('chord-input').fill('Doadd');
+	await page.getByTestId('chord-input').press('Enter');
+	const unknown = panel.getByTestId('chord-diagram-unknown');
+	await expect(unknown).toHaveCount(1);
+	await expect(unknown).toContainText('nessun diagramma');
+});

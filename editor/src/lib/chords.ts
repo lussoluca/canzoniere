@@ -91,22 +91,31 @@ export function sanitizeChord(chord: string): string {
 		.join('/');
 }
 
-// suffix after the note+accidental: chord-quality letters (m, maj, min, dim, aug, sus,
-// add), extension digits, accidentals on extensions, and bracketing. Anything else
-// (e.g. the "dg" in "sdg") makes the chord invalid.
-const VALID_SUFFIX_RE = /^[adgijmnsu0-9#b+\-°()]*$/i;
+// suffix after the note+accidental, as a sequence of tokens: quality words (maj, min,
+// dim, aug, sus, add), single quality marks (m, h, ø, °, +, -), extension numbers
+// (0, 2, 4-9, 11, 13), accidentals only when applied to an extension (#5, b9, #11),
+// and parentheses. Anything out of place ("sdg", the second "m" in "Dom#m7") makes
+// the chord invalid.
+// "m(?!m(?!aj))" allows "mmaj7" but rejects a doubled minor marker ("Lamm")
+const SUFFIX_TOKEN = /maj|min|dim|aug|sus|add|m(?!m(?!aj))|h|ø|°|\+|-|\(|\)|1[13]|[02-9]|[#b](?=1[13]|[02-9])/;
+const VALID_SUFFIX_RE = new RegExp(`^(?:${SUFFIX_TOKEN.source})*$`, 'i');
+
+// a "/" part that is not a bass note can be a bare extension ("Sol6/9", "Do9/11")
+const EXTENSION_PART_RE = /^(?:1[13]|[02-9])$/;
 
 /**
  * True when `chord` is a recognizable chord: every "/" part is a latin or english
- * note (optionally with accidental) followed only by valid chord-suffix characters.
- * Empty input is not valid. Used to reject typos like "sdg" before saving.
+ * note (optionally with accidental) followed by a valid chord suffix, or — after
+ * the first part — a bare extension number ("Sol6/9"). Empty input is not valid.
+ * Used to reject typos like "sdg" or "Dom#m7" before saving.
  */
 export function isValidChord(chord: string): boolean {
 	const parts = chord.trim().split('/');
 	if (parts.length === 0) return false;
-	return parts.every((raw) => {
+	return parts.every((raw, i) => {
 		const part = raw.trim();
 		if (part === '') return false;
+		if (i > 0 && EXTENSION_PART_RE.test(part)) return true;
 		const m = part.match(LATIN_NOTE_CI_RE) ?? part.match(ENGLISH_NOTE_CI_RE);
 		return m !== null && VALID_SUFFIX_RE.test(m[3]);
 	});
