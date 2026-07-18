@@ -19,7 +19,7 @@ canzoniere/
 │   ├── chiusura_2026.txt    # Example: plaintext list of songs for an event
 ├── editor/                  # SvelteKit web application for editing songs & managing songbooks
 ├── reader/                  # SvelteKit static web app for reading songs (offline, tablet-friendly)
-├── shared/                  # TypeScript library shared by editor and reader (ChordPro, chords, categories)
+├── shared/                  # Library shared by editor and reader (ChordPro, chords, categories, diagrams)
 ├── printer/                 # Go CLI tool: converts .txt song lists → PDF
 ├── chordpro.json            # ChordPro PDF rendering configuration
 ├── Makefile                 # Build & dev scripts (Docker-based ChordPro compilation)
@@ -33,7 +33,7 @@ canzoniere/
 - **canzonieri/**: Event songbooks. `.txt` files list song paths (relative to `canzoni/`) one per line. The Go tool (`printer/`) reads these lists and generates PDF files with selected songs, chord annotations stripped.
 - **editor/**: Interactive web app (SvelteKit) for creating, editing, and organizing songs and event songbooks.
 - **reader/**: Read-only web app (SvelteKit, fully prerendered) for browsing songs and songbooks with transposition, chord simplification, and search. Deployed to GitHub Pages under `/app/`; works offline via a service worker (see §7).
-- **shared/**: Framework-agnostic TypeScript modules used by both editor and reader: ChordPro parse/serialize, chord helpers, category helpers (see §6).
+- **shared/**: Modules used by both editor and reader: ChordPro parse/serialize, chord helpers, category helpers, guitar chord diagrams (see §6).
 - **printer/**: Standalone Go program that reads a `.txt` manifest and a ChordPro song directory, then renders a text-only PDF.
 
 ---
@@ -529,13 +529,16 @@ Uses `gofpdf` library for PDF generation. Manages two-column layout.
 
 ## 6. The `shared/` Library — Common Song Logic
 
-TypeScript modules with no framework or Node.js dependencies, consumed by both web apps. The editor re-exports them from thin shims in `editor/src/lib/` (`chordpro.ts`, `chords.ts`, `categories.ts`); the reader imports them directly through the `$songlib` alias (defined in `reader/svelte.config.js`).
+Modules consumed by both web apps: framework-free TypeScript plus one Svelte component. The editor re-exports the TS modules from thin shims in `editor/src/lib/` (`chordpro.ts`, `chords.ts`, `categories.ts`) and imports the rest by relative path; the reader imports everything through the `$songlib` alias (defined in `reader/svelte.config.js`).
 
-| File                   | Lines | Purpose                                                                                                                       |
-| ---------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `shared/chordpro.ts`   | 1–149 | ChordPro parse/serialize: `parse()`, `serialize()`, `parseLyricLine()`, `serializeLyricLine()`; `Song`, `Line`, `Chord` types |
-| `shared/chords.ts`     | 1–153 | Chord helpers: `englishChordToLatin()`, `sanitizeChord()`, `isValidChord()`, `simplifyChord()`, `transposeChord()`            |
-| `shared/categories.ts` | 1–18  | Category helpers: `categoryLabel()`, `sortCategories()`, `isValidCategoryName()`                                              |
+| File                            | Lines | Purpose                                                                                                                       |
+| ------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `shared/chordpro.ts`            | 1–149 | ChordPro parse/serialize: `parse()`, `serialize()`, `parseLyricLine()`, `serializeLyricLine()`; `Song`, `Line`, `Chord` types |
+| `shared/chords.ts`              | 1–153 | Chord helpers: `englishChordToLatin()`, `sanitizeChord()`, `isValidChord()`, `simplifyChord()`, `transposeChord()`            |
+| `shared/categories.ts`          | 1–18  | Category helpers: `categoryLabel()`, `sortCategories()`, `isValidCategoryName()`                                              |
+| `shared/diagrams.ts`            | 1–73  | Guitar chord diagram lookup: `getChordDefinition()`, `latinChordToEnglish()`                                                  |
+| `shared/chord-definitions.json` |       | ChordPro's built-in guitar diagram data (guitar.json from the chordpro Docker image)                                          |
+| `shared/ChordDiagram.svelte`    | 1–208 | SVG chord diagram component; geometry mirrors ChordPro's PDF renderer                                                         |
 
 Notable behaviors:
 
@@ -591,6 +594,7 @@ reader/src/
 - Preferences persisted per song in `localStorage` (`reader:song:<category>/<slug>`); defaults are not stored. Font size is global (`reader:fontSize`).
 - Songbook reading context: opened with `?from=<songbook>` the page shows prev/next navigation following the book order (query string handled client-side because pages are prerendered).
 - Screen wake lock (`navigator.wakeLock`) keeps the display on while a song is open.
+- "Diagrammi" toggle: a bottom sheet lists the guitar diagrams (`shared/ChordDiagram.svelte`) of the song's unique chords in order of first appearance, computed after simplify/transpose so they match what is displayed.
 
 **Rendering** (`SongSheet.svelte`):
 

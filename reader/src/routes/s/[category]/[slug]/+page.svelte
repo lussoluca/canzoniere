@@ -5,6 +5,8 @@
 	import { page } from '$app/state';
 	import { parse } from '$songlib/chordpro';
 	import { categoryLabel } from '$songlib/categories';
+	import { simplifyChord, transposeChord } from '$songlib/chords';
+	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
 	import SongSheet from '$lib/components/SongSheet.svelte';
 	import {
@@ -89,6 +91,28 @@
 	function bumpTranspose(delta: number) {
 		transpose = ((transpose + delta + 18) % 12) - 6; // keep in [-6, +5]
 	}
+
+	let showDiagrams = $state(false);
+
+	// Unique chords in order of first appearance, shown as the reader sees them
+	// (simplified first, then transposed — same as SongSheet).
+	const uniqueChords = $derived.by(() => {
+		const seen = new Set<string>();
+		const out: string[] = [];
+		for (const line of song.lines) {
+			if (line.type !== 'lyric') continue;
+			for (const c of line.chords) {
+				let name = c.chord;
+				if (simplify) name = simplifyChord(name);
+				if (transpose !== 0) name = transposeChord(name, transpose);
+				if (!seen.has(name)) {
+					seen.add(name);
+					out.push(name);
+				}
+			}
+		}
+		return out;
+	});
 </script>
 
 <svelte:head>
@@ -122,6 +146,12 @@
 		Solo testo
 	</button>
 
+	{#if uniqueChords.length > 0}
+		<button class="toggle" class:active={showDiagrams} onclick={() => (showDiagrams = !showDiagrams)}>
+			Diagrammi
+		</button>
+	{/if}
+
 	<div class="group" aria-label="Dimensione testo">
 		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
 		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
@@ -129,6 +159,22 @@
 </div>
 
 <SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
+
+{#if showDiagrams}
+	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
+		<div class="diagrams-head">
+			<span>Accordi del canto</span>
+			<button class="close" onclick={() => (showDiagrams = false)} aria-label="Chiudi i diagrammi">
+				✕
+			</button>
+		</div>
+		<div class="diagrams-grid">
+			{#each uniqueChords as chord (chord)}
+				<ChordDiagram name={chord} scale={2} />
+			{/each}
+		</div>
+	</div>
+{/if}
 
 {#if book}
 	<div class="pager">
@@ -214,6 +260,43 @@
 	.value {
 		min-width: 44px;
 		font-variant-numeric: tabular-nums;
+	}
+
+	/* Bottom sheet: song text stays visible and scrollable above it. */
+	.diagrams {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		background: white;
+		border-top: 1px solid #d1d5db;
+		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+		max-height: 45dvh;
+		overflow-y: auto;
+		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
+	}
+
+	.diagrams-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		position: sticky;
+		top: 0;
+		background: white;
+		padding: 10px 0 6px;
+		font-weight: 600;
+	}
+
+	.close {
+		padding: 6px 12px;
+	}
+
+	.diagrams-grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px 18px;
+		justify-content: center;
 	}
 
 	.pager {

@@ -7,7 +7,7 @@
 	import { slugify } from '$lib/slug';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
-	import ChordDiagram from './ChordDiagram.svelte';
+	import ChordDiagram from '../../../../shared/ChordDiagram.svelte';
 
 	interface Props {
 		initial: Song;

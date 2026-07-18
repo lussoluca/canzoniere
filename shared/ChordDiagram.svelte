@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getChordDefinition } from '$lib/diagrams';
+	import { getChordDefinition } from './diagrams';
 
 	interface Props {
 		name: string;
