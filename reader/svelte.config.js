@@ -11,7 +11,7 @@ const config = {
 		// (e.g. /canzoniere/app on GitHub Pages); empty for local dev.
 		paths: { base: process.env.BASE_PATH ?? '' },
 		// Chord/ChordPro logic is shared with the editor app.
-		alias: { $songlib: '../editor/src/lib' }
+		alias: { $songlib: '../shared' }
 	}
 };
 

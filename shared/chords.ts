@@ -1,0 +1,153 @@
+// Chord helpers: english -> latin conversion and transposition (latin notes).
+
+const LATIN_SCALE = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
+
+const NOTE_SEMITONE: Record<string, number> = {
+	Do: 0,
+	Re: 2,
+	Mi: 4,
+	Fa: 5,
+	Sol: 7,
+	La: 9,
+	Si: 11
+};
+
+const EN_TO_LATIN: Record<string, string> = {
+	A: 'La',
+	B: 'Si',
+	C: 'Do',
+	D: 'Re',
+	E: 'Mi',
+	F: 'Fa',
+	G: 'Sol'
+};
+
+// "Sol" must come before "Si" so that "Sol#" is not parsed as "Si"
+const LATIN_NOTE_RE = /^(Do|Re|Mi|Fa|Sol|Si|La)([#b]?)(.*)$/;
+const ENGLISH_NOTE_RE = /^([A-G])([#b]?)(.*)$/;
+
+/** Convert english chord names (Am, C7, F#m, G/B) to latin (Lam, Do7, Fa#m, Sol/Si). */
+export function englishChordToLatin(chord: string): string {
+	return chord
+		.split('/')
+		.map((part) => {
+			if (LATIN_NOTE_RE.test(part)) return part; // already latin
+			const m = part.match(ENGLISH_NOTE_RE);
+			if (!m) return part;
+			return EN_TO_LATIN[m[1]] + m[2] + m[3];
+		})
+		.join('/');
+}
+
+// case-insensitive lookups for sanitization
+const LATIN_NOTE_CANON: Record<string, string> = {
+	do: 'Do',
+	re: 'Re',
+	mi: 'Mi',
+	fa: 'Fa',
+	sol: 'Sol',
+	la: 'La',
+	si: 'Si'
+};
+const EN_NOTE_CANON: Record<string, string> = {
+	a: 'La',
+	b: 'Si',
+	c: 'Do',
+	d: 'Re',
+	e: 'Mi',
+	f: 'Fa',
+	g: 'Sol'
+};
+// "sol" before "si" so "sol#" is not parsed as "si"
+const LATIN_NOTE_CI_RE = /^(do|re|mi|fa|sol|si|la)([#b]?)(.*)$/i;
+const ENGLISH_NOTE_CI_RE = /^([a-g])([#b]?)(.*)$/i;
+
+// minor marker is lowercase "m" in latin notation; an all-caps input like "LAM"
+// yields suffix "M" which must become "m" (Lam, not LaM)
+function normalizeSuffix(suffix: string): string {
+	return suffix.replace(/^M/, 'm');
+}
+
+/**
+ * Normalize a chord typed in the visual editor into the latin format ChordPro
+ * expects (e.g. "g" -> "Sol", "em" -> "Mim", "D/f#" -> "Re/Fa#").
+ * English note names are converted to latin and note case is fixed; the suffix
+ * (m, 7, maj7, sus4, …) is preserved verbatim. Unparseable parts are returned
+ * trimmed but otherwise unchanged.
+ */
+export function sanitizeChord(chord: string): string {
+	return chord
+		.trim()
+		.split('/')
+		.map((raw) => {
+			const part = raw.trim();
+			if (part === '') return part;
+			const latin = part.match(LATIN_NOTE_CI_RE);
+			if (latin) return LATIN_NOTE_CANON[latin[1].toLowerCase()] + latin[2] + normalizeSuffix(latin[3]);
+			const en = part.match(ENGLISH_NOTE_CI_RE);
+			if (en) return EN_NOTE_CANON[en[1].toLowerCase()] + en[2] + normalizeSuffix(en[3]);
+			return part;
+		})
+		.join('/');
+}
+
+// suffix after the note+accidental, as a sequence of tokens: quality words (maj, min,
+// dim, aug, sus, add), single quality marks (m, h, ø, °, +, -), extension numbers
+// (0, 2, 4-9, 11, 13), accidentals only when applied to an extension (#5, b9, #11),
+// and parentheses. Anything out of place ("sdg", the second "m" in "Dom#m7") makes
+// the chord invalid.
+// "m(?!m(?!aj))" allows "mmaj7" but rejects a doubled minor marker ("Lamm")
+const SUFFIX_TOKEN = /maj|min|dim|aug|sus|add|m(?!m(?!aj))|h|ø|°|\+|-|\(|\)|1[13]|[02-9]|[#b](?=1[13]|[02-9])/;
+const VALID_SUFFIX_RE = new RegExp(`^(?:${SUFFIX_TOKEN.source})*$`, 'i');
+
+// a "/" part that is not a bass note can be a bare extension ("Sol6/9", "Do9/11")
+const EXTENSION_PART_RE = /^(?:1[13]|[02-9])$/;
+
+/**
+ * True when `chord` is a recognizable chord: every "/" part is a latin or english
+ * note (optionally with accidental) followed by a valid chord suffix, or — after
+ * the first part — a bare extension number ("Sol6/9"). Empty input is not valid.
+ * Used to reject typos like "sdg" or "Dom#m7" before saving.
+ */
+export function isValidChord(chord: string): boolean {
+	const parts = chord.trim().split('/');
+	if (parts.length === 0) return false;
+	return parts.every((raw, i) => {
+		const part = raw.trim();
+		if (part === '') return false;
+		if (i > 0 && EXTENSION_PART_RE.test(part)) return true;
+		const m = part.match(LATIN_NOTE_CI_RE) ?? part.match(ENGLISH_NOTE_CI_RE);
+		return m !== null && VALID_SUFFIX_RE.test(m[3]);
+	});
+}
+
+// a suffix is minor when it opens with a minor mark (m, min, -, but not maj)
+// or describes a diminished chord, which simplifies to the minor triad
+const MINOR_SUFFIX_RE = /^(m(?!aj)|min|-)|dim|ø|°/;
+
+/**
+ * Reduce a chord to its basic triad: extensions (7, 9, sus4, add9, maj7, …)
+ * are dropped, diminished and half-diminished become minor, augmented becomes
+ * major, and the bass note after "/" is removed (Lam7 -> Lam, Re7sus4 -> Re,
+ * Fa#m7b5 -> Fa#m, Sol/Si -> Sol). Unparseable chords are returned unchanged.
+ */
+export function simplifyChord(chord: string): string {
+	const base = chord.split('/')[0].trim();
+	const m = base.match(LATIN_NOTE_RE) ?? base.match(ENGLISH_NOTE_RE);
+	if (!m) return chord;
+	return m[1] + m[2] + (MINOR_SUFFIX_RE.test(m[3]) ? 'm' : '');
+}
+
+/** Transpose a latin chord by `delta` semitones; accidentals are normalized to sharps. */
+export function transposeChord(chord: string, delta: number): string {
+	return chord
+		.split('/')
+		.map((part) => {
+			const m = part.match(LATIN_NOTE_RE);
+			if (!m) return part;
+			const flat = m[2] === 'b' ? -1 : m[2] === '#' ? 1 : 0;
+			const semitone = (((NOTE_SEMITONE[m[1]] + flat + delta) % 12) + 12) % 12;
+			return LATIN_SCALE[semitone] + m[3];
+		})
+		.join('/');
+}
