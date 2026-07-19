@@ -1,8 +1,22 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
-	import { allSongs, categories, songbooks } from '$lib/data';
+	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
+	import { loadFavorites } from '$lib/favorites';
 
 	let query = $state('');
+
+	// Starred songs, resolved to SongRefs; localStorage only exists client-side.
+	let favorites = $state<SongRef[]>([]);
+	onMount(() => {
+		favorites = loadFavorites()
+			.map((key) => {
+				const [category, ...rest] = key.split('/');
+				return findSong(category, rest.join('/'));
+			})
+			.filter((s): s is SongRef => s !== undefined)
+			.sort((a, b) => a.title.localeCompare(b.title, 'it'));
+	});
 
 	const filtered = $derived.by(() => {
 		const q = query.trim().toLowerCase();
@@ -41,6 +55,20 @@
 		{/each}
 	</ul>
 {:else}
+	{#if favorites.length > 0}
+		<h2>Preferiti</h2>
+		<ul class="songs">
+			{#each favorites as song (song.category + '/' + song.slug)}
+				<li>
+					<a href="{base}/s/{song.category}/{song.slug}/">
+						<span class="title">★ {song.title}</span>
+						{#if song.artist}<span class="artist">{song.artist}</span>{/if}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
 	<h2>Categorie</h2>
 	<div class="grid">
 		{#each categories as cat (cat.name)}

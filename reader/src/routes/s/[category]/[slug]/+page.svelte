@@ -8,6 +8,7 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import SongSheet from '$lib/components/SongSheet.svelte';
 	import {
 		loadSongPrefs,
@@ -94,6 +95,12 @@
 
 	let showDiagrams = $state(false);
 
+	// Favorite star: reload whenever the song changes (client-side nav).
+	let favorite = $state(false);
+	$effect(() => {
+		favorite = isFavorite(data.song.category, data.song.slug);
+	});
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -127,7 +134,18 @@
 	{/if}
 </nav>
 
-<h1>{data.song.title}</h1>
+<h1>
+	{data.song.title}
+	<button
+		class="star"
+		class:on={favorite}
+		onclick={() => (favorite = toggleFavorite(data.song.category, data.song.slug))}
+		aria-label={favorite ? 'Togli dai preferiti' : 'Aggiungi ai preferiti'}
+		aria-pressed={favorite}
+	>
+		{favorite ? '★' : '☆'}
+	</button>
+</h1>
 {#if data.song.artist}<p class="artist">{data.song.artist}</p>{/if}
 
 <div class="controls">
@@ -202,6 +220,19 @@
 	h1 {
 		font-size: 24px;
 		margin: 0;
+	}
+
+	.star {
+		font-size: 22px;
+		padding: 0 6px;
+		border: none;
+		background: none;
+		color: #9ca3af;
+		vertical-align: 2px;
+	}
+
+	.star.on {
+		color: #d99e07;
 	}
 
 	.artist {
