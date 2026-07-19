@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { allSongs, categories, songbooks } from '$lib/data';
 
 	let query = $state('');
+
+	function randomSong() {
+		const song = allSongs[Math.floor(Math.random() * allSongs.length)];
+		goto(`${base}/s/${song.category}/${song.slug}/`);
+	}
 
 	const filtered = $derived.by(() => {
 		const q = query.trim().toLowerCase();
@@ -41,6 +47,8 @@
 		{/each}
 	</ul>
 {:else}
+	<button class="random" onclick={randomSong}>🎲 Canto a caso</button>
+
 	<h2>Categorie</h2>
 	<div class="grid">
 		{#each categories as cat (cat.name)}
@@ -73,6 +81,19 @@
 		border: 1px solid #d1d5db;
 		border-radius: 10px;
 		background: white;
+	}
+
+	.random {
+		font: inherit;
+		font-size: 15px;
+		margin-top: 14px;
+		padding: 10px 16px;
+		border: 1px solid #d1d5db;
+		border-radius: 10px;
+		background: white;
+		color: inherit;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	h2 {
