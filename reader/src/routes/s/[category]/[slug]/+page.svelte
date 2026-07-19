@@ -7,6 +7,7 @@
 	import { categoryLabel } from '$songlib/categories';
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import QRCode from 'qrcode';
 	import { findSongbook } from '$lib/data';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
@@ -52,12 +53,21 @@
 	let ready = $state(false);
 
 	// Prefs are per song: reload whenever the song changes (client-side nav).
+	// Handoff parameters in the URL (see "Passa la chitarra") override the saved
+	// prefs; the save effect below then persists them like any manual change.
 	$effect(() => {
 		const p = loadSongPrefs(data.song.category, data.song.slug);
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
 		scrollSpeed = p.scrollSpeed;
+		if (browser) {
+			const q = page.url.searchParams;
+			const t = parseInt(q.get('t') ?? '', 10);
+			if (Number.isFinite(t)) transpose = ((((t + 6) % 12) + 12) % 12) - 6;
+			if (q.has('semplici')) simplify = q.get('semplici') === '1';
+			if (q.has('solotesto')) hideChords = q.get('solotesto') === '1';
+		}
 		scrolling = false;
 		ready = true;
 	});
@@ -177,6 +187,26 @@
 	});
 	const hasNote = $derived(note.trim() !== '');
 
+	// "Passa la chitarra": a QR of the current URL plus reading state, so the
+	// next guitarist lands on the same song with the same settings. Generated
+	// locally, no network involved.
+	let showHandoff = $state(false);
+	let qrDataUrl = $state('');
+
+	$effect(() => {
+		if (!showHandoff || !browser) return;
+		const params = new URLSearchParams();
+		if (book) params.set('from', book.name);
+		if (transpose !== 0) params.set('t', String(transpose));
+		if (simplify) params.set('semplici', '1');
+		if (hideChords) params.set('solotesto', '1');
+		const query = params.toString();
+		const url = location.origin + location.pathname + (query ? `?${query}` : '');
+		QRCode.toDataURL(url, { width: 512, margin: 1 })
+			.then((u) => (qrDataUrl = u))
+			.catch(() => (qrDataUrl = ''));
+	});
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -265,6 +295,10 @@
 	<button class="toggle" class:active={showNote} onclick={() => (showNote = !showNote)}>
 		{hasNote ? '📝 Note' : 'Note'}
 	</button>
+
+	<button class="toggle" class:active={showHandoff} onclick={() => (showHandoff = !showHandoff)}>
+		🎸 Passa
+	</button>
 </div>
 
 <SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
@@ -298,6 +332,22 @@
 			placeholder="Intro, chi canta cosa, pennata… le note restano su questo dispositivo."
 			autofocus={!hasNote}
 		></textarea>
+	</div>
+{/if}
+
+{#if showHandoff}
+	<div class="handoff" role="dialog" aria-label="Passa la chitarra">
+		<div class="handoff-head">
+			<span>Passa la chitarra</span>
+			<button class="close" onclick={() => (showHandoff = false)} aria-label="Chiudi">✕</button>
+		</div>
+		{#if qrDataUrl}
+			<img class="qr" src={qrDataUrl} alt="QR code del canto con le impostazioni attuali" />
+		{/if}
+		<p class="handoff-hint">
+			Chi subentra inquadra il codice con la fotocamera: si apre questo canto con trasposizione e
+			impostazioni attuali{book ? ', dentro la scaletta in corso' : ''}.
+		</p>
 	</div>
 {/if}
 
@@ -407,6 +457,44 @@
 	}
 
 	/* Bottom sheet: song text stays visible and scrollable above it. */
+	.handoff {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
+		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
+			calc(env(safe-area-inset-left) + 16px);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.handoff-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		padding: 10px 0 6px;
+		font-weight: 600;
+	}
+
+	.qr {
+		width: min(60vw, 40dvh, 280px);
+		border-radius: 8px;
+	}
+
+	.handoff-hint {
+		margin: 8px 0 0;
+		font-size: 13px;
+		color: var(--muted);
+		text-align: center;
+		max-width: 420px;
+	}
+
 	.note-sheet {
 		position: fixed;
 		left: 0;
