@@ -8,6 +8,8 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { isFavorite, toggleFavorite } from '$lib/favorites';
+	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
 	import {
 		loadSongPrefs,
@@ -16,7 +18,10 @@
 		saveFontSize,
 		FONT_MIN,
 		FONT_MAX,
-		FONT_DEFAULT
+		FONT_DEFAULT,
+		SCROLL_MIN,
+		SCROLL_MAX,
+		SCROLL_DEFAULT
 	} from '$lib/prefs';
 	import type { PageProps } from './$types';
 
@@ -42,6 +47,7 @@
 	let transpose = $state(0);
 	let simplify = $state(false);
 	let hideChords = $state(false);
+	let scrollSpeed = $state(SCROLL_DEFAULT);
 	let fontSize = $state(FONT_DEFAULT);
 	let ready = $state(false);
 
@@ -51,13 +57,69 @@
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
+		scrollSpeed = p.scrollSpeed;
+		scrolling = false;
 		ready = true;
 	});
 
 	$effect(() => {
 		if (!ready) return;
-		saveSongPrefs(data.song.category, data.song.slug, { transpose, simplify, hideChords });
+		saveSongPrefs(data.song.category, data.song.slug, {
+			transpose,
+			simplify,
+			hideChords,
+			scrollSpeed
+		});
 	});
+
+	// Autoscroll: the page scrolls by itself like a teleprompter, so the
+	// guitarist never has to touch the screen mid-song. Each speed level is
+	// worth 8 px/s; the level is saved per song with the other prefs.
+	let scrolling = $state(false);
+
+	$effect(() => {
+		if (!scrolling) return;
+
+		let raf = 0;
+		let last: number | null = null;
+		let carry = 0;
+		const step = (now: number) => {
+			if (last !== null) {
+				carry += ((now - last) / 1000) * scrollSpeed * 8;
+				const px = Math.trunc(carry);
+				if (px > 0) {
+					window.scrollBy(0, px);
+					carry -= px;
+				}
+				if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 1) {
+					scrolling = false;
+					return;
+				}
+			}
+			last = now;
+			raf = requestAnimationFrame(step);
+		};
+		raf = requestAnimationFrame(step);
+
+		// Touching the page or using the wheel hands control back to the user;
+		// taps on the control bar (pause, speed) must not count as taking over.
+		const stop = (e: Event) => {
+			if (e.target instanceof Element && e.target.closest('.controls')) return;
+			scrolling = false;
+		};
+		window.addEventListener('wheel', stop, { passive: true });
+		window.addEventListener('touchstart', stop, { passive: true });
+
+		return () => {
+			cancelAnimationFrame(raf);
+			window.removeEventListener('wheel', stop);
+			window.removeEventListener('touchstart', stop);
+		};
+	});
+
+	function bumpScrollSpeed(delta: number) {
+		scrollSpeed = Math.min(SCROLL_MAX, Math.max(SCROLL_MIN, scrollSpeed + delta));
+	}
 
 	onMount(() => {
 		fontSize = loadFontSize();
@@ -107,6 +169,27 @@
 		return out;
 	});
 
+	// Favorite star: reload whenever the song changes (client-side nav).
+	let favorite = $state(false);
+	$effect(() => {
+		favorite = isFavorite(data.song.category, data.song.slug);
+	});
+
+	// Per-song note: reload on song change, save while typing.
+	let note = $state('');
+	let showNote = $state(false);
+	let noteReady = $state(false);
+	$effect(() => {
+		note = loadNote(data.song.category, data.song.slug);
+		showNote = false;
+		noteReady = true;
+	});
+	$effect(() => {
+		if (!noteReady) return;
+		saveNote(data.song.category, data.song.slug, note);
+	});
+	const hasNote = $derived(note.trim() !== '');
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -140,7 +223,18 @@
 	{/if}
 </nav>
 
-<h1>{data.song.title}</h1>
+<h1>
+	{data.song.title}
+	<button
+		class="star"
+		class:on={favorite}
+		onclick={() => (favorite = toggleFavorite(data.song.category, data.song.slug))}
+		aria-label={favorite ? 'Togli dai preferiti' : 'Aggiungi ai preferiti'}
+		aria-pressed={favorite}
+	>
+		{favorite ? '★' : '☆'}
+	</button>
+</h1>
 {#if data.song.artist}<p class="artist">{data.song.artist}</p>{/if}
 
 <div class="controls">
@@ -169,6 +263,21 @@
 		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
 		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
 	</div>
+
+	<div class="group" aria-label="Scorrimento automatico">
+		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
+			{scrolling ? '⏸ Ferma' : '▶ Scorri'}
+		</button>
+		{#if scrolling}
+			<button onclick={() => bumpScrollSpeed(-1)} aria-label="Scorri più lentamente">−</button>
+			<button class="value" aria-label="Velocità di scorrimento" disabled>{scrollSpeed}</button>
+			<button onclick={() => bumpScrollSpeed(1)} aria-label="Scorri più velocemente">+</button>
+		{/if}
+	</div>
+
+	<button class="toggle" class:active={showNote} onclick={() => (showNote = !showNote)}>
+		{hasNote ? '📝 Note' : 'Note'}
+	</button>
 </div>
 
 {#if groupNotes.length > 0}
@@ -200,6 +309,22 @@
 	</div>
 {/if}
 
+{#if showNote}
+	<div class="note-sheet" role="dialog" aria-label="Note sul canto">
+		<div class="note-head">
+			<span>Note sul canto</span>
+			<button class="close" onclick={() => (showNote = false)} aria-label="Chiudi le note">✕</button>
+		</div>
+		<!-- svelte-ignore a11y_autofocus -->
+		<textarea
+			bind:value={note}
+			rows="5"
+			placeholder="Intro, chi canta cosa, pennata… le note restano su questo dispositivo."
+			autofocus={!hasNote}
+		></textarea>
+	</div>
+{/if}
+
 {#if book}
 	<div class="pager">
 		{#if prev}
@@ -228,17 +353,30 @@
 		margin: 0;
 	}
 
+	.star {
+		font-size: 22px;
+		padding: 0 6px;
+		border: none;
+		background: none;
+		color: var(--faint);
+		vertical-align: 2px;
+	}
+
+	.star.on {
+		color: #d99e07;
+	}
+
 	.artist {
 		margin: 2px 0 0;
-		color: #6b7280;
+		color: var(--muted);
 	}
 
 	.group-notes {
 		margin: 0 0 12px;
 		font-size: 14px;
-		color: #374151;
-		background: #eef2f0;
-		border: 1px solid #cfd8d3;
+		color: var(--text);
+		background: var(--surface);
+		border: 1px solid var(--border);
 		border-radius: 8px;
 		padding: 8px 12px;
 	}
@@ -260,7 +398,7 @@
 		position: sticky;
 		top: calc(env(safe-area-inset-top) + 42px);
 		z-index: 5;
-		background: #f6f4ee;
+		background: var(--bg);
 		padding: 6px 0;
 	}
 
@@ -268,18 +406,18 @@
 		font: inherit;
 		font-size: 15px;
 		padding: 8px 14px;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--control-border);
 		border-radius: 8px;
-		background: white;
+		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
 	button.active {
-		background: #2f3e46;
-		border-color: #2f3e46;
-		color: #ffd166;
+		background: var(--active-bg);
+		border-color: var(--active-bg);
+		color: var(--active-text);
 	}
 
 	.group {
@@ -306,15 +444,48 @@
 	}
 
 	/* Bottom sheet: song text stays visible and scrollable above it. */
+	.note-sheet {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
+		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
+	}
+
+	.note-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 10px 0 6px;
+		font-weight: 600;
+	}
+
+	.note-sheet textarea {
+		width: 100%;
+		box-sizing: border-box;
+		font: inherit;
+		font-size: 15px;
+		padding: 10px 12px;
+		border: 1px solid var(--control-border);
+		border-radius: 8px;
+		background: var(--bg);
+		color: inherit;
+		resize: vertical;
+	}
+
 	.diagrams {
 		position: fixed;
 		left: 0;
 		right: 0;
 		bottom: 0;
 		z-index: 20;
-		background: white;
-		border-top: 1px solid #d1d5db;
-		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
 		max-height: 45dvh;
 		overflow-y: auto;
 		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
@@ -327,7 +498,7 @@
 		align-items: center;
 		position: sticky;
 		top: 0;
-		background: white;
+		background: var(--surface);
 		padding: 10px 0 6px;
 		font-weight: 600;
 	}
@@ -348,7 +519,7 @@
 		justify-content: space-between;
 		gap: 16px;
 		margin-top: 28px;
-		border-top: 1px solid #e5e7eb;
+		border-top: 1px solid var(--border);
 		padding-top: 14px;
 	}
 
