@@ -14,12 +14,14 @@ const CACHE = `canzoniere-reader-${version}`;
 const ASSETS = [...build, ...files, ...prerendered];
 
 sw.addEventListener('install', (event) => {
-	event.waitUntil(
-		caches
-			.open(CACHE)
-			.then((cache) => cache.addAll(ASSETS))
-			.then(() => sw.skipWaiting())
-	);
+	// No skipWaiting here: the new worker stays waiting until the page offers
+	// the update and the user accepts it (message below), so the app never
+	// changes version silently mid-use.
+	event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
+});
+
+sw.addEventListener('message', (event) => {
+	if (event.data === 'skip-waiting') sw.skipWaiting();
 });
 
 sw.addEventListener('activate', (event) => {
