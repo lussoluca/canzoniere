@@ -219,6 +219,63 @@
 		window.open(url, '_blank', 'noopener');
 	}
 
+	// Copilot for beginners: a fixed panel with the chords of the row being
+	// read ("Ora") and of the next one ("Poi", with its first diagram), synced
+	// with the scroll position so it works while scrolling by hand or with the
+	// autoscroll. Rows are read from the rendered sheet, so they already
+	// reflect transpose and simplified chords.
+	let copilot = $state(false);
+	let nowChords = $state<string[]>([]);
+	let nextChords = $state<string[]>([]);
+
+	const READ_Y = 170; // viewport offset of the "reading line", below the sticky controls
+
+	$effect(() => {
+		if (!copilot) return;
+		void uniqueChords; // re-sync when transpose/simplify re-render the sheet
+
+		const update = () => {
+			const lines = [...document.querySelectorAll('.sheet .line')].filter((l) =>
+				l.querySelector('.chords')
+			);
+			let current: Element | null = null;
+			let next: Element | null = null;
+			for (const l of lines) {
+				if (l.getBoundingClientRect().top <= READ_Y) current = l;
+				else {
+					next = l;
+					break;
+				}
+			}
+			for (const l of lines) l.classList.toggle('copilot-now', l === current);
+			nowChords = current
+				? (current.querySelector('.chords')?.textContent ?? '').trim().split(/\s+/)
+				: [];
+			nextChords = next
+				? (next.querySelector('.chords')?.textContent ?? '').trim().split(/\s+/)
+				: [];
+		};
+
+		update();
+		let raf = 0;
+		const onScroll = () => {
+			cancelAnimationFrame(raf);
+			raf = requestAnimationFrame(update);
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		return () => {
+			cancelAnimationFrame(raf);
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onScroll);
+			for (const l of document.querySelectorAll('.sheet .copilot-now, .sheet .line')) {
+				l.classList.remove('copilot-now');
+			}
+			nowChords = [];
+			nextChords = [];
+		};
+	});
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -274,6 +331,11 @@
 		<button onclick={() => bumpTranspose(1)} aria-label="Trasponi un semitono in su">+</button>
 	</div>
 
+	<div class="group" aria-label="Dimensione testo">
+		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
+		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
+	</div>
+
 	<button class="toggle" class:active={simplify} onclick={() => (simplify = !simplify)}>
 		Accordi semplici
 	</button>
@@ -287,11 +349,6 @@
 			Diagrammi
 		</button>
 	{/if}
-
-	<div class="group" aria-label="Dimensione testo">
-		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
-		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
-	</div>
 
 	<div class="group" aria-label="Scorrimento automatico">
 		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
@@ -307,6 +364,12 @@
 	<button class="toggle" class:active={showNote} onclick={() => (showNote = !showNote)}>
 		{hasNote ? '📝 Note' : 'Note'}
 	</button>
+
+	{#if uniqueChords.length > 0 && !hideChords}
+		<button class="toggle" class:active={copilot} onclick={() => (copilot = !copilot)}>
+			🧭 Copilota
+		</button>
+	{/if}
 </div>
 
 <SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
@@ -346,6 +409,26 @@
 				<span class="note-hint">
 					Si apre GitHub: la proposta diventa una PR e, una volta approvata, la nota arriva a tutti.
 				</span>
+			</div>
+		{/if}
+	</div>
+{/if}
+
+{#if copilot}
+	<div class="copilot" aria-live="polite" aria-label="Copilota degli accordi">
+		<div class="copilot-rows">
+			<div class="copilot-row">
+				<span class="copilot-lbl">Ora</span>
+				<span class="copilot-now-chords">{nowChords.join('  ') || '—'}</span>
+			</div>
+			<div class="copilot-row">
+				<span class="copilot-lbl">Poi</span>
+				<span class="copilot-next-chords">{nextChords.join('  ') || 'fine del canto'}</span>
+			</div>
+		</div>
+		{#if nextChords.length > 0}
+			<div class="copilot-diagram">
+				<ChordDiagram name={nextChords[0]} scale={1.7} />
 			</div>
 		{/if}
 	</div>
@@ -400,8 +483,8 @@
 	.controls {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
-		margin: 14px 0 18px;
+		gap: 6px;
+		margin: 12px 0 16px;
 		position: sticky;
 		top: calc(env(safe-area-inset-top) + 42px);
 		z-index: 5;
@@ -411,8 +494,9 @@
 
 	button {
 		font: inherit;
-		font-size: 15px;
-		padding: 8px 14px;
+		font-size: 14px;
+		height: 38px;
+		padding: 0 12px;
 		border: 1px solid var(--control-border);
 		border-radius: 8px;
 		background: var(--surface);
@@ -431,23 +515,84 @@
 		display: flex;
 	}
 
+	/* Adjacent buttons in a group share a border; per-corner radii compose, so
+	   a button that is both first and last (single visible button) keeps both
+	   sides rounded. */
 	.group button {
 		border-radius: 0;
 		margin-left: -1px;
 	}
 
 	.group button:first-child {
-		border-radius: 8px 0 0 8px;
+		border-top-left-radius: 8px;
+		border-bottom-left-radius: 8px;
 		margin-left: 0;
 	}
 
 	.group button:last-child {
-		border-radius: 0 8px 8px 0;
+		border-top-right-radius: 8px;
+		border-bottom-right-radius: 8px;
 	}
 
 	.value {
-		min-width: 44px;
+		min-width: 40px;
 		font-variant-numeric: tabular-nums;
+	}
+
+	/* The row being read gets a soft highlight while the copilot is on. */
+	:global(.sheet .line.copilot-now) {
+		background: rgba(255, 209, 102, 0.22);
+		border-radius: 4px;
+	}
+
+	.copilot {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 15;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 18px;
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
+		padding: 8px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 8px)
+			calc(env(safe-area-inset-left) + 16px);
+	}
+
+	.copilot-rows {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	}
+
+	.copilot-row {
+		display: flex;
+		align-items: baseline;
+		gap: 10px;
+	}
+
+	.copilot-lbl {
+		font-family: inherit;
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--muted);
+		min-width: 26px;
+	}
+
+	.copilot-now-chords {
+		font-size: 24px;
+		font-weight: 700;
+		color: var(--chord);
+	}
+
+	.copilot-next-chords {
+		font-size: 17px;
+		color: var(--muted);
 	}
 
 	/* Bottom sheet: song text stays visible and scrollable above it. */
@@ -569,8 +714,8 @@
 		}
 
 		button {
-			font-size: 14px;
-			padding: 5px 10px;
+			height: 32px;
+			padding: 0 10px;
 		}
 	}
 </style>
