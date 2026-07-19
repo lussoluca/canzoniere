@@ -88,7 +88,7 @@
 			role="img"
 			aria-label={`Diagramma dell'accordo ${name}`}
 		>
-			<g transform={`translate(0 ${GRID_TOP})`} stroke="#000" fill="none">
+			<g transform={`translate(0 ${GRID_TOP})`} stroke="var(--diagram-ink, #000)" fill="none">
 			{#each Array(VC + 1) as _, i (i)}
 				<line x1={-LW / 2} x2={W + LW / 2} y1={NW + i * GH} y2={NW + i * GH} stroke-width={LW} />
 			{/each}
@@ -114,7 +114,7 @@
 			{#each def.frets as fret, sx (sx)}
 				{@const x = sx * GW}
 				{#if fret > 0 && fret <= VC && !coveredByBarre(sx)}
-					<circle cx={x} cy={NW + (fret - 0.5) * GH} r={DOT / 2} fill="#000" stroke="none" />
+					<circle cx={x} cy={NW + (fret - 0.5) * GH} r={DOT / 2} fill="var(--diagram-ink, #000)" stroke="none" />
 					{#if fingerLabel(sx)}
 						<text
 							class="finger"
@@ -172,7 +172,7 @@
 	.name {
 		font-family: Helvetica, Arial, sans-serif;
 		font-style: italic;
-		color: #000;
+		color: var(--diagram-ink, #000);
 		line-height: 1.2; /* pdf.spacing.diagramchords */
 		text-align: center;
 		margin-top: 0.5rem;
@@ -180,12 +180,12 @@
 	.base {
 		font-family: 'Times New Roman', Times, serif;
 		font-size: 7.06px;
-		fill: #000;
+		fill: var(--diagram-ink, #000);
 	}
 	.finger {
 		font-family: Helvetica, Arial, sans-serif;
 		font-size: 4.8px;
-		fill: #fff;
+		fill: var(--diagram-surface, #fff);
 	}
 	.unknown {
 		display: flex;
@@ -193,14 +193,14 @@
 		align-items: center;
 		gap: 0.1rem;
 		padding: 0.4rem 0.6rem;
-		border: 1px dashed #ccc;
+		border: 1px dashed var(--diagram-muted, #ccc);
 		border-radius: 6px;
-		color: #999;
+		color: var(--diagram-muted, #999);
 	}
 	.unknown-name {
 		font-family: Helvetica, Arial, sans-serif;
 		font-style: italic;
-		color: #555;
+		color: var(--diagram-ink, #555);
 	}
 	.unknown-hint {
 		font-size: 0.68rem;
