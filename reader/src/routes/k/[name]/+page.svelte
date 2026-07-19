@@ -52,7 +52,7 @@
 	}
 
 	.songs li {
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.songs a {
@@ -65,7 +65,7 @@
 	}
 
 	.num {
-		color: #9ca3af;
+		color: var(--faint);
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -76,13 +76,13 @@
 
 	.artist {
 		font-size: 13px;
-		color: #6b7280;
+		color: var(--muted);
 		text-align: right;
 	}
 
 	.missing {
 		margin-top: 16px;
 		font-size: 13px;
-		color: #b91c1c;
+		color: var(--danger);
 	}
 </style>
