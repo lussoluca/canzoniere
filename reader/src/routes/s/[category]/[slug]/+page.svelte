@@ -308,6 +308,12 @@
 		</button>
 	{/if}
 
+	<button class="toggle" class:active={showNote} disabled={scrolling}
+		title={scrolling ? 'Ferma lo scorrimento per aprire le note' : undefined}
+		onclick={() => (showNote = !showNote)}>
+		{hasNote ? '📝 Note' : 'Note'}
+	</button>
+
 	<div class="group" aria-label="Scorrimento automatico">
 		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
 			{scrolling ? '⏸ Ferma' : '▶ Scorri'}
@@ -318,10 +324,6 @@
 			<button onclick={() => bumpScrollSpeed(1)} aria-label="Scorri più velocemente">+</button>
 		{/if}
 	</div>
-
-	<button class="toggle" class:active={showNote} onclick={() => (showNote = !showNote)}>
-		{hasNote ? '📝 Note' : 'Note'}
-	</button>
 
 	{#if uniqueChords.length > 0 && !hideChords}
 		<button class="toggle" class:active={copilot} onclick={() => (copilot = !copilot)}>
@@ -453,6 +455,11 @@
 		color: inherit;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
+	}
+
+	.toggle:disabled {
+		opacity: 0.45;
+		cursor: default;
 	}
 
 	button.active {
