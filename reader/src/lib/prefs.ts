@@ -5,9 +5,12 @@ export interface SongPrefs {
 	transpose: number;
 	simplify: boolean;
 	hideChords: boolean;
+	capo: number; // capo fret (0 = none, up to CAPO_MAX)
 }
 
-const DEFAULT_PREFS: SongPrefs = { transpose: 0, simplify: false, hideChords: false };
+export const CAPO_MAX = 7;
+
+const DEFAULT_PREFS: SongPrefs = { transpose: 0, simplify: false, hideChords: false, capo: 0 };
 
 function songKey(category: string, slug: string): string {
 	return `reader:song:${category}/${slug}`;
@@ -27,7 +30,7 @@ export function loadSongPrefs(category: string, slug: string): SongPrefs {
 export function saveSongPrefs(category: string, slug: string, prefs: SongPrefs): void {
 	if (typeof localStorage === 'undefined') return;
 	const isDefault =
-		prefs.transpose === 0 && !prefs.simplify && !prefs.hideChords;
+		prefs.transpose === 0 && !prefs.simplify && !prefs.hideChords && prefs.capo === 0;
 	try {
 		if (isDefault) localStorage.removeItem(songKey(category, slug));
 		else localStorage.setItem(songKey(category, slug), JSON.stringify(prefs));

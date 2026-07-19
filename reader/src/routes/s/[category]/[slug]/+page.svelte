@@ -16,7 +16,8 @@
 		saveFontSize,
 		FONT_MIN,
 		FONT_MAX,
-		FONT_DEFAULT
+		FONT_DEFAULT,
+		CAPO_MAX
 	} from '$lib/prefs';
 	import type { PageProps } from './$types';
 
@@ -42,6 +43,7 @@
 	let transpose = $state(0);
 	let simplify = $state(false);
 	let hideChords = $state(false);
+	let capo = $state(0);
 	let fontSize = $state(FONT_DEFAULT);
 	let ready = $state(false);
 
@@ -51,13 +53,18 @@
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
+		capo = p.capo;
 		ready = true;
 	});
 
 	$effect(() => {
 		if (!ready) return;
-		saveSongPrefs(data.song.category, data.song.slug, { transpose, simplify, hideChords });
+		saveSongPrefs(data.song.category, data.song.slug, { transpose, simplify, hideChords, capo });
 	});
+
+	// Transpose moves the sung key; the capo lowers the written shapes by as
+	// many semitones so the sounding key stays the one the group sings in.
+	const chordShift = $derived(transpose - capo);
 
 	onMount(() => {
 		fontSize = loadFontSize();
@@ -95,7 +102,7 @@
 	let showDiagrams = $state(false);
 
 	// Unique chords in order of first appearance, shown as the reader sees them
-	// (simplified first, then transposed — same as SongSheet).
+	// (simplified first, then shifted by transpose and capo — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
 		const seen = new Set<string>();
 		const out: string[] = [];
@@ -104,7 +111,7 @@
 			for (const c of line.chords) {
 				let name = c.chord;
 				if (simplify) name = simplifyChord(name);
-				if (transpose !== 0) name = transposeChord(name, transpose);
+				if (chordShift !== 0) name = transposeChord(name, chordShift);
 				if (!seen.has(name)) {
 					seen.add(name);
 					out.push(name);
@@ -152,13 +159,26 @@
 		</button>
 	{/if}
 
+	<div class="group" aria-label="Capotasto">
+		<button onclick={() => (capo = Math.max(0, capo - 1))} aria-label="Capotasto un tasto in giù">−</button>
+		<button class="value" class:active={capo !== 0} onclick={() => (capo = 0)}
+			title="Togli il capotasto">Capo {capo}</button>
+		<button onclick={() => (capo = Math.min(CAPO_MAX, capo + 1))} aria-label="Capotasto un tasto in su">+</button>
+	</div>
+
 	<div class="group" aria-label="Dimensione testo">
 		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
 		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
 	</div>
 </div>
 
-<SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
+{#if capo > 0 && !hideChords}
+	<p class="capo-hint">
+		🎸 Capotasto al tasto {capo}: gli accordi sono già scritti per suonare con il capo.
+	</p>
+{/if}
+
+<SongSheet {song} transpose={chordShift} {simplify} {hideChords} {fontSize} />
 
 {#if showDiagrams}
 	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
@@ -207,6 +227,16 @@
 	.artist {
 		margin: 2px 0 0;
 		color: #6b7280;
+	}
+
+	.capo-hint {
+		margin: 0 0 12px;
+		font-size: 14px;
+		color: #92610a;
+		background: #fdf3d7;
+		border: 1px solid #ecd9a0;
+		border-radius: 8px;
+		padding: 8px 12px;
 	}
 
 	.controls {
