@@ -110,6 +110,48 @@
 	});
 	const hasNote = $derived(note.trim() !== '');
 
+	// Proposing a note to the group opens a prefilled GitHub issue; a workflow
+	// in the repository turns it into a PR that adds {x_note:...} directives to
+	// the song. GitHub handles authentication in the browser: an authenticated
+	// session on github.com is not detectable cross-origin, so the button is
+	// shown whenever the device is online.
+	const REPO_URL = 'https://github.com/lussoluca/canzoniere';
+
+	let online = $state(false);
+	onMount(() => {
+		online = navigator.onLine;
+		const up = () => (online = true);
+		const down = () => (online = false);
+		window.addEventListener('online', up);
+		window.addEventListener('offline', down);
+		return () => {
+			window.removeEventListener('online', up);
+			window.removeEventListener('offline', down);
+		};
+	});
+
+	function proposeNote() {
+		const title = `Nota di gruppo: ${data.song.title}`;
+		// The fenced block is what the workflow extracts; backticks are stripped
+		// from the note so it cannot break out of the fence.
+		const body = [
+			'<!-- nota-di-gruppo',
+			`canto: ${data.song.category}/${data.song.slug}`,
+			'-->',
+			`**Canto:** ${data.song.title} (\`${data.song.category}/${data.song.slug}\`)`,
+			'',
+			'**Nota proposta:**',
+			'',
+			'```nota',
+			note.trim().replace(/`/g, "'"),
+			'```',
+			'',
+			'_Issue aperta dal reader; una GitHub Action la trasformerà in una PR._'
+		].join('\n');
+		const url = `${REPO_URL}/issues/new?labels=nota-di-gruppo&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+		window.open(url, '_blank', 'noopener');
+	}
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -209,6 +251,14 @@
 			placeholder="Intro, chi canta cosa, pennata… le note restano su questo dispositivo."
 			autofocus={!hasNote}
 		></textarea>
+		{#if online && hasNote}
+			<div class="note-actions">
+				<button class="propose" onclick={proposeNote}>👥 Proponi al gruppo</button>
+				<span class="note-hint">
+					Si apre GitHub: la proposta diventa una PR e, una volta approvata, la nota arriva a tutti.
+				</span>
+			</div>
+		{/if}
 	</div>
 {/if}
 
@@ -329,6 +379,22 @@
 		border-radius: 8px;
 		background: #fdfbf5;
 		resize: vertical;
+	}
+
+	.note-actions {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-top: 8px;
+	}
+
+	.propose {
+		flex-shrink: 0;
+	}
+
+	.note-hint {
+		font-size: 12px;
+		color: #6b7280;
 	}
 
 	.diagrams {
