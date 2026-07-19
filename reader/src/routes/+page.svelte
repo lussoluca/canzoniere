@@ -2,19 +2,27 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
+	import { loadFavorites } from '$lib/favorites';
 	import { loadRecents } from '$lib/recents';
 
 	let query = $state('');
 
-	// Last opened songs, resolved to SongRefs; localStorage only exists client-side.
-	let recents = $state<SongRef[]>([]);
-	onMount(() => {
-		recents = loadRecents()
+	function resolve(keys: string[]): SongRef[] {
+		return keys
 			.map((key) => {
 				const [category, ...rest] = key.split('/');
 				return findSong(category, rest.join('/'));
 			})
 			.filter((s): s is SongRef => s !== undefined);
+	}
+
+	// Starred and last-opened songs, resolved to SongRefs; localStorage only
+	// exists client-side.
+	let favorites = $state<SongRef[]>([]);
+	let recents = $state<SongRef[]>([]);
+	onMount(() => {
+		favorites = resolve(loadFavorites()).sort((a, b) => a.title.localeCompare(b.title, 'it'));
+		recents = resolve(loadRecents());
 	});
 
 	const filtered = $derived.by(() => {
@@ -54,6 +62,20 @@
 		{/each}
 	</ul>
 {:else}
+	{#if favorites.length > 0}
+		<h2>Preferiti</h2>
+		<ul class="songs">
+			{#each favorites as song (song.category + '/' + song.slug)}
+				<li>
+					<a href="{base}/s/{song.category}/{song.slug}/">
+						<span class="title">★ {song.title}</span>
+						{#if song.artist}<span class="artist">{song.artist}</span>{/if}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
 	{#if recents.length > 0}
 		<h2>Aperti di recente</h2>
 		<ul class="songs">
@@ -97,16 +119,17 @@
 		box-sizing: border-box;
 		font-size: 17px;
 		padding: 12px 14px;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--control-border);
 		border-radius: 10px;
-		background: white;
+		background: var(--surface);
+		color: inherit;
 	}
 
 	h2 {
 		font-size: 15px;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: #6b7280;
+		color: var(--muted);
 		margin: 24px 0 10px;
 	}
 
@@ -117,8 +140,8 @@
 	}
 
 	.card {
-		background: white;
-		border: 1px solid #e5e7eb;
+		background: var(--surface);
+		border: 1px solid var(--border);
 		border-radius: 10px;
 		padding: 14px;
 		text-decoration: none;
@@ -134,7 +157,7 @@
 
 	.card .count {
 		font-size: 13px;
-		color: #6b7280;
+		color: var(--muted);
 	}
 
 	.songs {
@@ -144,7 +167,7 @@
 	}
 
 	.songs li {
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.songs a {
@@ -163,12 +186,12 @@
 
 	.songs .artist {
 		font-size: 13px;
-		color: #6b7280;
+		color: var(--muted);
 		text-align: right;
 	}
 
 	.none {
 		padding: 12px 4px;
-		color: #6b7280;
+		color: var(--muted);
 	}
 </style>
