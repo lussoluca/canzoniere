@@ -94,6 +94,19 @@
 
 	let showDiagrams = $state(false);
 
+	// Group notes: {x_note:...} directives in the ChordPro source. They are the
+	// group's shared way of doing the song, versioned in the repository (the
+	// parser keeps unknown directives, so editor and PDF are unaffected).
+	const groupNotes = $derived.by(() => {
+		const out: string[] = [];
+		for (const line of song.lines) {
+			if (line.type !== 'directive') continue;
+			const m = line.raw.match(/^\{\s*x_note\s*:\s*(.*?)\s*\}$/i);
+			if (m && m[1] !== '') out.push(m[1]);
+		}
+		return out;
+	});
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -158,6 +171,17 @@
 	</div>
 </div>
 
+{#if groupNotes.length > 0}
+	<div class="group-notes">
+		<span class="group-notes-title">👥 Note del gruppo</span>
+		<ul>
+			{#each groupNotes as note (note)}
+				<li>{note}</li>
+			{/each}
+		</ul>
+	</div>
+{/if}
+
 <SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
 
 {#if showDiagrams}
@@ -207,6 +231,25 @@
 	.artist {
 		margin: 2px 0 0;
 		color: #6b7280;
+	}
+
+	.group-notes {
+		margin: 0 0 12px;
+		font-size: 14px;
+		color: #374151;
+		background: #eef2f0;
+		border: 1px solid #cfd8d3;
+		border-radius: 8px;
+		padding: 8px 12px;
+	}
+
+	.group-notes-title {
+		font-weight: 600;
+	}
+
+	.group-notes ul {
+		margin: 4px 0 0;
+		padding-left: 18px;
 	}
 
 	.controls {
