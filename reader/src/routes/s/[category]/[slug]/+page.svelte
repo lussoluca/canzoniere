@@ -305,9 +305,9 @@
 		right: 0;
 		bottom: 0;
 		z-index: 20;
-		background: white;
-		border-top: 1px solid #d1d5db;
-		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
 		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
 	}
 
@@ -325,9 +325,10 @@
 		font: inherit;
 		font-size: 15px;
 		padding: 10px 12px;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--control-border);
 		border-radius: 8px;
-		background: #fdfbf5;
+		background: var(--bg);
+		color: inherit;
 		resize: vertical;
 	}
 
