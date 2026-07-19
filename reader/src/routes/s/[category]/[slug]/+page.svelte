@@ -242,7 +242,7 @@
 
 	.artist {
 		margin: 2px 0 0;
-		color: #6b7280;
+		color: var(--muted);
 	}
 
 	.controls {
@@ -253,7 +253,7 @@
 		position: sticky;
 		top: calc(env(safe-area-inset-top) + 42px);
 		z-index: 5;
-		background: #f6f4ee;
+		background: var(--bg);
 		padding: 6px 0;
 	}
 
@@ -261,18 +261,18 @@
 		font: inherit;
 		font-size: 15px;
 		padding: 8px 14px;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--control-border);
 		border-radius: 8px;
-		background: white;
+		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
 	button.active {
-		background: #2f3e46;
-		border-color: #2f3e46;
-		color: #ffd166;
+		background: var(--active-bg);
+		border-color: var(--active-bg);
+		color: var(--active-text);
 	}
 
 	.group {
@@ -305,9 +305,9 @@
 		right: 0;
 		bottom: 0;
 		z-index: 20;
-		background: white;
-		border-top: 1px solid #d1d5db;
-		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
 		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
 	}
 
@@ -325,9 +325,10 @@
 		font: inherit;
 		font-size: 15px;
 		padding: 10px 12px;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--control-border);
 		border-radius: 8px;
-		background: #fdfbf5;
+		background: var(--bg);
+		color: inherit;
 		resize: vertical;
 	}
 
@@ -337,9 +338,9 @@
 		right: 0;
 		bottom: 0;
 		z-index: 20;
-		background: white;
-		border-top: 1px solid #d1d5db;
-		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
 		max-height: 45dvh;
 		overflow-y: auto;
 		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
@@ -352,7 +353,7 @@
 		align-items: center;
 		position: sticky;
 		top: 0;
-		background: white;
+		background: var(--surface);
 		padding: 10px 0 6px;
 		font-weight: 600;
 	}
@@ -373,7 +374,7 @@
 		justify-content: space-between;
 		gap: 16px;
 		margin-top: 28px;
-		border-top: 1px solid #e5e7eb;
+		border-top: 1px solid var(--border);
 		padding-top: 14px;
 	}
 
