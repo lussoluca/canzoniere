@@ -8,6 +8,7 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { suggestCapo } from '$lib/capo-advisor';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
@@ -204,6 +205,28 @@
 		}
 		return out;
 	});
+
+	// Capo advisor: scores the song's chords (in the sung key, capo excluded)
+	// at every capo position and proposes the easiest one.
+	let showAdvice = $state(false);
+	const keyChords = $derived.by(() => {
+		const seen = new Set<string>();
+		for (const line of song.lines) {
+			if (line.type !== 'lyric') continue;
+			for (const c of line.chords) {
+				let name = c.chord;
+				if (simplify) name = simplifyChord(name);
+				if (transpose !== 0) name = transposeChord(name, transpose);
+				seen.add(name);
+			}
+		}
+		return [...seen];
+	});
+	// suggestCapo returns null when nothing beats playing open: in that case the
+	// best position is capo 0 (relevant advice if the user has a capo on).
+	const advice = $derived(
+		suggestCapo(keyChords, CAPO_MAX) ?? { capo: 0, shapes: keyChords, score: 0 }
+	);
 </script>
 
 <svelte:head>
@@ -245,6 +268,10 @@
 		<button class="value" class:active={capo !== 0} onclick={() => (capo = 0)}
 			title="Togli il capotasto">Capo {capo}</button>
 		<button onclick={() => (capo = Math.min(CAPO_MAX, capo + 1))} aria-label="Capotasto un tasto in su">+</button>
+		{#if !hideChords && keyChords.length > 0}
+			<button class:active={showAdvice} onclick={() => (showAdvice = !showAdvice)}
+				aria-label="Suggerisci il capotasto">💡</button>
+		{/if}
 	</div>
 
 	<div class="group" aria-label="Dimensione testo">
@@ -281,6 +308,30 @@
 		{hasNote ? '📝 Note' : 'Note'}
 	</button>
 </div>
+
+{#if showAdvice}
+	<div class="capo-advice">
+		{#if advice.capo !== capo}
+			<p>
+				{#if advice.capo > 0}
+					💡 Con il capotasto al tasto <strong>{advice.capo}</strong> suoneresti
+					<strong>{advice.shapes.join(', ')}</strong>
+					<span class="instead">(senza capo: {keyChords.join(', ')})</span>
+				{:else}
+					💡 Questo canto è più comodo <strong>senza capotasto</strong>:
+					<strong>{advice.shapes.join(', ')}</strong>
+				{/if}
+			</p>
+			<button class="apply" onclick={() => { capo = advice.capo; showAdvice = false; }}>
+				Applica
+			</button>
+		{:else if capo > 0}
+			<p>💡 Il capotasto al tasto {capo} è già la posizione più comoda per questo canto.</p>
+		{:else}
+			<p>💡 Nessun capotasto semplifica questo canto: le posizioni attuali sono già le più comode.</p>
+		{/if}
+	</div>
+{/if}
 
 {#if capo > 0 && !hideChords}
 	<p class="capo-hint">
@@ -366,6 +417,31 @@
 	.artist {
 		margin: 2px 0 0;
 		color: var(--muted);
+	}
+
+	.capo-advice {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin: 0 0 12px;
+		font-size: 14px;
+		background: var(--surface);
+		border: 1px solid var(--control-border);
+		border-radius: 8px;
+		padding: 8px 12px;
+	}
+
+	.capo-advice p {
+		margin: 0;
+		flex: 1;
+	}
+
+	.capo-advice .instead {
+		color: var(--muted);
+	}
+
+	.capo-advice .apply {
+		flex-shrink: 0;
 	}
 
 	.capo-hint {
