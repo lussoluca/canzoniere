@@ -8,6 +8,7 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
 	import {
 		loadSongPrefs,
@@ -94,6 +95,21 @@
 
 	let showDiagrams = $state(false);
 
+	// Per-song note: reload on song change, save while typing.
+	let note = $state('');
+	let showNote = $state(false);
+	let noteReady = $state(false);
+	$effect(() => {
+		note = loadNote(data.song.category, data.song.slug);
+		showNote = false;
+		noteReady = true;
+	});
+	$effect(() => {
+		if (!noteReady) return;
+		saveNote(data.song.category, data.song.slug, note);
+	});
+	const hasNote = $derived(note.trim() !== '');
+
 	// Unique chords in order of first appearance, shown as the reader sees them
 	// (simplified first, then transposed — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
@@ -156,6 +172,10 @@
 		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
 		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
 	</div>
+
+	<button class="toggle" class:active={showNote} onclick={() => (showNote = !showNote)}>
+		{hasNote ? '📝 Note' : 'Note'}
+	</button>
 </div>
 
 <SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
@@ -173,6 +193,22 @@
 				<ChordDiagram name={chord} scale={2} />
 			{/each}
 		</div>
+	</div>
+{/if}
+
+{#if showNote}
+	<div class="note-sheet" role="dialog" aria-label="Note sul canto">
+		<div class="note-head">
+			<span>Note sul canto</span>
+			<button class="close" onclick={() => (showNote = false)} aria-label="Chiudi le note">✕</button>
+		</div>
+		<!-- svelte-ignore a11y_autofocus -->
+		<textarea
+			bind:value={note}
+			rows="5"
+			placeholder="Intro, chi canta cosa, pennata… le note restano su questo dispositivo."
+			autofocus={!hasNote}
+		></textarea>
 	</div>
 {/if}
 
@@ -263,6 +299,38 @@
 	}
 
 	/* Bottom sheet: song text stays visible and scrollable above it. */
+	.note-sheet {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		background: white;
+		border-top: 1px solid #d1d5db;
+		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
+	}
+
+	.note-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 10px 0 6px;
+		font-weight: 600;
+	}
+
+	.note-sheet textarea {
+		width: 100%;
+		box-sizing: border-box;
+		font: inherit;
+		font-size: 15px;
+		padding: 10px 12px;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		background: #fdfbf5;
+		resize: vertical;
+	}
+
 	.diagrams {
 		position: fixed;
 		left: 0;
