@@ -8,6 +8,7 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { pushRecent } from '$lib/recents';
 	import SongSheet from '$lib/components/SongSheet.svelte';
 	import {
 		loadSongPrefs,
@@ -91,6 +92,11 @@
 	function bumpTranspose(delta: number) {
 		transpose = ((transpose + delta + 18) % 12) - 6; // keep in [-6, +5]
 	}
+
+	// Every opened song goes into the local history (client-side nav included).
+	$effect(() => {
+		pushRecent(data.song.category, data.song.slug);
+	});
 
 	let showDiagrams = $state(false);
 
