@@ -33,7 +33,7 @@
 		return row;
 	}
 
-	type DisplayLine = Line & { chorus: boolean };
+	type DisplayLine = Line & { chorus: boolean; chordRow: string };
 
 	const displayLines: DisplayLine[] = $derived.by(() => {
 		const out: DisplayLine[] = [];
@@ -48,18 +48,42 @@
 				continue;
 			}
 			if (line.type === 'directive') continue;
-			out.push({ ...line, chorus });
+			const row = line.type === 'lyric' && !hideChords ? chordRow(line.chords) : '';
+			out.push({ ...line, chorus, chordRow: row });
 		}
 		return out;
 	});
+
+	// Fit to width: the font shrinks (never grows) so the longest monospace row
+	// of the song fits the sheet, down to a readability floor; beyond that the
+	// horizontal scroll takes over. The user's A−/A+ size stays the upper bound.
+	const CHAR_RATIO = 0.62; // monospace glyph width relative to the font size
+	const FIT_FLOOR = 10;
+
+	let sheetWidth = $state(0);
+
+	const maxChars = $derived.by(() => {
+		let max = 0;
+		for (const line of displayLines) {
+			if (line.type !== 'lyric') continue;
+			max = Math.max(max, line.text.length, line.chordRow.length);
+		}
+		return max;
+	});
+
+	const effectiveSize = $derived.by(() => {
+		if (sheetWidth === 0 || maxChars === 0) return fontSize;
+		const fit = Math.floor(sheetWidth / (maxChars * CHAR_RATIO));
+		return Math.max(FIT_FLOOR, Math.min(fontSize, fit));
+	});
 </script>
 
-<div class="sheet" style="font-size: {fontSize}px">
+<div class="sheet" style="font-size: {effectiveSize}px" bind:clientWidth={sheetWidth}>
 	{#each displayLines as line}
 		{#if line.type === 'lyric'}
 			<div class="line" class:chorus={line.chorus}>
-				{#if !hideChords && line.chords.length > 0}
-					<pre class="chords">{chordRow(line.chords)}</pre>
+				{#if line.chordRow !== ''}
+					<pre class="chords">{line.chordRow}</pre>
 				{/if}
 				{#if line.text.trim() !== ''}
 					<pre class="text">{line.text}</pre>
