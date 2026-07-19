@@ -240,6 +240,18 @@
 		<button onclick={() => bumpTranspose(1)} aria-label="Trasponi un semitono in su">+</button>
 	</div>
 
+	<div class="group" aria-label="Capotasto">
+		<button onclick={() => (capo = Math.max(0, capo - 1))} aria-label="Capotasto un tasto in giù">−</button>
+		<button class="value" class:active={capo !== 0} onclick={() => (capo = 0)}
+			title="Togli il capotasto">Capo {capo}</button>
+		<button onclick={() => (capo = Math.min(CAPO_MAX, capo + 1))} aria-label="Capotasto un tasto in su">+</button>
+	</div>
+
+	<div class="group" aria-label="Dimensione testo">
+		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
+		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
+	</div>
+
 	<button class="toggle" class:active={simplify} onclick={() => (simplify = !simplify)}>
 		Accordi semplici
 	</button>
@@ -253,18 +265,6 @@
 			Diagrammi
 		</button>
 	{/if}
-
-	<div class="group" aria-label="Capotasto">
-		<button onclick={() => (capo = Math.max(0, capo - 1))} aria-label="Capotasto un tasto in giù">−</button>
-		<button class="value" class:active={capo !== 0} onclick={() => (capo = 0)}
-			title="Togli il capotasto">Capo {capo}</button>
-		<button onclick={() => (capo = Math.min(CAPO_MAX, capo + 1))} aria-label="Capotasto un tasto in su">+</button>
-	</div>
-
-	<div class="group" aria-label="Dimensione testo">
-		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
-		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
-	</div>
 
 	<div class="group" aria-label="Scorrimento automatico">
 		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
@@ -381,8 +381,8 @@
 	.controls {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
-		margin: 14px 0 18px;
+		gap: 6px;
+		margin: 12px 0 16px;
 		position: sticky;
 		top: calc(env(safe-area-inset-top) + 42px);
 		z-index: 5;
@@ -392,8 +392,9 @@
 
 	button {
 		font: inherit;
-		font-size: 15px;
-		padding: 8px 14px;
+		font-size: 14px;
+		height: 38px;
+		padding: 0 12px;
 		border: 1px solid var(--control-border);
 		border-radius: 8px;
 		background: var(--surface);
@@ -412,22 +413,27 @@
 		display: flex;
 	}
 
+	/* Adjacent buttons in a group share a border; per-corner radii compose, so
+	   a button that is both first and last (single visible button) keeps both
+	   sides rounded. */
 	.group button {
 		border-radius: 0;
 		margin-left: -1px;
 	}
 
 	.group button:first-child {
-		border-radius: 8px 0 0 8px;
+		border-top-left-radius: 8px;
+		border-bottom-left-radius: 8px;
 		margin-left: 0;
 	}
 
 	.group button:last-child {
-		border-radius: 0 8px 8px 0;
+		border-top-right-radius: 8px;
+		border-bottom-right-radius: 8px;
 	}
 
 	.value {
-		min-width: 44px;
+		min-width: 40px;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -534,8 +540,8 @@
 		}
 
 		button {
-			font-size: 14px;
-			padding: 5px 10px;
+			height: 32px;
+			padding: 0 10px;
 		}
 	}
 </style>
