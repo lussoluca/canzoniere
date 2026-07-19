@@ -53,9 +53,9 @@
 		font-size: 15px;
 		margin-bottom: 12px;
 		padding: 10px 16px;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--control-border);
 		border-radius: 10px;
-		background: white;
+		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
@@ -68,7 +68,7 @@
 	}
 
 	.songs li {
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.songs a {
@@ -87,7 +87,7 @@
 
 	.songs .artist {
 		font-size: 13px;
-		color: #6b7280;
+		color: var(--muted);
 		text-align: right;
 	}
 </style>
