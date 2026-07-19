@@ -35,10 +35,20 @@
 
 	header {
 		background: #2f3e46;
-		padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+		/* Side insets keep the brand clear of the Dynamic Island in landscape. */
+		padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px)
+			10px calc(env(safe-area-inset-left) + 16px);
 		position: sticky;
 		top: 0;
 		z-index: 10;
+	}
+
+	/* Landscape on a phone: every vertical pixel counts, the header goes away
+	   (navigation stays available through the in-page links). */
+	@media (orientation: landscape) and (max-height: 500px) {
+		header {
+			display: none;
+		}
 	}
 
 	.brand {
@@ -53,7 +63,9 @@
 		width: 100%;
 		max-width: 900px;
 		margin: 0 auto;
-		padding: 16px 16px calc(env(safe-area-inset-bottom) + 24px);
+		/* Side insets keep the text clear of the Dynamic Island in landscape. */
+		padding: 16px calc(env(safe-area-inset-right) + 16px)
+			calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 16px);
 		box-sizing: border-box;
 	}
 
