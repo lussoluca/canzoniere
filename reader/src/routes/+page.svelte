@@ -55,6 +55,8 @@
 		{/each}
 	</ul>
 {:else}
+	<a class="tool" href="{base}/memoria/">📚 Memoria del repertorio</a>
+
 	{#if favorites.length > 0}
 		<h2>Preferiti</h2>
 		<ul class="songs">
@@ -102,6 +104,19 @@
 		border-radius: 10px;
 		background: var(--surface);
 		color: inherit;
+	}
+
+	.tool {
+		display: inline-block;
+		font-size: 15px;
+		margin-top: 14px;
+		padding: 10px 16px;
+		border: 1px solid var(--control-border);
+		border-radius: 10px;
+		background: var(--surface);
+		color: inherit;
+		text-decoration: none;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	h2 {
