@@ -274,7 +274,8 @@
 		box-shadow: 0 -4px 16px var(--shadow);
 		max-height: 45dvh;
 		overflow-y: auto;
-		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
+		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
+			calc(env(safe-area-inset-left) + 16px);
 	}
 
 	.diagrams-head {
@@ -316,5 +317,23 @@
 	.pager .next {
 		text-align: right;
 		margin-left: auto;
+	}
+
+	/* Landscape on a phone: the header is hidden by the layout, the controls
+	   stick to the very top and shrink to give the song every possible line. */
+	@media (orientation: landscape) and (max-height: 500px) {
+		h1 {
+			font-size: 20px;
+		}
+
+		.controls {
+			top: 0;
+			margin: 8px 0 10px;
+		}
+
+		button {
+			font-size: 14px;
+			padding: 5px 10px;
+		}
 	}
 </style>
