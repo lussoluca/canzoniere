@@ -92,19 +92,19 @@
 	}
 
 	.chords {
-		color: #a15c07;
+		color: var(--chord);
 		font-weight: 700;
 	}
 
 	.chorus {
-		border-left: 3px solid #d9c58a;
+		border-left: 3px solid var(--chorus);
 		padding-left: 10px;
 		font-style: italic;
 	}
 
 	.comment {
 		margin: 6px 0;
-		color: #6b7280;
+		color: var(--muted);
 		font-style: italic;
 	}
 

@@ -45,7 +45,7 @@
 	}
 
 	.songs li {
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.songs a {
@@ -64,7 +64,7 @@
 
 	.songs .artist {
 		font-size: 13px;
-		color: #6b7280;
+		color: var(--muted);
 		text-align: right;
 	}
 </style>
