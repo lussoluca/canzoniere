@@ -16,7 +16,10 @@
 		saveFontSize,
 		FONT_MIN,
 		FONT_MAX,
-		FONT_DEFAULT
+		FONT_DEFAULT,
+		SCROLL_MIN,
+		SCROLL_MAX,
+		SCROLL_DEFAULT
 	} from '$lib/prefs';
 	import type { PageProps } from './$types';
 
@@ -42,6 +45,7 @@
 	let transpose = $state(0);
 	let simplify = $state(false);
 	let hideChords = $state(false);
+	let scrollSpeed = $state(SCROLL_DEFAULT);
 	let fontSize = $state(FONT_DEFAULT);
 	let ready = $state(false);
 
@@ -51,13 +55,69 @@
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
+		scrollSpeed = p.scrollSpeed;
+		scrolling = false;
 		ready = true;
 	});
 
 	$effect(() => {
 		if (!ready) return;
-		saveSongPrefs(data.song.category, data.song.slug, { transpose, simplify, hideChords });
+		saveSongPrefs(data.song.category, data.song.slug, {
+			transpose,
+			simplify,
+			hideChords,
+			scrollSpeed
+		});
 	});
+
+	// Autoscroll: the page scrolls by itself like a teleprompter, so the
+	// guitarist never has to touch the screen mid-song. Each speed level is
+	// worth 8 px/s; the level is saved per song with the other prefs.
+	let scrolling = $state(false);
+
+	$effect(() => {
+		if (!scrolling) return;
+
+		let raf = 0;
+		let last: number | null = null;
+		let carry = 0;
+		const step = (now: number) => {
+			if (last !== null) {
+				carry += ((now - last) / 1000) * scrollSpeed * 8;
+				const px = Math.trunc(carry);
+				if (px > 0) {
+					window.scrollBy(0, px);
+					carry -= px;
+				}
+				if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 1) {
+					scrolling = false;
+					return;
+				}
+			}
+			last = now;
+			raf = requestAnimationFrame(step);
+		};
+		raf = requestAnimationFrame(step);
+
+		// Touching the page or using the wheel hands control back to the user;
+		// taps on the control bar (pause, speed) must not count as taking over.
+		const stop = (e: Event) => {
+			if (e.target instanceof Element && e.target.closest('.controls')) return;
+			scrolling = false;
+		};
+		window.addEventListener('wheel', stop, { passive: true });
+		window.addEventListener('touchstart', stop, { passive: true });
+
+		return () => {
+			cancelAnimationFrame(raf);
+			window.removeEventListener('wheel', stop);
+			window.removeEventListener('touchstart', stop);
+		};
+	});
+
+	function bumpScrollSpeed(delta: number) {
+		scrollSpeed = Math.min(SCROLL_MAX, Math.max(SCROLL_MIN, scrollSpeed + delta));
+	}
 
 	onMount(() => {
 		fontSize = loadFontSize();
@@ -155,6 +215,17 @@
 	<div class="group" aria-label="Dimensione testo">
 		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
 		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
+	</div>
+
+	<div class="group" aria-label="Scorrimento automatico">
+		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
+			{scrolling ? '⏸ Ferma' : '▶ Scorri'}
+		</button>
+		{#if scrolling}
+			<button onclick={() => bumpScrollSpeed(-1)} aria-label="Scorri più lentamente">−</button>
+			<button class="value" aria-label="Velocità di scorrimento" disabled>{scrollSpeed}</button>
+			<button onclick={() => bumpScrollSpeed(1)} aria-label="Scorri più velocemente">+</button>
+		{/if}
 	</div>
 </div>
 
