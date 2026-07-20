@@ -23,24 +23,38 @@ function songKey(category: string, slug: string): string {
 	return `reader:song:${category}/${slug}`;
 }
 
-export function loadSongPrefs(category: string, slug: string): SongPrefs {
-	if (typeof localStorage === 'undefined') return { ...DEFAULT_PREFS };
+// The song's authored autoscroll speed ({x_scroll:N} in the .cho) is the
+// per-song default: it applies when the device has no saved override, and
+// resetting to it clears the override. Callers pass it in; without it the
+// global SCROLL_DEFAULT is used.
+export function loadSongPrefs(
+	category: string,
+	slug: string,
+	scrollDefault = SCROLL_DEFAULT
+): SongPrefs {
+	const base = { ...DEFAULT_PREFS, scrollSpeed: scrollDefault };
+	if (typeof localStorage === 'undefined') return base;
 	try {
 		const raw = localStorage.getItem(songKey(category, slug));
-		if (!raw) return { ...DEFAULT_PREFS };
-		return { ...DEFAULT_PREFS, ...JSON.parse(raw) };
+		if (!raw) return base;
+		return { ...base, ...JSON.parse(raw) };
 	} catch {
-		return { ...DEFAULT_PREFS };
+		return base;
 	}
 }
 
-export function saveSongPrefs(category: string, slug: string, prefs: SongPrefs): void {
+export function saveSongPrefs(
+	category: string,
+	slug: string,
+	prefs: SongPrefs,
+	scrollDefault = SCROLL_DEFAULT
+): void {
 	if (typeof localStorage === 'undefined') return;
 	const isDefault =
 		prefs.transpose === 0 &&
 		!prefs.simplify &&
 		!prefs.hideChords &&
-		prefs.scrollSpeed === SCROLL_DEFAULT;
+		prefs.scrollSpeed === scrollDefault;
 	try {
 		if (isDefault) localStorage.removeItem(songKey(category, slug));
 		else localStorage.setItem(songKey(category, slug), JSON.stringify(prefs));

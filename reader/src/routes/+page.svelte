@@ -61,7 +61,10 @@
 		{/each}
 	</ul>
 {:else}
-	<button class="random" onclick={randomSong}>🎲 Canto a caso</button>
+	<div class="actions">
+		<button class="tool" onclick={randomSong}>🎲 Canto a caso</button>
+		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
+	</div>
 
 	{#if favorites.length > 0}
 		<h2>Preferiti</h2>
@@ -112,15 +115,22 @@
 		color: inherit;
 	}
 
-	.random {
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 14px;
+	}
+
+	.tool {
 		font: inherit;
 		font-size: 15px;
-		margin-top: 14px;
 		padding: 10px 16px;
 		border: 1px solid var(--control-border);
 		border-radius: 10px;
 		background: var(--surface);
 		color: inherit;
+		text-decoration: none;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
