@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	function randomSong() {
+		const song = data.songs[Math.floor(Math.random() * data.songs.length)];
+		goto(`${base}/s/${song.category}/${song.slug}/`);
+	}
 </script>
 
 <svelte:head>
@@ -11,6 +17,10 @@
 
 <nav><a href="{base}/">← Categorie</a></nav>
 <h1>{data.category.label}</h1>
+
+{#if data.songs.length > 0}
+	<button class="random" onclick={randomSong}>🎲 Canto a caso</button>
+{/if}
 
 <ul class="songs">
 	{#each data.songs as song (song.slug)}
@@ -36,6 +46,19 @@
 	h1 {
 		font-size: 24px;
 		margin: 0 0 12px;
+	}
+
+	.random {
+		font: inherit;
+		font-size: 15px;
+		margin-bottom: 12px;
+		padding: 10px 16px;
+		border: 1px solid var(--control-border);
+		border-radius: 10px;
+		background: var(--surface);
+		color: inherit;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	.songs {

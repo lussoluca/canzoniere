@@ -1,0 +1,167 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "📖 Canzoniere" [ref=e5] [cursor=pointer]:
+      - /url: /canzoniere/app/
+    - button "Passa al tema scuro" [ref=e6] [cursor=pointer]: 🌙
+  - main [ref=e7]:
+    - navigation [ref=e8]:
+      - link "← Branco" [ref=e9] [cursor=pointer]:
+        - /url: /canzoniere/app/c/branco/
+    - heading [level=1] [ref=e10]:
+      - text: Cucciolo d'uomo
+      - button "Aggiungi ai preferiti" [ref=e11] [cursor=pointer]: ☆
+    - paragraph [ref=e12]: La compagnia dei Carpiscout
+    - generic [ref=e13]:
+      - generic "Trasposizione" [ref=e14]:
+        - button "Trasponi un semitono in giù" [ref=e15] [cursor=pointer]: −
+        - button "0" [ref=e16] [cursor=pointer]
+        - button "Trasponi un semitono in su" [ref=e17] [cursor=pointer]: +
+      - generic "Dimensione testo" [ref=e18]:
+        - button "Testo più piccolo" [ref=e19] [cursor=pointer]: A−
+        - button "Testo più grande" [ref=e20] [cursor=pointer]: A+
+      - button "Accordi semplici" [ref=e21] [cursor=pointer]
+      - button "Solo testo" [ref=e22] [cursor=pointer]
+      - button "Diagrammi" [ref=e23] [cursor=pointer]
+      - button "Note" [ref=e24] [cursor=pointer]
+      - generic "Scorrimento automatico" [ref=e25]:
+        - button "▶ Scorri" [ref=e26] [cursor=pointer]
+      - button "🧭 Copilota" [ref=e27] [cursor=pointer]
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]: Do Lam
+        - generic [ref=e31]: Alla Rupe del Consiglio
+      - generic [ref=e32]:
+        - generic [ref=e33]: Fa Sol
+        - generic [ref=e34]: un cucciolo d'uomo hanno portato.
+      - generic [ref=e35]:
+        - generic [ref=e36]: Do Lam
+        - generic [ref=e37]: Da Shere Khan l'hanno salvato
+      - generic [ref=e38]:
+        - generic [ref=e39]: Fa Sol
+        - generic [ref=e40]: ora vogliono adottarlo.
+      - generic [ref=e41]:
+        - generic [ref=e42]: Do Lam
+        - generic [ref=e43]: Guardate bene, guardate lupi
+      - generic [ref=e44]:
+        - generic [ref=e45]: Fa Sol
+        - generic [ref=e46]: la decisione spetta a voi.
+      - generic [ref=e48]:
+        - generic [ref=e49]: Re La
+        - generic [ref=e50]: Cucciolo d'uomo resta insieme a me
+      - generic [ref=e51]:
+        - generic [ref=e52]: Sol La
+        - generic [ref=e53]: atterreremo la tua preda.
+      - generic [ref=e54]:
+        - generic [ref=e55]: Re La
+        - generic [ref=e56]: La Legge della Giungla io ti insegnerò
+      - generic [ref=e57]:
+        - generic [ref=e58]: Sol La
+        - generic [ref=e59]: la tua parola maestra.
+      - generic [ref=e60]:
+        - generic [ref=e61]: Re La
+        - generic [ref=e62]: Ed imparerai anche tu
+      - generic [ref=e63]:
+        - generic [ref=e64]: Re La Sol Fa
+        - generic [ref=e65]: perché io sono Baloo.
+      - generic [ref=e67]:
+        - generic [ref=e68]: Do Lam
+        - generic [ref=e69]: Cosa c'entra lui col Branco
+      - generic [ref=e70]:
+        - generic [ref=e71]: Fa Sol
+        - generic [ref=e72]: noi siamo lupi e lui è un uomo.
+      - generic [ref=e73]:
+        - generic [ref=e74]: Do Lam
+        - generic [ref=e75]: Verranno gli uomini a cercarlo
+      - generic [ref=e76]:
+        - generic [ref=e77]: Fa Sol
+        - generic [ref=e78]: verranno facendo un gran baccano.
+      - generic [ref=e79]:
+        - generic [ref=e80]: Do Lam
+        - generic [ref=e81]: Rovisteranno dappertutto
+      - generic [ref=e82]:
+        - generic [ref=e83]: Fa Sol
+        - generic [ref=e84]: e la nostra pace se ne andrà.
+      - generic [ref=e86]:
+        - generic [ref=e87]: Re La
+        - generic [ref=e88]: Cucciolo d'uomo resta insieme a me
+      - generic [ref=e89]:
+        - generic [ref=e90]: Sol La
+        - generic [ref=e91]: atterreremo la tua preda.
+      - generic [ref=e92]:
+        - generic [ref=e93]: Re La
+        - generic [ref=e94]: La Legge della Giungla io ti insegnerò
+      - generic [ref=e95]:
+        - generic [ref=e96]: Sol La
+        - generic [ref=e97]: la tua parola maestra.
+      - generic [ref=e98]:
+        - generic [ref=e99]: Re La
+        - generic [ref=e100]: Ed imparerai anche tu
+      - generic [ref=e101]:
+        - generic [ref=e102]: Re La Sol Fa
+        - generic [ref=e103]: perché io sono Baloo.
+      - generic [ref=e105]:
+        - generic [ref=e106]: Do Lam
+        - generic [ref=e107]: Quello che Baloo ha detto
+      - generic [ref=e108]:
+        - generic [ref=e109]: Fa Sol
+        - generic [ref=e110]: è giusto e io penso lo stesso.
+      - generic [ref=e111]:
+        - generic [ref=e112]: Do Lam
+        - generic [ref=e113]: Come pegno per l'ometto
+      - generic [ref=e114]:
+        - generic [ref=e115]: Fa Sol
+        - generic [ref=e116]: aggiungo un toro ucciso adesso.
+      - generic [ref=e117]:
+        - generic [ref=e118]: Do Lam
+        - generic [ref=e119]: Che male vi può fare un bimbo
+      - generic [ref=e120]:
+        - generic [ref=e121]: Fa Sol
+        - generic [ref=e122]: alla prima pioggia morirà.
+      - generic [ref=e124]:
+        - generic [ref=e125]: Re La
+        - generic [ref=e126]: Cucciolo d'uomo resta insieme a me
+      - generic [ref=e127]:
+        - generic [ref=e128]: Sol La
+        - generic [ref=e129]: atterreremo la tua preda.
+      - generic [ref=e130]:
+        - generic [ref=e131]: Re La
+        - generic [ref=e132]: La Legge della Giungla io ti insegnerò
+      - generic [ref=e133]:
+        - generic [ref=e134]: Sol La
+        - generic [ref=e135]: la tua parola maestra.
+      - generic [ref=e136]:
+        - generic [ref=e137]: Re La
+        - generic [ref=e138]: Ed imparerai anche tu
+      - generic [ref=e139]:
+        - generic [ref=e140]: Re La Sol Fa
+        - generic [ref=e141]: perché io sono Baloo.
+      - generic [ref=e143]:
+        - generic [ref=e144]: Do Lam
+        - generic [ref=e145]: Guardate bene, guardate lupi
+      - generic [ref=e146]:
+        - generic [ref=e147]: Fa Sol
+        - generic [ref=e148]: l'uomo resterà con noi.
+      - generic [ref=e149]:
+        - generic [ref=e150]: Do Lam
+        - generic [ref=e151]: Crescerà e d'ora in poi
+      - generic [ref=e152]:
+        - generic [ref=e153]: Fa Sol
+        - generic [ref=e154]: Mowgli "il ranocchio" lui sarà
+      - generic [ref=e156]:
+        - generic [ref=e157]: Re La
+        - generic [ref=e158]: Cucciolo d'uomo resta insieme a noi
+      - generic [ref=e159]:
+        - generic [ref=e160]: Sol La
+        - generic [ref=e161]: atterreremo la tua preda.
+      - generic [ref=e162]:
+        - generic [ref=e163]: Re La
+        - generic [ref=e164]: La Legge della Giungla Baloo ti insegnerà
+      - generic [ref=e165]:
+        - generic [ref=e166]: Sol La
+        - generic [ref=e167]: la tua parola maestra.
+      - generic [ref=e168]:
+        - generic [ref=e169]: Re La
+        - generic [ref=e170]: Ed imparerai anche tu
+      - generic [ref=e171]:
+        - generic [ref=e172]: Re La Sol
+        - generic [ref=e173]: te l'insegnerà Baloo.

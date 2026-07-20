@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
 	import { loadFavorites } from '$lib/favorites';
 
 	let query = $state('');
+
+	function randomSong() {
+		const song = allSongs[Math.floor(Math.random() * allSongs.length)];
+		goto(`${base}/s/${song.category}/${song.slug}/`);
+	}
 
 	// Starred songs, resolved to SongRefs; localStorage only exists client-side.
 	let favorites = $state<SongRef[]>([]);
@@ -57,6 +63,7 @@
 {:else}
 	<div class="actions">
 		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
+		<button class="tool" onclick={randomSong}>🎲 Canto a caso</button>
 		<a class="tool" href="{base}/raccolta/">🎵 Crea un canzoniere</a>
 	</div>
 
@@ -117,6 +124,7 @@
 	}
 
 	.tool {
+		font: inherit;
 		font-size: 15px;
 		padding: 10px 16px;
 		border: 1px solid var(--control-border);
@@ -124,6 +132,7 @@
 		background: var(--surface);
 		color: inherit;
 		text-decoration: none;
+		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
