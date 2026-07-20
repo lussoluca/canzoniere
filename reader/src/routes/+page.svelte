@@ -55,6 +55,11 @@
 		{/each}
 	</ul>
 {:else}
+	<div class="actions">
+		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
+		<a class="tool" href="{base}/raccolta/">🎵 Crea un canzoniere</a>
+	</div>
+
 	{#if favorites.length > 0}
 		<h2>Preferiti</h2>
 		<ul class="songs">
@@ -102,6 +107,24 @@
 		border-radius: 10px;
 		background: var(--surface);
 		color: inherit;
+	}
+
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 14px;
+	}
+
+	.tool {
+		font-size: 15px;
+		padding: 10px 16px;
+		border: 1px solid var(--control-border);
+		border-radius: 10px;
+		background: var(--surface);
+		color: inherit;
+		text-decoration: none;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	h2 {

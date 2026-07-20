@@ -9,6 +9,7 @@
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import QRCode from 'qrcode';
 	import { findSongbook } from '$lib/data';
+	import { decodeCollection } from '$lib/collection';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
@@ -30,19 +31,43 @@
 
 	const song = $derived(parse(data.song.source));
 
-	// Reading context: opened from a songbook (?from=name) or from its category.
-	// The query string only exists client-side (pages are prerendered without it).
-	const book = $derived.by(() => {
-		if (!browser) return undefined;
-		const name = page.url.searchParams.get('from');
-		return name ? findSongbook(name) : undefined;
-	});
-	const bookIndex = $derived(
-		book ? book.songs.findIndex((s) => s.category === data.song.category && s.slug === data.song.slug) : -1
+	// The song's authored autoscroll speed, clamped; the reader's per-song
+	// default when the device has no saved override.
+	const songScroll = $derived(
+		song.meta.scroll
+			? Math.min(SCROLL_MAX, Math.max(SCROLL_MIN, song.meta.scroll))
+			: SCROLL_DEFAULT
 	);
-	const prev = $derived(book && bookIndex > 0 ? book.songs[bookIndex - 1] : undefined);
+
+	// Reading context: opened from a preset songbook (?from=name) or from an
+	// ad-hoc shared collection (?l=...&t=...). Either way it gives the song list
+	// for the prev/next pager plus a back link and the query to carry forward.
+	// The query string only exists client-side (pages are prerendered without it).
+	const ctx = $derived.by(() => {
+		if (!browser) return undefined;
+		const params = page.url.searchParams;
+		const name = params.get('from');
+		if (name) {
+			const b = findSongbook(name);
+			if (b) return { songs: b.songs, backHref: `${base}/k/${b.name}/`, backLabel: b.label, query: `from=${name}` };
+		}
+		const l = params.get('l');
+		if (l) {
+			const songs = decodeCollection(l);
+			if (songs.length > 0) {
+				const t = params.get('t') ?? '';
+				const query = `l=${encodeURIComponent(l)}${t ? `&t=${encodeURIComponent(t)}` : ''}`;
+				return { songs, backHref: `${base}/raccolta/?${query}`, backLabel: t.trim() || 'Canzoniere', query };
+			}
+		}
+		return undefined;
+	});
+	const ctxIndex = $derived(
+		ctx ? ctx.songs.findIndex((s) => s.category === data.song.category && s.slug === data.song.slug) : -1
+	);
+	const prev = $derived(ctx && ctxIndex > 0 ? ctx.songs[ctxIndex - 1] : undefined);
 	const next = $derived(
-		book && bookIndex >= 0 && bookIndex < book.songs.length - 1 ? book.songs[bookIndex + 1] : undefined
+		ctx && ctxIndex >= 0 && ctxIndex < ctx.songs.length - 1 ? ctx.songs[ctxIndex + 1] : undefined
 	);
 
 	let transpose = $state(0);
@@ -56,15 +81,16 @@
 	// Handoff parameters in the URL (see "Passa la chitarra") override the saved
 	// prefs; the save effect below then persists them like any manual change.
 	$effect(() => {
-		const p = loadSongPrefs(data.song.category, data.song.slug);
+		const p = loadSongPrefs(data.song.category, data.song.slug, songScroll);
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
 		scrollSpeed = p.scrollSpeed;
 		if (browser) {
 			const q = page.url.searchParams;
-			const t = parseInt(q.get('t') ?? '', 10);
-			if (Number.isFinite(t)) transpose = ((((t + 6) % 12) + 12) % 12) - 6;
+			// `tr` = transpose from a handoff link (`t` is the collection title).
+			const tr = parseInt(q.get('tr') ?? '', 10);
+			if (Number.isFinite(tr)) transpose = ((((tr + 6) % 12) + 12) % 12) - 6;
 			if (q.has('semplici')) simplify = q.get('semplici') === '1';
 			if (q.has('solotesto')) hideChords = q.get('solotesto') === '1';
 		}
@@ -74,12 +100,12 @@
 
 	$effect(() => {
 		if (!ready) return;
-		saveSongPrefs(data.song.category, data.song.slug, {
-			transpose,
-			simplify,
-			hideChords,
-			scrollSpeed
-		});
+		saveSongPrefs(
+			data.song.category,
+			data.song.slug,
+			{ transpose, simplify, hideChords, scrollSpeed },
+			songScroll
+		);
 	});
 
 	// Autoscroll: the page scrolls by itself like a teleprompter, so the
@@ -195,9 +221,10 @@
 
 	$effect(() => {
 		if (!showHandoff || !browser) return;
-		const params = new URLSearchParams();
-		if (book) params.set('from', book.name);
-		if (transpose !== 0) params.set('t', String(transpose));
+		// Carry the reading context (preset book or ad-hoc collection) plus the
+		// current reading state, so the next guitarist lands with both.
+		const params = new URLSearchParams(ctx ? ctx.query : '');
+		if (transpose !== 0) params.set('tr', String(transpose));
 		if (simplify) params.set('semplici', '1');
 		if (hideChords) params.set('solotesto', '1');
 		const query = params.toString();
@@ -215,6 +242,9 @@
 	let copilot = $state(false);
 	let nowChords = $state<string[]>([]);
 	let nextChords = $state<string[]>([]);
+	// A chord row can repeat a chord; one diagram each is enough (also keeps the
+	// {#each} key unique).
+	const nextDiagrams = $derived([...new Set(nextChords)]);
 
 	const READ_Y = 170; // viewport offset of the "reading line", below the sticky controls
 
@@ -290,8 +320,8 @@
 </svelte:head>
 
 <nav>
-	{#if book}
-		<a href="{base}/k/{book.name}/">← {book.label}</a>
+	{#if ctx}
+		<a href={ctx.backHref}>← {ctx.backLabel}</a>
 	{:else}
 		<a href="{base}/c/{data.song.category}/">← {categoryLabel(data.song.category)}</a>
 	{/if}
@@ -338,6 +368,12 @@
 		</button>
 	{/if}
 
+	<button class="toggle" class:active={showNote} disabled={scrolling}
+		title={scrolling ? 'Ferma lo scorrimento per aprire le note' : undefined}
+		onclick={() => (showNote = !showNote)}>
+		{hasNote ? '📝 Note' : 'Note'}
+	</button>
+
 	<div class="group" aria-label="Scorrimento automatico">
 		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
 			{scrolling ? '⏸ Ferma' : '▶ Scorri'}
@@ -348,10 +384,6 @@
 			<button onclick={() => bumpScrollSpeed(1)} aria-label="Scorri più velocemente">+</button>
 		{/if}
 	</div>
-
-	<button class="toggle" class:active={showNote} onclick={() => (showNote = !showNote)}>
-		{hasNote ? '📝 Note' : 'Note'}
-	</button>
 
 	{#if uniqueChords.length > 0 && !hideChords}
 		<button class="toggle" class:active={copilot} onclick={() => (copilot = !copilot)}>
@@ -412,7 +444,9 @@
 		</div>
 		{#if nextChords.length > 0}
 			<div class="copilot-diagram">
-				<ChordDiagram name={nextChords[0]} scale={1.7} />
+				{#each nextDiagrams as chord (chord)}
+					<ChordDiagram name={chord} scale={1.7} />
+				{/each}
 			</div>
 		{/if}
 	</div>
@@ -429,20 +463,20 @@
 		{/if}
 		<p class="handoff-hint">
 			Chi subentra inquadra il codice con la fotocamera: si apre questo canto con trasposizione e
-			impostazioni attuali{book ? ', dentro la scaletta in corso' : ''}.
+			impostazioni attuali{ctx ? ', dentro la scaletta in corso' : ''}.
 		</p>
 	</div>
 {/if}
 
-{#if book}
+{#if ctx}
 	<div class="pager">
 		{#if prev}
-			<a href="{base}/s/{prev.category}/{prev.slug}/?from={book.name}">← {prev.title}</a>
+			<a href="{base}/s/{prev.category}/{prev.slug}/?{ctx.query}">← {prev.title}</a>
 		{:else}
 			<span></span>
 		{/if}
 		{#if next}
-			<a class="next" href="{base}/s/{next.category}/{next.slug}/?from={book.name}">{next.title} →</a>
+			<a class="next" href="{base}/s/{next.category}/{next.slug}/?{ctx.query}">{next.title} →</a>
 		{/if}
 	</div>
 {/if}
@@ -505,6 +539,11 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
+	.toggle:disabled {
+		opacity: 0.45;
+		cursor: default;
+	}
+
 	button.active {
 		background: var(--active-bg);
 		border-color: var(--active-bg);
@@ -560,6 +599,15 @@
 		box-shadow: 0 -4px 16px var(--shadow);
 		padding: 8px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 8px)
 			calc(env(safe-area-inset-left) + 16px);
+	}
+
+	.copilot-diagram {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 2px 10px;
+		max-width: 60%;
+		overflow-x: auto;
 	}
 
 	.copilot-rows {
