@@ -3,19 +3,26 @@
 	import { base } from '$app/paths';
 	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
 	import { loadFavorites } from '$lib/favorites';
+	import { loadRecents } from '$lib/recents';
 
 	let query = $state('');
 
-	// Starred songs, resolved to SongRefs; localStorage only exists client-side.
-	let favorites = $state<SongRef[]>([]);
-	onMount(() => {
-		favorites = loadFavorites()
+	function resolve(keys: string[]): SongRef[] {
+		return keys
 			.map((key) => {
 				const [category, ...rest] = key.split('/');
 				return findSong(category, rest.join('/'));
 			})
-			.filter((s): s is SongRef => s !== undefined)
-			.sort((a, b) => a.title.localeCompare(b.title, 'it'));
+			.filter((s): s is SongRef => s !== undefined);
+	}
+
+	// Starred and last-opened songs, resolved to SongRefs; localStorage only
+	// exists client-side.
+	let favorites = $state<SongRef[]>([]);
+	let recents = $state<SongRef[]>([]);
+	onMount(() => {
+		favorites = resolve(loadFavorites()).sort((a, b) => a.title.localeCompare(b.title, 'it'));
+		recents = resolve(loadRecents());
 	});
 
 	const filtered = $derived.by(() => {
@@ -62,6 +69,20 @@
 				<li>
 					<a href="{base}/s/{song.category}/{song.slug}/">
 						<span class="title">★ {song.title}</span>
+						{#if song.artist}<span class="artist">{song.artist}</span>{/if}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
+	{#if recents.length > 0}
+		<h2>Aperti di recente</h2>
+		<ul class="songs">
+			{#each recents as song (song.category + '/' + song.slug)}
+				<li>
+					<a href="{base}/s/{song.category}/{song.slug}/">
+						<span class="title">🕘 {song.title}</span>
 						{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 					</a>
 				</li>
