@@ -193,6 +193,9 @@
 	let copilot = $state(false);
 	let nowChords = $state<string[]>([]);
 	let nextChords = $state<string[]>([]);
+	// A chord row can repeat a chord; one diagram each is enough (also keeps the
+	// {#each} key unique).
+	const nextDiagrams = $derived([...new Set(nextChords)]);
 
 	const READ_Y = 170; // viewport offset of the "reading line", below the sticky controls
 
@@ -388,7 +391,9 @@
 		</div>
 		{#if nextChords.length > 0}
 			<div class="copilot-diagram">
-				<ChordDiagram name={nextChords[0]} scale={1.7} />
+				{#each nextDiagrams as chord (chord)}
+					<ChordDiagram name={chord} scale={1.7} />
+				{/each}
 			</div>
 		{/if}
 	</div>
@@ -525,6 +530,15 @@
 		box-shadow: 0 -4px 16px var(--shadow);
 		padding: 8px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 8px)
 			calc(env(safe-area-inset-left) + 16px);
+	}
+
+	.copilot-diagram {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 2px 10px;
+		max-width: 60%;
+		overflow-x: auto;
 	}
 
 	.copilot-rows {
