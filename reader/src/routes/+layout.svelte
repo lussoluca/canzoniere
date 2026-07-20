@@ -1,9 +1,59 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { dev } from '$app/environment';
 	import { base } from '$app/paths';
 	import { loadTheme, saveTheme, applyTheme, type Theme } from '$lib/theme';
 
 	let { children } = $props();
+
+	// Service worker with an active update flow: the worker script is never
+	// taken from the HTTP cache, updates are checked at launch, whenever the
+	// app comes back to the foreground and periodically while it stays open.
+	// A new version waits installed until the user accepts the banner: the tap
+	// tells the worker to take over and reloads onto the fresh cache.
+	let updateReady = $state(false);
+	let reg = $state<ServiceWorkerRegistration | undefined>(undefined);
+
+	function applyUpdate() {
+		reg?.waiting?.postMessage('skip-waiting');
+	}
+
+	onMount(() => {
+		if (dev || !('serviceWorker' in navigator)) return;
+
+		// Fires when the accepted new worker takes control: load its version.
+		navigator.serviceWorker.addEventListener('controllerchange', () => {
+			location.reload();
+		});
+
+		navigator.serviceWorker
+			.register(`${base}/service-worker.js`, { updateViaCache: 'none' })
+			.then((r) => {
+				reg = r;
+				if (r.waiting && navigator.serviceWorker.controller) updateReady = true;
+				r.addEventListener('updatefound', () => {
+					const fresh = r.installing;
+					fresh?.addEventListener('statechange', () => {
+						if (fresh.state === 'installed' && navigator.serviceWorker.controller) {
+							updateReady = true;
+						}
+					});
+				});
+				r.update().catch(() => {});
+			})
+			.catch(() => {});
+
+		const check = () => reg?.update().catch(() => {});
+		const onVisible = () => {
+			if (document.visibilityState === 'visible') check();
+		};
+		document.addEventListener('visibilitychange', onVisible);
+		const interval = setInterval(check, 30 * 60 * 1000);
+		return () => {
+			document.removeEventListener('visibilitychange', onVisible);
+			clearInterval(interval);
+		};
+	});
 
 	// Explicit choice from the toggle; null means "follow the system".
 	let chosen = $state<Theme | null>(null);
@@ -48,6 +98,12 @@
 	<main>
 		{@render children()}
 	</main>
+
+	{#if updateReady}
+		<button class="update" onclick={applyUpdate}>
+			✨ Nuova versione pronta — tocca per aggiornare
+		</button>
+	{/if}
 </div>
 
 <style>
@@ -190,5 +246,24 @@
 
 	:global(a) {
 		color: var(--link);
+	}
+
+	.update {
+		position: fixed;
+		left: 50%;
+		transform: translateX(-50%);
+		bottom: calc(env(safe-area-inset-bottom) + 16px);
+		z-index: 30;
+		font: inherit;
+		font-size: 15px;
+		font-weight: 600;
+		padding: 12px 18px;
+		border: none;
+		border-radius: 999px;
+		background: var(--header-bg);
+		color: var(--brand);
+		box-shadow: 0 4px 16px var(--shadow);
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
 	}
 </style>
