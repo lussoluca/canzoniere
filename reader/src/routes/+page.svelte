@@ -57,6 +57,7 @@
 {:else}
 	<div class="actions">
 		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
+		<a class="tool" href="{base}/raccolta/">🎵 Crea un canzoniere</a>
 		<a class="tool" href="{base}/memoria/">📚 Memoria del repertorio</a>
 	</div>
 

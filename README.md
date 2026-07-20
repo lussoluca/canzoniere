@@ -5,12 +5,18 @@
 L'ultima versione del canzoniere è disponibile qui:
 **[https://lussoluca.github.io/canzoniere](https://lussoluca.github.io/canzoniere)**
 
-## 📱 Reader (web app / iPad)
+## 📱 Reader (web app installabile)
 
 Per sfogliare i canti (con trasposizione, semplificazione degli accordi e ricerca) c'è una web app statica in [`reader/`](reader/), pubblicata su
 **[https://lussoluca.github.io/canzoniere/app/](https://lussoluca.github.io/canzoniere/app/)**.
 
-Su iPad: aprire l'URL in Safari e usare _Condividi → Aggiungi a schermata Home_; l'app funziona anche offline.
+È una PWA: si apre in qualsiasi browser (telefono, tablet o computer) e si può installare sulla schermata Home per usarla anche offline.
+
+- **iPhone / iPad (Safari):** _Condividi → Aggiungi a schermata Home_.
+- **Android (Chrome):** menu ⋮ → _Installa app_ (o _Aggiungi a schermata Home_).
+- **Computer (Chrome / Edge):** icona di installazione nella barra degli indirizzi.
+
+Dopo un aggiornamento l'app avvisa con «Nuova versione pronta»: basta un tocco, senza reinstallarla.
 
 ```bash
 cd reader && npm install && npm run dev
