@@ -83,7 +83,10 @@
 
 <div class="app">
 	<header>
-		<a class="brand" href="{base}/">📖 Canzoniere</a>
+		<a class="brand" href="{base}/">
+			<img class="logo" src="{base}/icons/icon-192.png" alt="" />
+			Canzoniere Alessandria 2
+		</a>
 		{#if mounted}
 			<button
 				class="theme"
@@ -218,10 +221,21 @@
 	}
 
 	.brand {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 		color: var(--brand);
 		font-weight: 700;
-		font-size: 17px;
+		font-size: 16px;
 		text-decoration: none;
+		min-width: 0;
+	}
+
+	.logo {
+		width: 28px;
+		height: 28px;
+		border-radius: 6px;
+		flex-shrink: 0;
 	}
 
 	.theme {

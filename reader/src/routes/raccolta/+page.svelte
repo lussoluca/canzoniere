@@ -83,7 +83,7 @@
 </script>
 
 <svelte:head>
-	<title>{viewing ? title.trim() || 'Canzoniere' : 'Crea un canzoniere'} — Canzoniere</title>
+	<title>{viewing ? title.trim() || 'Canzoniere' : 'Crea un canzoniere'} — Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <nav><a href="{base}/">← Canzoniere</a></nav>

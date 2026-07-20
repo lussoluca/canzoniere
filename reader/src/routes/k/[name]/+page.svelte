@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.book.label} — Canzoniere</title>
+	<title>{data.book.label} — Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <nav><a href="{base}/">← Canzonieri</a></nav>

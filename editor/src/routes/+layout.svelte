@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	const favicon = '/logo.png';
 
 	let { children } = $props();
 
@@ -11,11 +11,14 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>Canzoniere</title>
+	<title>Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <header class="topbar">
-	<a href="/" class="brand">🎸 Canzoniere</a>
+	<a href="/" class="brand">
+		<img class="logo" src="/logo.png" alt="" />
+		Canzoniere Alessandria 2
+	</a>
 	<nav>
 		<a href="/">Canzoni</a>
 		<a href="/songbooks">Canzonieri</a>
@@ -61,10 +64,18 @@
 		color: #fff;
 	}
 	.brand {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		color: #fff;
 		text-decoration: none;
 		font-weight: 700;
 		font-size: 1.1rem;
+	}
+	.brand .logo {
+		width: 28px;
+		height: 28px;
+		border-radius: 6px;
 	}
 	main {
 		max-width: 1100px;

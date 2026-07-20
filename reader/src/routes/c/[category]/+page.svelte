@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.category.label} — Canzoniere</title>
+	<title>{data.category.label} — Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <nav><a href="{base}/">← Categorie</a></nav>

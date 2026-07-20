@@ -31,7 +31,7 @@
 </script>
 
 <svelte:head>
-	<title>Cosa posso suonare — Canzoniere</title>
+	<title>Cosa posso suonare — Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <nav><a href="{base}/">← Canzoniere</a></nav>
