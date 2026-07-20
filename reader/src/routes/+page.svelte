@@ -62,8 +62,9 @@
 	</ul>
 {:else}
 	<div class="actions">
-		<button class="tool" onclick={randomSong}>🎲 Canto a caso</button>
 		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
+		<button class="tool" onclick={randomSong}>🎲 Canto a caso</button>
+		<a class="tool" href="{base}/raccolta/">🎵 Crea un canzoniere</a>
 	</div>
 
 	{#if favorites.length > 0}
