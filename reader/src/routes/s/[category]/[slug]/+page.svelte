@@ -8,6 +8,7 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { decodeCollection } from '$lib/collection';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
@@ -37,19 +38,35 @@
 			: SCROLL_DEFAULT
 	);
 
-	// Reading context: opened from a songbook (?from=name) or from its category.
+	// Reading context: opened from a preset songbook (?from=name) or from an
+	// ad-hoc shared collection (?l=...&t=...). Either way it gives the song list
+	// for the prev/next pager plus a back link and the query to carry forward.
 	// The query string only exists client-side (pages are prerendered without it).
-	const book = $derived.by(() => {
+	const ctx = $derived.by(() => {
 		if (!browser) return undefined;
-		const name = page.url.searchParams.get('from');
-		return name ? findSongbook(name) : undefined;
+		const params = page.url.searchParams;
+		const name = params.get('from');
+		if (name) {
+			const b = findSongbook(name);
+			if (b) return { songs: b.songs, backHref: `${base}/k/${b.name}/`, backLabel: b.label, query: `from=${name}` };
+		}
+		const l = params.get('l');
+		if (l) {
+			const songs = decodeCollection(l);
+			if (songs.length > 0) {
+				const t = params.get('t') ?? '';
+				const query = `l=${encodeURIComponent(l)}${t ? `&t=${encodeURIComponent(t)}` : ''}`;
+				return { songs, backHref: `${base}/raccolta/?${query}`, backLabel: t.trim() || 'Canzoniere', query };
+			}
+		}
+		return undefined;
 	});
-	const bookIndex = $derived(
-		book ? book.songs.findIndex((s) => s.category === data.song.category && s.slug === data.song.slug) : -1
+	const ctxIndex = $derived(
+		ctx ? ctx.songs.findIndex((s) => s.category === data.song.category && s.slug === data.song.slug) : -1
 	);
-	const prev = $derived(book && bookIndex > 0 ? book.songs[bookIndex - 1] : undefined);
+	const prev = $derived(ctx && ctxIndex > 0 ? ctx.songs[ctxIndex - 1] : undefined);
 	const next = $derived(
-		book && bookIndex >= 0 && bookIndex < book.songs.length - 1 ? book.songs[bookIndex + 1] : undefined
+		ctx && ctxIndex >= 0 && ctxIndex < ctx.songs.length - 1 ? ctx.songs[ctxIndex + 1] : undefined
 	);
 
 	let transpose = $state(0);
@@ -271,8 +288,8 @@
 </svelte:head>
 
 <nav>
-	{#if book}
-		<a href="{base}/k/{book.name}/">← {book.label}</a>
+	{#if ctx}
+		<a href={ctx.backHref}>← {ctx.backLabel}</a>
 	{:else}
 		<a href="{base}/c/{data.song.category}/">← {categoryLabel(data.song.category)}</a>
 	{/if}
@@ -399,15 +416,15 @@
 	</div>
 {/if}
 
-{#if book}
+{#if ctx}
 	<div class="pager">
 		{#if prev}
-			<a href="{base}/s/{prev.category}/{prev.slug}/?from={book.name}">← {prev.title}</a>
+			<a href="{base}/s/{prev.category}/{prev.slug}/?{ctx.query}">← {prev.title}</a>
 		{:else}
 			<span></span>
 		{/if}
 		{#if next}
-			<a class="next" href="{base}/s/{next.category}/{next.slug}/?from={book.name}">{next.title} →</a>
+			<a class="next" href="{base}/s/{next.category}/{next.slug}/?{ctx.query}">{next.title} →</a>
 		{/if}
 	</div>
 {/if}
