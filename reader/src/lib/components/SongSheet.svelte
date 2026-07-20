@@ -8,9 +8,17 @@
 		simplify?: boolean;
 		hideChords?: boolean;
 		fontSize?: number;
+		appliedSize?: number; // the size actually rendered after fit-to-width (bindable)
 	}
 
-	let { song, transpose = 0, simplify = false, hideChords = false, fontSize = 16 }: Props = $props();
+	let {
+		song,
+		transpose = 0,
+		simplify = false,
+		hideChords = false,
+		fontSize = 16,
+		appliedSize = $bindable(0)
+	}: Props = $props();
 
 	function transform(chord: string): string {
 		let out = chord;
@@ -75,6 +83,10 @@
 		if (sheetWidth === 0 || maxChars === 0) return fontSize;
 		const fit = Math.floor(sheetWidth / (maxChars * CHAR_RATIO));
 		return Math.max(FIT_FLOOR, Math.min(fontSize, fit));
+	});
+
+	$effect(() => {
+		appliedSize = effectiveSize;
 	});
 </script>
 
