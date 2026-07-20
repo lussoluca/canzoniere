@@ -48,11 +48,17 @@
 		selected = copy;
 	}
 
-	function shareUrl(): string {
+	// Carried on every song link so the song page shows the prev/next pager and
+	// a back link into this collection.
+	const songQuery = $derived.by(() => {
 		const params = new URLSearchParams();
 		params.set('l', encodeCollection(selected));
 		if (title.trim()) params.set('t', title.trim());
-		return `${location.origin}${location.pathname}?${params.toString()}`;
+		return params.toString();
+	});
+
+	function shareUrl(): string {
+		return `${location.origin}${location.pathname}?${songQuery}`;
 	}
 
 	async function share() {
@@ -87,7 +93,7 @@
 	<ol class="songs">
 		{#each selected as song, i (song.category + '/' + song.slug)}
 			<li>
-				<a href="{base}/s/{song.category}/{song.slug}/">
+				<a href="{base}/s/{song.category}/{song.slug}/?{songQuery}">
 					<span class="num">{i + 1}.</span>
 					<span class="title">{song.title}</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
