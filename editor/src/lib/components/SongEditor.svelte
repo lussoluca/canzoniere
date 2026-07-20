@@ -300,6 +300,21 @@
 			data-testid="meta-columns"
 		/>
 	</label>
+	<label title="Velocità iniziale dello scorrimento automatico nel reader (1–10). Vuoto = predefinito.">
+		Scorrimento
+		<input
+			type="number"
+			min="1"
+			max="10"
+			placeholder="auto"
+			value={song.meta.scroll ?? ''}
+			oninput={(e) => {
+				const v = parseInt(e.currentTarget.value, 10);
+				song.meta.scroll = Number.isNaN(v) ? null : Math.min(10, Math.max(1, v));
+			}}
+			data-testid="meta-scroll"
+		/>
+	</label>
 	<label>
 		Categoria
 		<select bind:value={category} data-testid="meta-category">
@@ -462,7 +477,7 @@
 <style>
 	.meta {
 		display: grid;
-		grid-template-columns: 2.5fr 2.5fr 0.8fr 1.4fr;
+		grid-template-columns: 2.3fr 2.3fr 0.8fr 1fr 1.4fr;
 		gap: 0.6rem;
 		background: #fff;
 		border-radius: 8px;

@@ -29,6 +29,14 @@
 
 	const song = $derived(parse(data.song.source));
 
+	// The song's authored autoscroll speed, clamped; the reader's per-song
+	// default when the device has no saved override.
+	const songScroll = $derived(
+		song.meta.scroll
+			? Math.min(SCROLL_MAX, Math.max(SCROLL_MIN, song.meta.scroll))
+			: SCROLL_DEFAULT
+	);
+
 	// Reading context: opened from a songbook (?from=name) or from its category.
 	// The query string only exists client-side (pages are prerendered without it).
 	const book = $derived.by(() => {
@@ -53,7 +61,7 @@
 
 	// Prefs are per song: reload whenever the song changes (client-side nav).
 	$effect(() => {
-		const p = loadSongPrefs(data.song.category, data.song.slug);
+		const p = loadSongPrefs(data.song.category, data.song.slug, songScroll);
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
@@ -64,12 +72,12 @@
 
 	$effect(() => {
 		if (!ready) return;
-		saveSongPrefs(data.song.category, data.song.slug, {
-			transpose,
-			simplify,
-			hideChords,
-			scrollSpeed
-		});
+		saveSongPrefs(
+			data.song.category,
+			data.song.slug,
+			{ transpose, simplify, hideChords, scrollSpeed },
+			songScroll
+		);
 	});
 
 	// Autoscroll: the page scrolls by itself like a teleprompter, so the

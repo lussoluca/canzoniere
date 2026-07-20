@@ -5,7 +5,7 @@
 	let { data } = $props();
 
 	const empty: Song = {
-		meta: { title: '', artist: '', tags: [], columns: null },
+		meta: { title: '', artist: '', tags: [], columns: null, scroll: null },
 		lines: []
 	};
 </script>
