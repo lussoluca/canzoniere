@@ -25,12 +25,14 @@
 
 	const selectedKeys = $derived(new Set(selected.map((s) => `${s.category}/${s.slug}`)));
 
+	// The whole list is shown by default (so you can browse without knowing the
+	// titles); typing narrows it.
 	const results = $derived.by(() => {
 		const q = query.trim().toLowerCase();
-		if (q === '') return [];
-		return allSongs
-			.filter((s) => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
-			.slice(0, 30);
+		if (q === '') return allSongs;
+		return allSongs.filter(
+			(s) => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+		);
 	});
 
 	function toggle(song: SongRef) {
