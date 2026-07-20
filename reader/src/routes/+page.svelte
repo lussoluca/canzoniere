@@ -58,6 +58,7 @@
 	<div class="actions">
 		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
 		<a class="tool" href="{base}/raccolta/">🎵 Crea un canzoniere</a>
+		<a class="tool" href="{base}/momento/">✨ Che si canta ora?</a>
 	</div>
 
 	{#if favorites.length > 0}
