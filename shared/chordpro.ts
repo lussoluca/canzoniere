@@ -19,6 +19,7 @@ export interface SongMeta {
 	artist: string;
 	tags: string[];
 	columns: number | null;
+	scroll: number | null; // initial autoscroll speed for the reader ({x_scroll:N})
 }
 
 export interface Song {
@@ -48,7 +49,7 @@ export function parseLyricLine(raw: string): { text: string; chords: Chord[] } {
 }
 
 export function parse(source: string): Song {
-	const meta: SongMeta = { title: '', artist: '', tags: [], columns: null };
+	const meta: SongMeta = { title: '', artist: '', tags: [], columns: null, scroll: null };
 	const lines: Line[] = [];
 
 	for (const raw of source.split(/\r?\n/)) {
@@ -69,6 +70,9 @@ export function parse(source: string): Song {
 					continue;
 				case 'columns':
 					meta.columns = parseInt(value, 10) || null;
+					continue;
+				case 'x_scroll':
+					meta.scroll = parseInt(value, 10) || null;
 					continue;
 				case 'start_of_chorus':
 				case 'soc':
@@ -120,6 +124,7 @@ export function serialize(song: Song): string {
 	if (song.meta.artist) head.push(`{artist:${song.meta.artist}}`);
 	for (const tag of song.meta.tags) head.push(`{tag:${tag}}`);
 	if (song.meta.columns) head.push(`{columns:${song.meta.columns}}`);
+	if (song.meta.scroll) head.push(`{x_scroll:${song.meta.scroll}}`);
 
 	const body: string[] = [];
 	for (const line of song.lines) {
