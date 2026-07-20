@@ -284,7 +284,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.song.title} — Canzoniere</title>
+	<title>{data.song.title} — Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <nav>

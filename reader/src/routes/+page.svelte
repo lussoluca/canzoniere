@@ -28,7 +28,7 @@
 </script>
 
 <svelte:head>
-	<title>Canzoniere</title>
+	<title>Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <input
