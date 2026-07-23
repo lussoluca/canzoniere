@@ -12,6 +12,7 @@ export type Line =
 	| { type: 'chorus_start' }
 	| { type: 'chorus_end' }
 	| { type: 'comment'; text: string }
+	| { type: 'tab'; text: string } // {start_of_tab}...{end_of_tab} block, content verbatim (multiline)
 	| { type: 'directive'; raw: string }; // preserved verbatim (e.g. {transpose:2}, {chorus})
 
 export interface SongMeta {
@@ -52,8 +53,21 @@ export function parse(source: string): Song {
 	const meta: SongMeta = { title: '', artist: '', tags: [], columns: null, scroll: null };
 	const lines: Line[] = [];
 
+	// inside a tab block every line is kept verbatim until {end_of_tab}
+	let tabBuffer: string[] | null = null;
+
 	for (const raw of source.split(/\r?\n/)) {
 		const m = raw.match(DIRECTIVE_RE);
+		if (tabBuffer !== null) {
+			const name = m?.[1].toLowerCase();
+			if (name === 'end_of_tab' || name === 'eot') {
+				lines.push({ type: 'tab', text: tabBuffer.join('\n') });
+				tabBuffer = null;
+			} else {
+				tabBuffer.push(raw);
+			}
+			continue;
+		}
 		if (m) {
 			const name = m[1].toLowerCase();
 			const value = m[2] ?? '';
@@ -86,6 +100,10 @@ export function parse(source: string): Song {
 				case 'c':
 					lines.push({ type: 'comment', text: value });
 					continue;
+				case 'start_of_tab':
+				case 'sot':
+					tabBuffer = [];
+					continue;
 				default:
 					lines.push({ type: 'directive', raw: raw.trim() });
 					continue;
@@ -96,6 +114,11 @@ export function parse(source: string): Song {
 		} else {
 			lines.push({ type: 'lyric', ...parseLyricLine(raw) });
 		}
+	}
+
+	// a tab block never closed still becomes a tab line
+	if (tabBuffer !== null) {
+		lines.push({ type: 'tab', text: tabBuffer.join('\n') });
 	}
 
 	// drop leading/trailing empties left over from the metadata block
@@ -143,6 +166,11 @@ export function serialize(song: Song): string {
 				break;
 			case 'comment':
 				body.push(`{comment:${line.text}}`);
+				break;
+			case 'tab':
+				body.push('{start_of_tab}');
+				if (line.text !== '') body.push(...line.text.split('\n'));
+				body.push('{end_of_tab}');
 				break;
 			case 'directive':
 				body.push(line.raw);

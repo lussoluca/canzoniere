@@ -65,8 +65,11 @@
 	const maxChars = $derived.by(() => {
 		let max = 0;
 		for (const line of displayLines) {
-			if (line.type !== 'lyric') continue;
-			max = Math.max(max, line.text.length, line.chordRow.length);
+			if (line.type === 'lyric') {
+				max = Math.max(max, line.text.length, line.chordRow.length);
+			} else if (line.type === 'tab') {
+				for (const row of line.text.split('\n')) max = Math.max(max, row.length);
+			}
 		}
 		return max;
 	});
@@ -91,6 +94,8 @@
 			</div>
 		{:else if line.type === 'comment'}
 			<p class="comment">{line.text}</p>
+		{:else if line.type === 'tab'}
+			<pre class="tab" class:chorus={line.chorus}>{line.text}</pre>
 		{:else if line.type === 'empty'}
 			<div class="gap"></div>
 		{/if}
@@ -130,6 +135,11 @@
 		margin: 6px 0;
 		color: var(--muted);
 		font-style: italic;
+	}
+
+	.tab {
+		margin: 6px 0;
+		padding: 1px 0;
 	}
 
 	.gap {

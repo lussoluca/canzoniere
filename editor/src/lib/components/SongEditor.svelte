@@ -209,11 +209,15 @@
 		}
 	}
 
+	// a new tab starts as an empty six-string staff
+	const TAB_TEMPLATE = ['e|', 'B|', 'G|', 'D|', 'A|', 'E|'].map((s) => s + '-'.repeat(16) + '|').join('\n');
+
 	// the kinds of line the add menu can insert
 	const lineTypes: { label: string; testid: string; make: () => Line }[] = [
 		{ label: 'riga di testo', testid: 'add-lyric', make: () => ({ type: 'lyric', text: '', chords: [] }) },
 		{ label: 'riga vuota', testid: 'add-empty', make: () => ({ type: 'empty' }) },
 		{ label: 'commento', testid: 'add-comment', make: () => ({ type: 'comment', text: '' }) },
+		{ label: 'tablatura', testid: 'add-tab', make: () => ({ type: 'tab', text: TAB_TEMPLATE }) },
 		{ label: 'inizio ritornello', testid: 'add-chorus-start', make: () => ({ type: 'chorus_start' }) },
 		{ label: 'fine ritornello', testid: 'add-chorus-end', make: () => ({ type: 'chorus_end' }) }
 	];
@@ -470,6 +474,15 @@
 						<div class="marker">▲ fine ritornello</div>
 					{:else if line.type === 'comment'}
 						<input class="comment" bind:value={line.text} placeholder="Commento…" />
+					{:else if line.type === 'tab'}
+						<textarea
+							class="tab"
+							bind:value={line.text}
+							rows={line.text.split('\n').length + 1}
+							spellcheck="false"
+							placeholder="e|-----|"
+							data-testid="tab-editor"
+						></textarea>
 					{:else}
 						<code class="directive">{line.raw}</code>
 					{/if}
@@ -715,6 +728,19 @@
 	.directive {
 		color: #999;
 		font-size: 0.85rem;
+	}
+	.tab {
+		width: 100%;
+		font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 0.85rem;
+		line-height: 1.35;
+		color: #444;
+		border: 1px dashed #ccc;
+		border-radius: 4px;
+		padding: 0.3rem 0.4rem;
+		resize: vertical;
+		white-space: pre;
+		overflow-x: auto;
 	}
 	.add-bar {
 		margin-top: 1rem;

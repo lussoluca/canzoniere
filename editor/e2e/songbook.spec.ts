@@ -320,6 +320,32 @@ test('undo/redo: text edits and structural changes', async ({ page }) => {
 	await expect(redo).toBeDisabled();
 });
 
+test('add a tab block from the add menu, edit it, verify the chordpro output', async ({
+	page
+}) => {
+	await goto(page, '/new?category=reparto');
+	await page.getByTestId('meta-title').fill('Canzone con Tab');
+
+	// insert a tab: the editor prefills a six-string staff
+	await page.getByTestId('add-line-end').click();
+	await page.getByTestId('add-tab').click();
+	const tab = page.getByTestId('tab-editor');
+	await expect(tab).toHaveCount(1);
+	await expect(tab).toHaveValue(/e\|-+\|/);
+
+	// replace the template with real content
+	await tab.fill('e|--0--2--|\nB|--1--3--|');
+
+	// the raw tab wraps it in start_of_tab/end_of_tab
+	await page.getByTestId('tab-raw').click();
+	const raw = await page.getByTestId('raw-editor').inputValue();
+	expect(raw).toContain('{start_of_tab}\ne|--0--2--|\nB|--1--3--|\n{end_of_tab}');
+
+	// and back in the visual editor the block survives the round-trip
+	await page.getByTestId('tab-visual').click();
+	await expect(page.getByTestId('tab-editor')).toHaveValue('e|--0--2--|\nB|--1--3--|');
+});
+
 test('delete a song from the category page', async ({ page }) => {
 	await goto(page, '/c/varie');
 	page.on('dialog', (d) => d.accept());
