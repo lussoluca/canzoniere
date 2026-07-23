@@ -471,7 +471,8 @@
 		top: calc(env(safe-area-inset-top) + 42px);
 		z-index: 5;
 		background: var(--bg);
-		padding: 6px 0;
+		/* Top padding keeps a visible gap below the header while stuck. */
+		padding: 14px 0 6px;
 	}
 
 	button {
