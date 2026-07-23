@@ -294,6 +294,7 @@ test('undo/redo: text edits and structural changes', async ({ page }) => {
 
 	// structural change: add a line and give it text (a blank lyric line cannot survive a
 	// serialize round-trip, so type something so the snapshot is faithful)
+	await page.getByTestId('add-line-end').click();
 	await page.getByTestId('add-lyric').click();
 	const lyricLines = page.getByTestId('lyric-line');
 	await expect(lyricLines).toHaveCount(1);

@@ -209,6 +209,18 @@
 		}
 	}
 
+	// the kinds of line the add menu can insert
+	const lineTypes: { label: string; testid: string; make: () => Line }[] = [
+		{ label: 'riga di testo', testid: 'add-lyric', make: () => ({ type: 'lyric', text: '', chords: [] }) },
+		{ label: 'riga vuota', testid: 'add-empty', make: () => ({ type: 'empty' }) },
+		{ label: 'commento', testid: 'add-comment', make: () => ({ type: 'comment', text: '' }) },
+		{ label: 'inizio ritornello', testid: 'add-chorus-start', make: () => ({ type: 'chorus_start' }) },
+		{ label: 'fine ritornello', testid: 'add-chorus-end', make: () => ({ type: 'chorus_end' }) }
+	];
+
+	// which add menu is open: a line index (insert below that line) or 'end' (append)
+	let openAddMenu: number | 'end' | null = $state(null);
+
 	function deleteLine(idx: number) {
 		flushCapture();
 		song.lines.splice(idx, 1);
@@ -276,6 +288,8 @@
 		}
 	}
 </script>
+
+<svelte:window onclick={() => (openAddMenu = null)} />
 
 <div class="meta" data-testid="meta-form">
 	<label>
@@ -401,6 +415,36 @@
 	</button>
 </div>
 
+{#snippet addMenu(afterIdx: number | null, key: number | 'end')}
+	<span class="add-menu">
+		<button
+			onclick={(e) => {
+				e.stopPropagation();
+				openAddMenu = openAddMenu === key ? null : key;
+			}}
+			title="Aggiungi riga"
+			data-testid={key === 'end' ? 'add-line-end' : 'add-line-below'}
+		>
+			＋
+		</button>
+		{#if openAddMenu === key}
+			<div class="menu" data-testid="add-line-menu">
+				{#each lineTypes as t (t.testid)}
+					<button
+						onclick={() => {
+							addLine(afterIdx, t.make());
+							openAddMenu = null;
+						}}
+						data-testid={t.testid}
+					>
+						{t.label}
+					</button>
+				{/each}
+			</div>
+		{/if}
+	</span>
+{/snippet}
+
 {#if tab === 'visual'}
 	<div class="visual-layout">
 	<div class="sheet" data-testid="visual-editor">
@@ -411,15 +455,9 @@
 		{/if}
 		{#each song.lines as line, idx (line)}
 			<div class="line-wrap" class:in-chorus={false}>
-				<div class="line-tools">
+				<div class="line-tools" class:open={openAddMenu === idx}>
 					<button onclick={() => deleteLine(idx)} title="Elimina riga" data-testid="delete-line">✕</button>
-					<button
-						onclick={() => addLine(idx, { type: 'lyric', text: '', chords: [] })}
-						title="Aggiungi riga sotto"
-						data-testid="add-line-below"
-					>
-						＋
-					</button>
+					{@render addMenu(idx, idx)}
 				</div>
 				<div class="line-body">
 					{#if line.type === 'lyric'}
@@ -440,22 +478,7 @@
 		{/each}
 
 		<div class="add-bar">
-			Aggiungi:
-			<button class="btn" onclick={() => addLine(null, { type: 'lyric', text: '', chords: [] })} data-testid="add-lyric">
-				riga di testo
-			</button>
-			<button class="btn" onclick={() => addLine(null, { type: 'empty' })} data-testid="add-empty">
-				riga vuota
-			</button>
-			<button class="btn" onclick={() => addLine(null, { type: 'comment', text: '' })} data-testid="add-comment">
-				commento
-			</button>
-			<button class="btn" onclick={() => addLine(null, { type: 'chorus_start' })} data-testid="add-chorus-start">
-				inizio ritornello
-			</button>
-			<button class="btn" onclick={() => addLine(null, { type: 'chorus_end' })} data-testid="add-chorus-end">
-				fine ritornello
-			</button>
+			{@render addMenu(null, 'end')}
 		</div>
 	</div>
 
@@ -613,10 +636,12 @@
 		width: 3.6rem;
 		flex-direction: row;
 	}
-	.line-wrap:hover .line-tools {
+	.line-wrap:hover .line-tools,
+	.line-tools.open {
 		visibility: visible;
 	}
-	.line-tools button {
+	.line-tools > button,
+	.add-menu > button {
 		border: none;
 		background: #eee;
 		border-radius: 4px;
@@ -626,8 +651,42 @@
 		padding: 3px 7px;
 		color: #666;
 	}
-	.line-tools button:hover {
+	.line-tools > button:hover,
+	.add-menu > button:hover {
 		background: #ddd;
+	}
+	.add-menu {
+		position: relative;
+		display: inline-flex;
+	}
+	.menu {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		margin-top: 2px;
+		z-index: 10;
+		display: flex;
+		flex-direction: column;
+		min-width: 9.5rem;
+		padding: 0.2rem;
+		background: #fff;
+		border: 1px solid #ddd;
+		border-radius: 6px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	}
+	.menu button {
+		border: none;
+		background: none;
+		border-radius: 4px;
+		cursor: pointer;
+		text-align: left;
+		white-space: nowrap;
+		padding: 0.35rem 0.6rem;
+		font-size: 0.85rem;
+		color: #333;
+	}
+	.menu button:hover {
+		background: #f0f0f0;
 	}
 	.line-body {
 		flex: 1;
@@ -662,10 +721,6 @@
 		padding-top: 0.8rem;
 		border-top: 1px solid #eee;
 		display: flex;
-		gap: 0.4rem;
 		align-items: center;
-		flex-wrap: wrap;
-		font-size: 0.85rem;
-		color: #777;
 	}
 </style>
