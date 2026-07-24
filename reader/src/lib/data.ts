@@ -24,6 +24,7 @@ export interface SongRef {
 	file: string;
 	title: string;
 	artist: string;
+	tags: string[]; // free-form search tags ({x_tag:...})
 	source: string; // raw ChordPro
 }
 
@@ -47,13 +48,26 @@ function buildSongs(): SongRef[] {
 		const category = parts[parts.length - 2];
 		const slug = file.replace(/\.cho$/, '');
 		const { meta } = parse(source);
-		return { category, slug, file, title: meta.title || slug, artist: meta.artist, source };
+		return {
+			category,
+			slug,
+			file,
+			title: meta.title || slug,
+			artist: meta.artist,
+			tags: meta.labels,
+			source
+		};
 	});
 	songs.sort((a, b) => a.title.localeCompare(b.title, 'it'));
 	return songs;
 }
 
 export const allSongs: SongRef[] = buildSongs();
+
+// every tag in use, for the #tag suggestions in the search boxes
+export const allTags: string[] = [...new Set(allSongs.flatMap((s) => s.tags))].sort((a, b) =>
+	a.localeCompare(b, 'it')
+);
 
 const byPath = new Map(allSongs.map((s) => [`${s.category}/${s.file}`, s]));
 

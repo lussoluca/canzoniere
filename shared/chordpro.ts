@@ -19,6 +19,7 @@ export interface SongMeta {
 	title: string;
 	artist: string;
 	tags: string[];
+	labels: string[]; // free-form search tags ({x_tag:...}), distinct from the category {tag:...}
 	columns: number | null;
 	scroll: number | null; // initial autoscroll speed for the reader ({x_scroll:N})
 }
@@ -50,7 +51,7 @@ export function parseLyricLine(raw: string): { text: string; chords: Chord[] } {
 }
 
 export function parse(source: string): Song {
-	const meta: SongMeta = { title: '', artist: '', tags: [], columns: null, scroll: null };
+	const meta: SongMeta = { title: '', artist: '', tags: [], labels: [], columns: null, scroll: null };
 	const lines: Line[] = [];
 
 	// inside a tab block every line is kept verbatim until {end_of_tab}
@@ -81,6 +82,9 @@ export function parse(source: string): Song {
 					continue;
 				case 'tag':
 					meta.tags.push(value);
+					continue;
+				case 'x_tag':
+					if (value !== '') meta.labels.push(value);
 					continue;
 				case 'columns':
 					meta.columns = parseInt(value, 10) || null;
@@ -146,6 +150,7 @@ export function serialize(song: Song): string {
 	head.push(`{title:${song.meta.title}}`);
 	if (song.meta.artist) head.push(`{artist:${song.meta.artist}}`);
 	for (const tag of song.meta.tags) head.push(`{tag:${tag}}`);
+	for (const label of song.meta.labels) head.push(`{x_tag:${label}}`);
 	if (song.meta.columns) head.push(`{columns:${song.meta.columns}}`);
 	if (song.meta.scroll) head.push(`{x_scroll:${song.meta.scroll}}`);
 

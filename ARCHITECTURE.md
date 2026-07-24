@@ -50,6 +50,7 @@ The `.cho` format is a text-based markup for songs with chord annotations. It co
 {title:Song Title}
 {artist:Artist Name}
 {tag:Categoria}                      # Mirrors the directory (branco, chiesa, etc.)
+{x_tag:omelia}                       # Optional: free-form search tag, one directive per tag
 {columns:2}                          # Optional: layout columns in PDF
 ```
 

@@ -3,7 +3,9 @@
 	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import { allSongs, type SongRef } from '$lib/data';
+	import { parseQuery, matchesQuery } from '$lib/search';
 	import { encodeCollection, decodeCollection } from '$lib/collection';
+	import SearchBox from '$lib/components/SearchBox.svelte';
 
 	// The chosen songs live in the URL (?l=), so a link is the whole songbook.
 	// With ?l= present the page is in view mode; otherwise it's the builder.
@@ -28,11 +30,9 @@
 	// The whole list is shown by default (so you can browse without knowing the
 	// titles); typing narrows it.
 	const results = $derived.by(() => {
-		const q = query.trim().toLowerCase();
-		if (q === '') return allSongs;
-		return allSongs.filter(
-			(s) => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
-		);
+		if (query.trim() === '') return allSongs;
+		const q = parseQuery(query);
+		return allSongs.filter((s) => matchesQuery(s, q));
 	});
 
 	function toggle(song: SongRef) {
@@ -137,15 +137,7 @@
 	{/if}
 
 	<h2>Aggiungi canti</h2>
-	<input
-		class="search"
-		type="search"
-		placeholder="Cerca un canto…"
-		bind:value={query}
-		autocomplete="off"
-		autocorrect="off"
-		autocapitalize="off"
-	/>
+	<SearchBox bind:value={query} placeholder="Cerca un canto… (#tag per filtrare)" />
 	<ul class="songs">
 		{#each results as song (song.category + '/' + song.slug)}
 			<li>
@@ -155,7 +147,10 @@
 					onclick={() => toggle(song)}
 				>
 					<span class="check">{selectedKeys.has(`${song.category}/${song.slug}`) ? '✓' : '+'}</span>
-					<span class="title">{song.title}</span>
+					<span class="title">
+						{song.title}
+						{#each song.tags as tag (tag)}<span class="tag">#{tag}</span>{/each}
+					</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 				</button>
 			</li>
@@ -194,8 +189,7 @@
 		margin: 20px 0 10px;
 	}
 
-	.titolo,
-	.search {
+	.titolo {
 		width: 100%;
 		box-sizing: border-box;
 		font-size: 16px;
@@ -245,6 +239,17 @@
 	.artist {
 		font-size: 13px;
 		color: var(--muted);
+	}
+
+	.tag {
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--muted);
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		padding: 1px 7px;
+		margin-left: 6px;
+		white-space: nowrap;
 	}
 
 	.picked li {

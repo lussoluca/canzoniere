@@ -7,17 +7,19 @@
 	import { slugify } from '$lib/slug';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
+	import TagInput from './TagInput.svelte';
 	import ChordDiagram from '../../../../shared/ChordDiagram.svelte';
 
 	interface Props {
 		initial: Song;
 		categories: string[];
+		allTags?: string[];
 		mode: 'new' | 'edit';
 		category: string;
 		file?: string;
 	}
 
-	let { initial, categories, mode, category: initialCategory, file }: Props = $props();
+	let { initial, categories, allTags = [], mode, category: initialCategory, file }: Props = $props();
 
 	let song: Song = $state(initial);
 	let category = $state(initialCategory);
@@ -341,6 +343,13 @@
 			{/each}
 		</select>
 	</label>
+	<label
+		class="tags-field"
+		title="Tag liberi per la ricerca nel reader (es. #omelia). Suggerisce quelli già usati."
+	>
+		Tag
+		<TagInput bind:tags={song.meta.labels} suggestions={allTags} />
+	</label>
 </div>
 
 <div class="tabs">
@@ -527,6 +536,9 @@
 		font-size: 0.78rem;
 		color: #777;
 		gap: 0.2rem;
+	}
+	.tags-field {
+		grid-column: 1 / -1;
 	}
 	.meta input,
 	.meta select {

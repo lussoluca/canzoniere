@@ -2,7 +2,9 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
+	import { parseQuery, matchesQuery } from '$lib/search';
 	import { loadFavorites } from '$lib/favorites';
+	import SearchBox from '$lib/components/SearchBox.svelte';
 
 	let query = $state('');
 
@@ -19,11 +21,9 @@
 	});
 
 	const filtered = $derived.by(() => {
-		const q = query.trim().toLowerCase();
-		if (q === '') return [];
-		return allSongs.filter(
-			(s) => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
-		);
+		if (query.trim() === '') return [];
+		const q = parseQuery(query);
+		return allSongs.filter((s) => matchesQuery(s, q));
 	});
 </script>
 
@@ -31,22 +31,17 @@
 	<title>Canzoniere Alessandria 2</title>
 </svelte:head>
 
-<input
-	class="search"
-	type="search"
-	placeholder="Cerca un canto…"
-	bind:value={query}
-	autocomplete="off"
-	autocorrect="off"
-	autocapitalize="off"
-/>
+<SearchBox bind:value={query} placeholder="Cerca un canto… (#tag per filtrare)" />
 
 {#if query.trim() !== ''}
 	<ul class="songs">
 		{#each filtered as song (song.category + '/' + song.slug)}
 			<li>
 				<a href="{base}/s/{song.category}/{song.slug}/">
-					<span class="title">{song.title}</span>
+					<span class="title">
+						{song.title}
+						{#each song.tags as tag (tag)}<span class="tag">#{tag}</span>{/each}
+					</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 				</a>
 			</li>
@@ -98,17 +93,6 @@
 {/if}
 
 <style>
-	.search {
-		width: 100%;
-		box-sizing: border-box;
-		font-size: 17px;
-		padding: 12px 14px;
-		border: 1px solid var(--control-border);
-		border-radius: 10px;
-		background: var(--surface);
-		color: inherit;
-	}
-
 	.actions {
 		display: flex;
 		flex-wrap: wrap;
@@ -184,6 +168,17 @@
 
 	.songs .title {
 		font-weight: 500;
+	}
+
+	.songs .tag {
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--muted);
+		border: 1px solid var(--border);
+		border-radius: 999px;
+		padding: 1px 7px;
+		margin-left: 6px;
+		white-space: nowrap;
 	}
 
 	.songs .artist {
