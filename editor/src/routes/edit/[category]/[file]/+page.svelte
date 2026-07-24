@@ -18,6 +18,7 @@
 	<SongEditor
 		initial={parse(data.content)}
 		categories={data.categories}
+		allTags={data.allTags}
 		mode="edit"
 		category={data.category}
 		file={data.file}

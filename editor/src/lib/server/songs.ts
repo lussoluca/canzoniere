@@ -172,6 +172,20 @@ export async function listAllSongs(): Promise<SongListItem[]> {
 	return songs;
 }
 
+// Every {x_tag:...} in use across the whole repertoire, for the autocomplete.
+export async function listAllTags(): Promise<string[]> {
+	const tags = new Set<string>();
+	for (const category of await listCategories()) {
+		const dir = safeJoin(category);
+		const files = (await fs.readdir(dir)).filter((f) => f.endsWith('.cho'));
+		for (const file of files) {
+			const { meta } = parse(await fs.readFile(path.join(dir, file), 'utf-8'));
+			for (const tag of meta.labels) tags.add(tag);
+		}
+	}
+	return [...tags].sort((a, b) => a.localeCompare(b, 'it'));
+}
+
 export async function readSong(category: string, file: string): Promise<string> {
 	return fs.readFile(safeJoin(category, file), 'utf-8');
 }

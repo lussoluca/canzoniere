@@ -494,3 +494,47 @@ test('the simplify toggle shows basic triads without touching the song', async (
 	await expect(pills.nth(0)).toHaveText('Lam7');
 	await expect(diagrams).toHaveCount(5);
 });
+
+test('song tags: add with normalization, save as x_tag, autocomplete on existing tags', async ({
+	page
+}) => {
+	await goto(page, '/edit/varie/prova_semplifica.cho');
+
+	// typed tags are normalized: lowercase, spaces become hyphens
+	const entry = page.getByTestId('tag-entry');
+	await entry.fill('Omelia');
+	await entry.press('Enter');
+	await entry.fill('spirito santo');
+	await entry.press('Enter');
+	const chips = page.getByTestId('tag-chip');
+	await expect(chips).toHaveCount(2);
+	await expect(chips.nth(0)).toContainText('#omelia');
+	await expect(chips.nth(1)).toContainText('#spirito-santo');
+
+	// saved as one {x_tag:...} per tag, after the category {tag:...}
+	await page.getByTestId('save').click();
+	await expect(page.getByTestId('save-status')).toHaveText('Salvato ✓');
+	const file = path.join(TMP, 'varie', 'prova_semplifica.cho');
+	expect(fs.readFileSync(file, 'utf-8')).toContain(
+		'{tag:Varie}\n{x_tag:omelia}\n{x_tag:spirito-santo}\n'
+	);
+
+	// reload: chips come back from the file
+	await page.reload();
+	await page.locator('body[data-hydrated]').waitFor();
+	await expect(page.getByTestId('tag-chip')).toHaveCount(2);
+
+	// the new-song form suggests the tags already used across the repertoire
+	await goto(page, '/new');
+	await page.getByTestId('tag-entry').fill('om');
+	const suggestions = page.getByTestId('tag-suggestion');
+	await expect(suggestions).toHaveCount(1);
+	await expect(suggestions.first()).toHaveText('#omelia');
+	await suggestions.first().click();
+	await expect(page.getByTestId('tag-chip')).toHaveCount(1);
+	await expect(page.getByTestId('tag-chip')).toContainText('#omelia');
+
+	// removing the chip empties the field
+	await page.getByTestId('tag-remove').click();
+	await expect(page.getByTestId('tag-chip')).toHaveCount(0);
+});

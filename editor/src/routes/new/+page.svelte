@@ -5,11 +5,17 @@
 	let { data } = $props();
 
 	const empty: Song = {
-		meta: { title: '', artist: '', tags: [], columns: null, scroll: null },
+		meta: { title: '', artist: '', tags: [], labels: [], columns: null, scroll: null },
 		lines: []
 	};
 </script>
 
 <h2>Nuova canzone</h2>
 
-<SongEditor initial={empty} categories={data.categories} mode="new" category={data.category} />
+<SongEditor
+	initial={empty}
+	categories={data.categories}
+	allTags={data.allTags}
+	mode="new"
+	category={data.category}
+/>
