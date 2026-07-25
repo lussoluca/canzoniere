@@ -41,10 +41,12 @@
 [Do]Di cercare l’avventura, ripartire ogni giorno [Re]ed
 esser. . .
 
-[Fa][Do][Solm][Re]Rit: Fa’ che impariamo, Signore da Te,
+{start_of_chorus}
+[Fa][Do][Solm][Re]Fa’ che impariamo, Signore da Te,
 [La#][Sol-7][La]Che il più grande è chi più sa servire,
 [La][Rem][La#][Fa][Do]Chi s’abbassa e chi si sa piega - re
 [La#][Do][Rem][La#][Do][Fa]Perché grande è soltanto l’amore.
+{end_of_chorus}
 [Rem][La#]E ti vediamo poi
 [Fa][Do]Maestro e Signore,
 [Rem][La#]Che lavi i piedi a noi
@@ -53,8 +55,12 @@ esser. . .
 [Fa][Do]Che è il manto tuo regale,
 [Rem][La#][Do][Rem][Do]C’insegni che servire è regnare.
 
-[Fa][Do][Solm][Re]Rit: Fa’ che impariamo, Signore da Te,
+{start_of_chorus}
+[Fa][Do][Solm][Re]Fa’ che impariamo, Signore da Te,
 [La#][Sol-7][La]Che il più grande è chi più sa servire,
 [La][Rem][La#][Fa][Do]Chi s’abbassa e chi si sa piega - re
 [La#][Do][Rem][La#][Do][Fa]Perché grande è soltanto l’amore.
-FINALE: [Fa][Do][Rem][La#][Fa][Do][Re]
+{end_of_chorus}
+
+{comment:Finale}
+[Fa][Do][Rem][La#][Fa][Do][Re]
