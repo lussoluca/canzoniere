@@ -1,12 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
+	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
 	import { parseQuery, matchesQuery } from '$lib/search';
 	import { loadFavorites } from '$lib/favorites';
 	import SearchBox from '$lib/components/SearchBox.svelte';
 
-	let query = $state('');
+	// The search text lives in the URL (?q=), so following the header link back
+	// to "/" leaves the results and shows the home page again. The guard keeps
+	// the prerenderer from touching the query string at build time.
+	const query = $derived(browser ? (page.url.searchParams.get('q') ?? '') : '');
+
+	function setQuery(value: string) {
+		const url = new URL(page.url);
+		if (value === '') url.searchParams.delete('q');
+		else url.searchParams.set('q', value);
+		// Replaces the entry so typing doesn't fill up the history.
+		goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+	}
 
 	// Starred songs, resolved to SongRefs; localStorage only exists client-side.
 	let favorites = $state<SongRef[]>([]);
@@ -31,17 +45,14 @@
 	<title>Canzoniere Alessandria 2</title>
 </svelte:head>
 
-<SearchBox bind:value={query} placeholder="Cerca un canto… (#tag per filtrare)" />
+<SearchBox bind:value={() => query, setQuery} placeholder="Cerca un canto… (#tag per filtrare)" />
 
 {#if query.trim() !== ''}
 	<ul class="songs">
 		{#each filtered as song (song.category + '/' + song.slug)}
 			<li>
 				<a href="{base}/s/{song.category}/{song.slug}/">
-					<span class="title">
-						{song.title}
-						{#each song.tags as tag (tag)}<span class="tag">#{tag}</span>{/each}
-					</span>
+					<span class="title">{song.title}</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 				</a>
 			</li>
@@ -168,17 +179,8 @@
 
 	.songs .title {
 		font-weight: 500;
-	}
-
-	.songs .tag {
-		font-size: 12px;
-		font-weight: 500;
-		color: var(--muted);
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		padding: 1px 7px;
-		margin-left: 6px;
-		white-space: nowrap;
+		min-width: 0;
+		overflow-wrap: anywhere;
 	}
 
 	.songs .artist {

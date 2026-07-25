@@ -147,10 +147,7 @@
 					onclick={() => toggle(song)}
 				>
 					<span class="check">{selectedKeys.has(`${song.category}/${song.slug}`) ? '✓' : '+'}</span>
-					<span class="title">
-						{song.title}
-						{#each song.tags as tag (tag)}<span class="tag">#{tag}</span>{/each}
-					</span>
+					<span class="title">{song.title}</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 				</button>
 			</li>
@@ -234,22 +231,15 @@
 	.title {
 		font-weight: 500;
 		flex: 1;
+		min-width: 0;
+		overflow-wrap: anywhere;
 	}
 
 	.artist {
 		font-size: 13px;
 		color: var(--muted);
-	}
-
-	.tag {
-		font-size: 12px;
-		font-weight: 500;
-		color: var(--muted);
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		padding: 1px 7px;
-		margin-left: 6px;
-		white-space: nowrap;
+		text-align: right;
+		overflow-wrap: anywhere;
 	}
 
 	.picked li {
