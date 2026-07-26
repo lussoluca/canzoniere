@@ -100,6 +100,10 @@
 	// Autoscroll: the page scrolls by itself like a teleprompter, so the
 	// guitarist never has to touch the screen mid-song. Each speed level is
 	// worth 8 px/s; the level is saved per song with the other prefs.
+	// Turning it on first glides the page down to the top of the sheet (only
+	// forward, so resuming mid-song never rewinds), then the steady scroll
+	// begins. A finger on the page only pauses the motion while it is down:
+	// the user can adjust the position without turning the autoscroll off.
 	let scrolling = $state(false);
 
 	$effect(() => {
@@ -108,7 +112,38 @@
 		let raf = 0;
 		let last: number | null = null;
 		let carry = 0;
+		let touching = false;
+
+		// Initial glide: bring the top of the sheet just below the stuck
+		// controls, so the song starts scrolling from its first line.
+		let glide: { from: number; dist: number; ms: number; start: number | null } | null = null;
+		const sheet = document.querySelector('.sheet');
+		const controls = document.querySelector('.controls');
+		if (sheet) {
+			const stuckBottom = controls
+				? parseFloat(getComputedStyle(controls).top) + controls.getBoundingClientRect().height
+				: 0;
+			const target = sheet.getBoundingClientRect().top + window.scrollY - stuckBottom;
+			const dist = target - window.scrollY;
+			if (dist > 4) glide = { from: window.scrollY, dist, ms: Math.min(1200, 300 + dist), start: null };
+		}
+
 		const step = (now: number) => {
+			if (touching) {
+				last = now;
+				raf = requestAnimationFrame(step);
+				return;
+			}
+			if (glide) {
+				glide.start ??= now;
+				const t = Math.min(1, (now - glide.start) / glide.ms);
+				const ease = t < 0.5 ? 2 * t * t : 1 - (2 - 2 * t) ** 2 / 2;
+				window.scrollTo(0, glide.from + glide.dist * ease);
+				if (t >= 1) glide = null;
+				last = now;
+				raf = requestAnimationFrame(step);
+				return;
+			}
 			if (last !== null) {
 				carry += ((now - last) / 1000) * scrollSpeed * 8;
 				const px = Math.trunc(carry);
@@ -126,19 +161,29 @@
 		};
 		raf = requestAnimationFrame(step);
 
-		// Touching the page or using the wheel hands control back to the user;
-		// taps on the control bar (pause, speed) must not count as taking over.
-		const stop = (e: Event) => {
-			if (e.target instanceof Element && e.target.closest('.controls')) return;
-			scrolling = false;
+		// A touch pauses the motion until the finger lifts; touch or wheel also
+		// cancels the initial glide, since the user has taken over the position.
+		const onTouchStart = () => {
+			touching = true;
+			glide = null;
 		};
-		window.addEventListener('wheel', stop, { passive: true });
-		window.addEventListener('touchstart', stop, { passive: true });
+		const onTouchEnd = () => {
+			touching = false;
+		};
+		const onWheel = () => {
+			glide = null;
+		};
+		window.addEventListener('touchstart', onTouchStart, { passive: true });
+		window.addEventListener('touchend', onTouchEnd, { passive: true });
+		window.addEventListener('touchcancel', onTouchEnd, { passive: true });
+		window.addEventListener('wheel', onWheel, { passive: true });
 
 		return () => {
 			cancelAnimationFrame(raf);
-			window.removeEventListener('wheel', stop);
-			window.removeEventListener('touchstart', stop);
+			window.removeEventListener('touchstart', onTouchStart);
+			window.removeEventListener('touchend', onTouchEnd);
+			window.removeEventListener('touchcancel', onTouchEnd);
+			window.removeEventListener('wheel', onWheel);
 		};
 	});
 
