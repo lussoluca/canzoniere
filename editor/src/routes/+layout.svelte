@@ -41,13 +41,17 @@
 		background: #f6f5f2;
 		color: #2b2b2b;
 	}
+	/* Same look as the reader header (reader/src/routes/+layout.svelte). */
 	.topbar {
 		background: #2f3e46;
-		padding: 0.6rem 1.2rem;
+		/* Side insets keep the brand clear of the Dynamic Island in landscape. */
+		padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px)
+			10px calc(env(safe-area-inset-left) + 16px);
 		position: sticky;
 		top: 0;
 		z-index: 10;
 		display: flex;
+		justify-content: space-between;
 		align-items: center;
 		gap: 1.4rem;
 	}
@@ -66,16 +70,18 @@
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		color: #fff;
+		gap: 8px;
+		color: #ffd166;
 		text-decoration: none;
 		font-weight: 700;
-		font-size: 1.1rem;
+		font-size: 16px;
+		min-width: 0;
 	}
 	.brand .logo {
 		width: 28px;
 		height: 28px;
 		border-radius: 6px;
+		flex-shrink: 0;
 	}
 	main {
 		max-width: 1100px;
