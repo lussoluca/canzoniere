@@ -243,6 +243,11 @@
 		background: none;
 		border: none;
 		padding: 2px 4px;
+		/* Fixed height (same as the logo) so the header height does not depend
+		   on the emoji font's line box, which varies across platforms. */
+		height: 28px;
+		display: flex;
+		align-items: center;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
