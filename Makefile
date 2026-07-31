@@ -1,7 +1,10 @@
-.PHONY: editor build events export-chordpro-config
+.PHONY: editor reader build events export-chordpro-config
 
 editor:
 	cd editor && npm run dev
+
+reader:
+	cd reader && npm run dev
 
 build:
 	@rm -f canzoniere.pdf

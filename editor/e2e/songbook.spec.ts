@@ -31,6 +31,34 @@ test('home lists categories as folders, folder opens its song list', async ({ pa
 	await expect(row).toHaveCount(1);
 });
 
+test('global search from the home page finds songs across all categories', async ({ page }) => {
+	await goto(page, '/');
+	const search = page.getByTestId('global-search');
+
+	// typing shows the flat result list with the category, and the query lands in the URL
+	await search.fill('stella');
+	const row = page.getByTestId('song-row').filter({ hasText: 'Stella del mattino' });
+	await expect(row).toHaveCount(1);
+	await expect(row).toContainText('Varie');
+	await expect(page).toHaveURL(/\?q=stella/);
+
+	// no match: zero count, no rows
+	await search.fill('inesistente');
+	await expect(page.getByTestId('song-count')).toHaveText('0 canzoni');
+
+	// clearing the field brings the folders back
+	await search.fill('');
+	await expect(page.getByTestId('folder')).toHaveCount(3);
+
+	// opening the URL with ?q= restores the search
+	await goto(page, '/?q=stella');
+	await expect(page.getByTestId('song-row')).toHaveCount(1);
+
+	// a result links to the song editor
+	await page.getByTestId('song-row').getByRole('link', { name: 'Stella del mattino' }).click();
+	await expect(page).toHaveURL(/\/edit\/varie\/stella_del_mattino\.cho/);
+});
+
 test('create a song with the visual editor and verify the generated chordpro file', async ({
 	page
 }) => {
