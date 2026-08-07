@@ -10,6 +10,7 @@
 	import { findSongbook } from '$lib/data';
 	import { decodeCollection } from '$lib/collection';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
+	import { recordOpen } from '$lib/stats';
 	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
 	import {
@@ -223,6 +224,11 @@
 	function bumpTranspose(delta: number) {
 		transpose = ((transpose + delta + 18) % 12) - 6; // keep in [-6, +5]
 	}
+
+	// Every opened song feeds the local repertoire memory (client-side nav too).
+	$effect(() => {
+		recordOpen(data.song.category, data.song.slug);
+	});
 
 	let showDiagrams = $state(false);
 
