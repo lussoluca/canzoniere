@@ -6,17 +6,21 @@ export interface SongPrefs {
 	simplify: boolean;
 	hideChords: boolean;
 	scrollSpeed: number; // autoscroll speed level (SCROLL_MIN..SCROLL_MAX)
+	capo: number; // capo fret (0 = none, up to CAPO_MAX)
 }
 
 export const SCROLL_MIN = 1;
 export const SCROLL_MAX = 10;
 export const SCROLL_DEFAULT = 3;
 
+export const CAPO_MAX = 7;
+
 const DEFAULT_PREFS: SongPrefs = {
 	transpose: 0,
 	simplify: false,
 	hideChords: false,
-	scrollSpeed: SCROLL_DEFAULT
+	scrollSpeed: SCROLL_DEFAULT,
+	capo: 0
 };
 
 function songKey(category: string, slug: string): string {
@@ -54,7 +58,8 @@ export function saveSongPrefs(
 		prefs.transpose === 0 &&
 		!prefs.simplify &&
 		!prefs.hideChords &&
-		prefs.scrollSpeed === scrollDefault;
+		prefs.scrollSpeed === scrollDefault &&
+		prefs.capo === 0;
 	try {
 		if (isDefault) localStorage.removeItem(songKey(category, slug));
 		else localStorage.setItem(songKey(category, slug), JSON.stringify(prefs));

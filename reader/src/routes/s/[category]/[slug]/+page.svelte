@@ -22,7 +22,8 @@
 		FONT_DEFAULT,
 		SCROLL_MIN,
 		SCROLL_MAX,
-		SCROLL_DEFAULT
+		SCROLL_DEFAULT,
+		CAPO_MAX
 	} from '$lib/prefs';
 	import type { PageProps } from './$types';
 
@@ -72,6 +73,7 @@
 	let transpose = $state(0);
 	let simplify = $state(false);
 	let hideChords = $state(false);
+	let capo = $state(0);
 	let scrollSpeed = $state(SCROLL_DEFAULT);
 	let fontSize = $state(FONT_DEFAULT);
 	let ready = $state(false);
@@ -82,6 +84,7 @@
 		transpose = p.transpose;
 		simplify = p.simplify;
 		hideChords = p.hideChords;
+		capo = p.capo;
 		scrollSpeed = p.scrollSpeed;
 		scrolling = false;
 		ready = true;
@@ -92,10 +95,14 @@
 		saveSongPrefs(
 			data.song.category,
 			data.song.slug,
-			{ transpose, simplify, hideChords, scrollSpeed },
+			{ transpose, simplify, hideChords, scrollSpeed, capo },
 			songScroll
 		);
 	});
+
+	// Transpose moves the sung key; the capo lowers the written shapes by as
+	// many semitones so the sounding key stays the one the group sings in.
+	const chordShift = $derived(transpose - capo);
 
 	// Autoscroll: the page scrolls by itself like a teleprompter, so the
 	// guitarist never has to touch the screen mid-song. Each speed level is
@@ -308,7 +315,7 @@
 	});
 
 	// Unique chords in order of first appearance, shown as the reader sees them
-	// (simplified first, then transposed — same as SongSheet).
+	// (simplified first, then shifted by transpose and capo — same as SongSheet).
 	const uniqueChords = $derived.by(() => {
 		const seen = new Set<string>();
 		const out: string[] = [];
@@ -317,7 +324,7 @@
 			for (const c of line.chords) {
 				let name = c.chord;
 				if (simplify) name = simplifyChord(name);
-				if (transpose !== 0) name = transposeChord(name, transpose);
+				if (chordShift !== 0) name = transposeChord(name, chordShift);
 				if (!seen.has(name)) {
 					seen.add(name);
 					out.push(name);
@@ -360,6 +367,13 @@
 		<button class="value" class:active={transpose !== 0} onclick={() => (transpose = 0)}
 			title="Azzera trasposizione">{transpose > 0 ? `+${transpose}` : transpose}</button>
 		<button onclick={() => bumpTranspose(1)} aria-label="Trasponi un semitono in su">+</button>
+	</div>
+
+	<div class="group" aria-label="Capotasto">
+		<button onclick={() => (capo = Math.max(0, capo - 1))} aria-label="Capotasto un tasto in giù">−</button>
+		<button class="value" class:active={capo !== 0} onclick={() => (capo = 0)}
+			title="Togli il capotasto">Capo {capo}</button>
+		<button onclick={() => (capo = Math.min(CAPO_MAX, capo + 1))} aria-label="Capotasto un tasto in su">+</button>
 	</div>
 
 	<div class="group" aria-label="Dimensione testo">
@@ -405,7 +419,13 @@
 	{/if}
 </div>
 
-<SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
+{#if capo > 0 && !hideChords}
+	<p class="capo-hint">
+		🎸 Capotasto al tasto {capo}: gli accordi sono già scritti per suonare con il capo.
+	</p>
+{/if}
+
+<SongSheet {song} transpose={chordShift} {simplify} {hideChords} {fontSize} />
 
 {#if showDiagrams}
 	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
@@ -505,6 +525,16 @@
 	.artist {
 		margin: 2px 0 0;
 		color: var(--muted);
+	}
+
+	.capo-hint {
+		margin: 0 0 12px;
+		font-size: 14px;
+		color: var(--chord);
+		background: var(--surface);
+		border: 1px solid var(--control-border);
+		border-radius: 8px;
+		padding: 8px 12px;
 	}
 
 	.controls {
