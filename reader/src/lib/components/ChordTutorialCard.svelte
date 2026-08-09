@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { chordTutorial } from '$lib/chord-tutorial';
+	import ChordChecker from '$lib/components/ChordChecker.svelte';
 
 	interface Props {
 		chord: string;
@@ -44,6 +45,7 @@
 					Prova le corde una alla volta: se una non suona, avvicina il dito alla barretta
 					metallica e premi con la punta, non con il polpastrello piatto.
 				</p>
+				<ChordChecker {chord} />
 			</div>
 		{:else}
 			<p class="howto">Per questo accordo non c'è un diagramma nel canzoniere.</p>
