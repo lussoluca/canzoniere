@@ -1,3 +1,4 @@
 canzoniere.pdf
 .DS_Store
 printer/printer
+.playwright-cli/
