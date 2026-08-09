@@ -49,7 +49,7 @@
 			<p class="howto">Per questo accordo non c'è un diagramma nel canzoniere.</p>
 		{/if}
 	</div>
-	<button class="learned" onclick={onLearned}>✓ L'ho imparato</button>
+	<button class="learned" onclick={onLearned}>Segna come imparato</button>
 </details>
 
 <style>
@@ -133,13 +133,20 @@
 	.learned {
 		font: inherit;
 		font-size: 14px;
+		font-weight: 500;
 		margin: 12px 14px 14px;
 		padding: 8px 14px;
 		border: 1px solid var(--control-border);
 		border-radius: 999px;
-		background: var(--active-bg);
-		color: var(--active-text);
+		background: transparent;
+		color: inherit;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
+	}
+
+	.learned:active {
+		background: var(--active-bg);
+		border-color: var(--active-bg);
+		color: var(--active-text);
 	}
 </style>
