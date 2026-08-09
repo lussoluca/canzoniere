@@ -7,6 +7,8 @@
 		chordUsage,
 		classify
 	} from '$lib/known-chords';
+	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordTutorialCard from '$lib/components/ChordTutorialCard.svelte';
 
 	const usage = chordUsage();
 
@@ -28,6 +30,9 @@
 	}
 
 	const result = $derived(classify(known));
+
+	// first chords for who starts from zero: the most used in the repertoire
+	const starters = usage.slice(0, 3).map(({ chord, count }) => ({ chord, count }));
 </script>
 
 <svelte:head>
@@ -37,9 +42,29 @@
 <nav><a href="{base}/">← Canzoniere</a></nav>
 <h1>Cosa posso suonare</h1>
 <p class="intro">
-	Segna gli accordi che sai fare: il canzoniere ti dice quali canti puoi già accompagnare e quale
-	accordo conviene imparare dopo.
+	Segna gli accordi che sai fare: il canzoniere ti dice quali canti puoi già accompagnare, quale
+	accordo conviene imparare dopo e come si mettono le dita per farlo.
 </p>
+
+<details class="guide">
+	<summary>Come si legge un diagramma degli accordi</summary>
+	<div class="guide-body">
+		<div class="guide-figure">
+			<ChordDiagram name="Mi" scale={2.6} />
+		</div>
+		<ul>
+			<li>Le linee verticali sono le 6 corde: a sinistra la 6ª (Mi basso, la più grossa), a destra la 1ª (Mi cantino, la più sottile).</li>
+			<li>Le linee orizzontali sono le barrette metalliche sul manico: lo spazio tra due barrette è un tasto.</li>
+			<li>I pallini pieni dicono dove premere; il numero dentro è il dito: 1 indice, 2 medio, 3 anulare, 4 mignolo.</li>
+			<li>Un cerchietto sopra la corda = suona la corda a vuoto, senza premere. Una ✕ = quella corda non va suonata.</li>
+			<li>Se accanto al diagramma c'è un numero, la griglia parte da quel tasto invece che dal capotasto.</li>
+		</ul>
+	</div>
+	<p class="guide-tips">
+		Premi con la punta delle dita, vicino alla barretta verso il corpo della chitarra, e tieni il
+		pollice dietro il manico. All'inizio le dita fanno male: è normale, passa in pochi giorni.
+	</p>
+</details>
 
 <h2>I miei accordi</h2>
 <div class="chips">
@@ -59,12 +84,14 @@
 {#if known.length > 0}
 	{#if result.unlocks.length > 0}
 		<h2>Il prossimo accordo da imparare</h2>
-		<div class="unlocks">
-			{#each result.unlocks.slice(0, 5) as u (u.chord)}
-				<button class="unlock" onclick={() => toggle(u.chord)} title="Segna {u.chord} come imparato">
-					<strong>{u.chord}</strong>
-					<span>sblocca {u.count} {u.count === 1 ? 'canto' : 'canti'}</span>
-				</button>
+		<div class="tutorials">
+			{#each result.unlocks.slice(0, 5) as u, i (u.chord)}
+				<ChordTutorialCard
+					chord={u.chord}
+					subtitle="sblocca {u.count} {u.count === 1 ? 'canto' : 'canti'}"
+					open={i === 0}
+					onLearned={() => toggle(u.chord)}
+				/>
 			{/each}
 		</div>
 	{/if}
@@ -99,7 +126,20 @@
 
 	<p class="later">Più avanti: {result.later.length} canti con due o più accordi da imparare.</p>
 {:else if ready}
-	<p class="empty">Tocca gli accordi che conosci per iniziare.</p>
+	<p class="empty">
+		Tocca gli accordi che conosci qui sopra. Non ne conosci ancora nessuno? Parti da questi: sono
+		i più usati in tutto il canzoniere.
+	</p>
+	<div class="tutorials">
+		{#each starters as s, i (s.chord)}
+			<ChordTutorialCard
+				chord={s.chord}
+				subtitle="usato in {s.count} {s.count === 1 ? 'canto' : 'canti'}"
+				open={i === 0}
+				onLearned={() => toggle(s.chord)}
+			/>
+		{/each}
+	</div>
 {/if}
 
 <style>
@@ -156,33 +196,54 @@
 		color: var(--active-text);
 	}
 
-	.unlocks {
+	.tutorials {
 		display: flex;
-		flex-wrap: wrap;
+		flex-direction: column;
 		gap: 8px;
 	}
 
-	.unlock {
-		font: inherit;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 2px;
-		padding: 10px 14px;
+	.guide {
+		margin: 0 0 12px;
 		border: 1px solid var(--control-border);
 		border-radius: 10px;
 		background: var(--surface);
-		color: inherit;
+	}
+
+	.guide summary {
+		padding: 10px 14px;
+		font-size: 14px;
+		font-weight: 500;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.unlock strong {
-		font-size: 18px;
+	.guide-body {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: 8px 20px;
+		padding: 0 14px;
 	}
 
-	.unlock span {
-		font-size: 12px;
+	.guide-figure {
+		flex: 0 0 auto;
+	}
+
+	.guide-body ul {
+		flex: 1 1 220px;
+		margin: 0;
+		padding-left: 20px;
+		font-size: 14px;
+	}
+
+	.guide-body li {
+		margin-bottom: 6px;
+	}
+
+	.guide-tips {
+		margin: 8px 0 0;
+		padding: 0 14px 12px;
+		font-size: 13px;
 		color: var(--muted);
 	}
 
