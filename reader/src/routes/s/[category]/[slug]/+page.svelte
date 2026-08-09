@@ -8,6 +8,7 @@
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
+	import { feedbackHref } from '$lib/feedback';
 	import { decodeCollection } from '$lib/collection';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
@@ -461,6 +462,17 @@
 	</div>
 {/if}
 
+<p class="feedback">
+	<a
+		href={feedbackHref(
+			`Segnalazione sul canto "${data.song.title}"`,
+			'Ho notato che…'
+		)}
+	>
+		✉️ Segnala un errore o proponi una modifica
+	</a>
+</p>
+
 {#if ctx}
 	<div class="pager">
 		{#if prev}
@@ -706,6 +718,16 @@
 		flex-wrap: wrap;
 		gap: 4px 18px;
 		justify-content: center;
+	}
+
+	.feedback {
+		margin-top: 28px;
+		font-size: 14px;
+	}
+
+	.feedback a {
+		color: var(--muted);
+		text-decoration: none;
 	}
 
 	.pager {
