@@ -7,6 +7,7 @@
 	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
 	import { parseQuery, matchesQuery } from '$lib/search';
 	import { loadFavorites } from '$lib/favorites';
+	import { feedbackHref } from '$lib/feedback';
 	import SearchBox from '$lib/components/SearchBox.svelte';
 
 	// The search text lives in the URL (?q=), so following the header link back
@@ -64,6 +65,9 @@
 	<div class="actions">
 		<a class="tool" href="{base}/accordi/">🎸 Cosa posso suonare</a>
 		<a class="tool" href="{base}/raccolta/">🎵 Crea un canzoniere</a>
+		<a class="tool" href={feedbackHref('Commenti e suggerimenti sul canzoniere')}>
+			✉️ Commenti e suggerimenti
+		</a>
 	</div>
 
 	{#if favorites.length > 0}
