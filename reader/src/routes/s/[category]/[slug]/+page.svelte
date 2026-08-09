@@ -704,6 +704,8 @@
 		align-items: center;
 		position: sticky;
 		top: 0;
+		/* above the chord names, whose transform makes them stacking contexts */
+		z-index: 1;
 		background: var(--surface);
 		padding: 10px 0 6px;
 		font-weight: 600;
