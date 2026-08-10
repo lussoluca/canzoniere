@@ -11,17 +11,18 @@
 
 	const targets = $derived(chordPitchClasses(chord));
 
-	type Phase = 'idle' | 'waiting' | 'capturing' | 'done' | 'error';
+	type Phase = 'idle' | 'listening' | 'error';
 	let phase = $state<Phase>('idle');
-	let verdict = $state<ChromaVerdict | null>(null);
+	let verdict = $state<ChromaVerdict | null>(null); // null while too quiet to judge
 	let error = $state('');
 
 	let session: MicSession | null = null;
 	let timer: ReturnType<typeof setInterval> | undefined;
 
-	const RMS_GATE = 0.02; // strum detection threshold on the time-domain signal
-	const CAPTURE_MS = 900; // how long the chord is averaged once the strum is heard
+	const RMS_GATE = 0.02; // below this the guitar isn't playing
 	const TICK_MS = 90;
+	const WINDOW = 8; // sliding window of frames (~0.7 s) the verdict is computed on
+	const MIN_FRAMES = 3; // frames needed before the first verdict
 
 	function stopAll() {
 		clearInterval(timer);
@@ -32,9 +33,10 @@
 
 	onDestroy(stopAll);
 
-	function cancel() {
+	function stop() {
 		stopAll();
 		phase = 'idle';
+		verdict = null;
 	}
 
 	async function start() {
@@ -52,67 +54,60 @@
 					: 'Il microfono non è disponibile su questo dispositivo.';
 			return;
 		}
-		phase = 'waiting';
+		phase = 'listening';
 
 		const { analyser, sampleRate } = session;
 		const time = new Float32Array(analyser.fftSize);
 		const freq = new Float32Array(analyser.frequencyBinCount);
-		const acc = new Float32Array(12);
-		let capturedMs = 0;
+		const frames: Float32Array[] = [];
 
 		timer = setInterval(() => {
 			if (!session) return;
-			if (phase === 'waiting') {
-				analyser.getFloatTimeDomainData(time);
-				let sum = 0;
-				for (let i = 0; i < time.length; i++) sum += time[i] * time[i];
-				if (Math.sqrt(sum / time.length) < RMS_GATE) return;
-				phase = 'capturing';
+			analyser.getFloatTimeDomainData(time);
+			let sum = 0;
+			for (let i = 0; i < time.length; i++) sum += time[i] * time[i];
+			if (Math.sqrt(sum / time.length) < RMS_GATE) {
+				// silence resets the window so the next strum starts clean
+				frames.length = 0;
+				verdict = null;
+				return;
 			}
 			analyser.getFloatFrequencyData(freq);
-			const frame = chromaFromSpectrum(freq, sampleRate, analyser.fftSize);
-			for (let i = 0; i < 12; i++) acc[i] += frame[i];
-			capturedMs += TICK_MS;
-			if (capturedMs >= CAPTURE_MS) {
-				stopAll();
-				verdict = evaluateChroma(acc, pcs);
-				phase = 'done';
-			}
+			frames.push(chromaFromSpectrum(freq, sampleRate, analyser.fftSize));
+			if (frames.length > WINDOW) frames.shift();
+			if (frames.length < MIN_FRAMES) return;
+			const acc = new Float32Array(12);
+			for (const frame of frames) for (let i = 0; i < 12; i++) acc[i] += frame[i];
+			verdict = evaluateChroma(acc, pcs);
 		}, TICK_MS);
 	}
 </script>
 
 {#if targets && micSupported()}
 	<div class="checker" data-testid="chord-checker">
-		{#if phase === 'waiting' || phase === 'capturing'}
-			<button class="listen" onclick={cancel}>◼ Annulla</button>
-			<span class="hint" aria-live="polite">
-				{phase === 'waiting' ? "Suona l'accordo…" : 'Ti ascolto…'}
-			</span>
+		{#if phase === 'listening'}
+			<button class="listen" onclick={stop}>◼ Ferma</button>
 		{:else}
 			<button class="listen" onclick={start}>
 				🎤 {phase === 'idle' ? 'Verifica con il microfono' : 'Riprova'}
 			</button>
 		{/if}
-		{#if phase === 'done' && verdict}
-			{#if verdict.ok}
-				<p class="result ok" aria-live="polite">Suona bene ✓</p>
-			{:else}
-				<p class="result ko" aria-live="polite">
-					Non ci siamo ancora.
-					{#if verdict.missing.length > 0}
-						Non sento: {verdict.missing.map((pc) => PITCH_NAMES[pc]).join(', ')}.
-					{/if}
-					{#if verdict.extra.length > 0}
-						Sento anche note fuori dall'accordo: {verdict.extra
-							.map((pc) => PITCH_NAMES[pc])
-							.join(', ')}.
-					{/if}
-					Riguarda i passi qui sopra e riprova.
-				</p>
-			{/if}
+		{#if phase === 'listening'}
+			<p class="result" aria-live="polite">
+				{#if !verdict}
+					<span class="hint">Suona l'accordo, ti ascolto…</span>
+				{:else if verdict.ok}
+					<span class="ok">Suona bene ✓</span>
+				{:else}
+					<span class="ko">
+						Non ci siamo{#if verdict.missing.length > 0}{' · non sento: ' +
+								verdict.missing.map((pc) => PITCH_NAMES[pc]).join(', ')}{/if}{#if verdict.extra.length > 0}{' · sento anche: ' +
+								verdict.extra.map((pc) => PITCH_NAMES[pc]).join(', ')}{/if}
+					</span>
+				{/if}
+			</p>
 		{:else if phase === 'error'}
-			<p class="result ko">{error}</p>
+			<p class="result"><span class="ko">{error}</span></p>
 		{/if}
 	</div>
 {/if}
@@ -139,33 +134,33 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.hint {
+	.result {
+		flex: 1 1 220px;
+		margin: 0;
 		font-size: 14px;
+		min-height: 1.4em;
+	}
+
+	.hint {
 		color: var(--muted);
 	}
 
-	.result {
-		flex-basis: 100%;
-		margin: 0;
-		font-size: 14px;
-	}
-
-	.result.ok {
+	.ok {
 		color: #2e7d32;
-		font-weight: 500;
+		font-weight: 600;
 	}
 
 	@media (prefers-color-scheme: dark) {
-		:global(:root:not([data-theme='light'])) .result.ok {
+		:global(:root:not([data-theme='light'])) .ok {
 			color: #81c784;
 		}
 	}
 
-	:global(:root[data-theme='dark']) .result.ok {
+	:global(:root[data-theme='dark']) .ok {
 		color: #81c784;
 	}
 
-	.result.ko {
+	.ko {
 		color: var(--muted);
 	}
 </style>
