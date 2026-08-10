@@ -59,17 +59,13 @@
 
 	{#if open}
 		<button class="overlay" onclick={close} aria-label="Chiudi il menu" tabindex="-1"></button>
-		<div class="drawer">
-			<div class="drawer-head">
-				<span>Menu</span>
-				<button class="close" onclick={close} aria-label="Chiudi il menu">✕</button>
-			</div>
+		<div class="panel">
 			{#each items as item (item.href)}
 				<a href={item.href} onclick={close}>{item.label}</a>
 			{/each}
 			<div class="divider"></div>
 			{#if mounted}
-				<button class="drawer-theme" onclick={ontoggletheme}>
+				<button class="panel-theme" onclick={ontoggletheme}>
 					{theme === 'dark' ? '☀️ Tema chiaro' : '🌙 Tema scuro'}
 				</button>
 			{/if}
@@ -78,6 +74,11 @@
 </nav>
 
 <style>
+	/* Anchor for the absolutely-positioned dropdown panel. */
+	nav {
+		position: relative;
+	}
+
 	.inline {
 		display: flex;
 		align-items: center;
@@ -131,69 +132,53 @@
 		}
 	}
 
+	/* Transparent click-catcher: closes the menu on a tap anywhere outside
+	   the panel without dimming the page for a 4-item dropdown. */
 	.overlay {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.35);
+		background: transparent;
 		border: none;
 		padding: 0;
 		z-index: 40;
 	}
 
-	.drawer {
-		position: fixed;
-		top: 0;
+	.panel {
+		position: absolute;
+		top: calc(100% + 10px);
 		right: 0;
-		bottom: 0;
-		width: 78%;
-		max-width: 320px;
+		width: max-content;
+		max-width: calc(100vw - 24px);
 		background: var(--surface);
 		color: var(--text);
 		z-index: 50;
-		box-shadow: -4px 0 24px var(--shadow);
-		padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		box-shadow: 0 8px 32px var(--shadow);
+		padding: 6px;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
 		box-sizing: border-box;
 	}
 
-	.drawer-head {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 12px;
-		font-weight: 700;
-		font-size: 16px;
-	}
-
-	.close {
-		font-size: 20px;
-		background: none;
-		border: none;
-		color: inherit;
-		cursor: pointer;
-		padding: 2px 4px;
-		-webkit-tap-highlight-color: transparent;
-	}
-
-	.drawer a,
-	.drawer-theme {
-		padding: 14px 10px;
+	.panel a,
+	.panel-theme {
+		padding: 12px 14px;
 		text-decoration: none;
 		color: inherit;
-		border-radius: 10px;
+		border-radius: 9px;
 		font-size: 16px;
 		text-align: left;
 		background: none;
 		border: none;
 		font-family: inherit;
 		cursor: pointer;
+		white-space: nowrap;
 		-webkit-tap-highlight-color: transparent;
 	}
 
 	.divider {
 		border-top: 1px solid var(--border);
-		margin: 8px 0;
+		margin: 6px 8px;
 	}
 </style>
