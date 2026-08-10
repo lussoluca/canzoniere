@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canzoniere Alessandria 2</title>
+    <meta name="description" content="Il canzoniere del gruppo scout Alessandria 2: web app con trasposizione degli accordi, PDF stampabile e canzonieri per eventi.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #faf6ee;
+            --card: #ffffff;
+            --ink: #222b36;
+            --slate: #2c3745;
+            --slate-deep: #232c38;
+            --amber: #f0b429;
+            --chord: #b45309;
+            --muted: #67707c;
+            --line: #e7e0d2;
+            --radius: 12px;
+            --display: 'Fraunces', Georgia, serif;
+            --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, sans-serif;
+            --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--body);
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+        a { color: var(--chord); }
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid var(--amber);
+            outline-offset: 2px;
+        }
+        .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header band, same identity as the app */
+        .topbar { background: var(--slate); }
+        .topbar .wrap {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 14px; padding-bottom: 14px;
+        }
+        .wordmark {
+            color: var(--amber); text-decoration: none;
+            font-weight: 700; letter-spacing: 0.01em;
+        }
+        .topbar nav { display: flex; gap: 20px; }
+        .topbar nav a {
+            color: #d7dde5; text-decoration: none; font-size: 15px;
+        }
+        .topbar nav a:hover { color: #fff; }
+
+        /* Hero */
+        .hero { padding: 72px 0 64px; text-align: center; }
+        .hero h1 {
+            font-family: var(--display);
+            font-weight: 700;
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+        .lyric {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            column-gap: 0.45em; row-gap: 10px;
+            margin: 28px auto 0;
+            max-width: 620px;
+            font-family: var(--mono);
+            font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+        }
+        .lyric .w { display: inline-flex; flex-direction: column; align-items: flex-start; }
+        .lyric .chord {
+            font-weight: 700; font-style: normal;
+            color: var(--chord);
+            font-size: 0.82em;
+            margin-bottom: 2px;
+        }
+        .cta-row {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 14px; margin-top: 40px;
+        }
+        .btn {
+            display: inline-block; padding: 14px 28px;
+            border-radius: 999px; text-decoration: none;
+            font-weight: 600; font-size: 1.02rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary {
+            background: var(--slate); color: var(--amber);
+            box-shadow: 0 2px 8px rgba(34, 43, 54, 0.25);
+        }
+        .btn-secondary {
+            background: transparent; color: var(--ink);
+            border: 2px solid var(--slate);
+        }
+        .hero-meta { margin-top: 26px; color: var(--muted); font-size: 0.92rem; }
+
+        /* Sections */
+        .section { padding: 64px 0; border-top: 1px solid var(--line); }
+        .eyebrow {
+            font-family: var(--mono); font-size: 0.8rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.12em;
+            color: var(--chord); margin-bottom: 10px;
+        }
+        .section h2 {
+            font-family: var(--display); font-weight: 700;
+            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+            line-height: 1.2; margin-bottom: 16px;
+        }
+        .section p { max-width: 60ch; }
+        .split {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 48px; align-items: center;
+        }
+        .feature-list { list-style: none; margin-top: 18px; }
+        .feature-list li {
+            padding-left: 26px; position: relative; margin-bottom: 10px;
+        }
+        .feature-list li::before {
+            content: '♪'; position: absolute; left: 2px;
+            color: var(--chord); font-weight: 700;
+        }
+        .section-cta { display: inline-block; margin-top: 22px; font-weight: 600; }
+        .note {
+            margin-top: 22px; padding: 14px 18px;
+            background: var(--card); border: 1px solid var(--line);
+            border-radius: var(--radius); font-size: 0.92rem; color: var(--muted);
+        }
+        .note code {
+            font-family: var(--mono); font-size: 0.9em;
+            background: var(--paper); padding: 2px 6px; border-radius: 4px;
+        }
+
+        /* Screenshots */
+        .phones { display: flex; justify-content: center; gap: 20px; }
+        .phone {
+            width: min(240px, 42%);
+            border: 6px solid var(--slate-deep); border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(34, 43, 54, 0.22);
+            background: var(--slate-deep);
+        }
+        .phone img { display: block; width: 100%; height: auto; }
+        .browser {
+            border-radius: var(--radius); overflow: hidden;
+            border: 1px solid var(--line);
+            box-shadow: 0 12px 32px rgba(34, 43, 54, 0.18);
+            background: var(--card);
+        }
+        .browser-bar {
+            display: flex; gap: 6px; padding: 10px 12px;
+            background: var(--slate-deep);
+        }
+        .browser-bar span {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #5a6675;
+        }
+        .browser img { display: block; width: 100%; height: auto; }
+
+        /* Events */
+        .event-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px; margin-top: 26px; list-style: none;
+        }
+        .event-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 20px;
+            background: var(--card); border: 1px solid var(--line);
+            border-radius: var(--radius);
+            text-decoration: none; color: var(--ink); font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .event-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 43, 54, 0.12);
+        }
+        .event-link .dl {
+            margin-left: auto; font-family: var(--mono); font-size: 0.78rem;
+            font-weight: 700; color: var(--chord);
+        }
+
+        /* Footer */
+        footer { background: var(--slate); margin-top: 64px; }
+        footer .wrap {
+            display: flex; flex-wrap: wrap; gap: 8px 24px;
+            justify-content: space-between; align-items: center;
+            padding-top: 22px; padding-bottom: 22px;
+            color: #aeb7c2; font-size: 0.88rem;
+        }
+        footer a { color: #d7dde5; }
+
+        @media (max-width: 820px) {
+            .split { grid-template-columns: 1fr; gap: 36px; }
+            .split .media { order: -1; }
+            .hero { padding: 52px 0 48px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .btn, .event-link { transition: none; }
+            .btn:hover, .event-link:hover { transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="wrap">
+            <a class="wordmark" href="#">Canzoniere Alessandria 2</a>
+            <nav>
+                <a href="#reader">Reader</a>
+                <a href="#editor">Editor</a>
+                <a href="https://github.com/lussoluca/canzoniere">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero wrap">
+            <h1>Canzoniere<br>Alessandria&nbsp;2</h1>
+            <p class="lyric">
+                <span class="w"><b class="chord" aria-hidden="true">Lam</b>I canti</span>
+                <span class="w"><b class="chord" aria-hidden="true">Fa</b>del gruppo,</span>
+                <span class="w"><b class="chord" aria-hidden="true">Sol</b>sempre a portata</span>
+                <span class="w"><b class="chord" aria-hidden="true">Mi</b>di chitarra.</span>
+            </p>
+            <div class="cta-row">
+                <a class="btn btn-primary" href="app/">Apri il canzoniere</a>
+                <a class="btn btn-secondary" href="canzoniere.pdf" download>Scarica il PDF</a>
+            </div>
+            <p class="hero-meta">Funziona anche offline · Si installa sul telefono · Aggiornato il __DATE__</p>
+        </section>
+
+        <section class="section" id="reader">
+            <div class="wrap split">
+                <div>
+                    <p class="eyebrow">Per cantare</p>
+                    <h2>Il reader, sul telefono di tutti</h2>
+                    <p>Una web app pensata per il fuoco di bivacco: si apre da qualsiasi browser, si installa sulla schermata Home e funziona anche senza connessione.</p>
+                    <ul class="feature-list">
+                        <li>Ricerca per titolo, artista o tag</li>
+                        <li>Trasposizione degli accordi in un tocco</li>
+                        <li>Accordi semplificati per chi inizia, con diagrammi per chitarra</li>
+                        <li>Modalità solo testo e scorrimento automatico</li>
+                    </ul>
+                    <a class="section-cta" href="app/">Apri il reader →</a>
+                    <div class="note">
+                        <strong>Per installarla:</strong> su iPhone <em>Condividi → Aggiungi a schermata Home</em>, su Android <em>menu ⋮ → Installa app</em>, su computer l'icona di installazione nella barra degli indirizzi.
+                    </div>
+                </div>
+                <div class="media phones">
+                    <div class="phone"><img src="screenshots/reader-home.png" alt="La home del reader con le categorie dei canti" loading="lazy"></div>
+                    <div class="phone"><img src="screenshots/reader-song.png" alt="Un canto nel reader con gli accordi sopra il testo" loading="lazy"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="editor">
+            <div class="wrap split">
+                <div class="media">
+                    <div class="browser">
+                        <div class="browser-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+                        <img src="screenshots/editor.png" alt="L'editor visuale con gli accordi come pillole sopra il testo e i diagrammi a lato" loading="lazy">
+                    </div>
+                </div>
+                <div>
+                    <p class="eyebrow">Per chi cura il canzoniere</p>
+                    <h2>L'editor, senza scrivere ChordPro a mano</h2>
+                    <p>Gli accordi sono pillole sopra il testo: un clic per aggiungerli, un trascinamento per spostarli. La scheda ChordPro resta sincronizzata, con evidenziazione della sintassi.</p>
+                    <ul class="feature-list">
+                        <li>Editor visuale e sorgente ChordPro sempre allineati</li>
+                        <li>Conversione dalla notazione inglese a quella latina (Am → Lam)</li>
+                        <li>Trasposizione di tutti gli accordi di ±1 semitono</li>
+                        <li>Gestione dei canzonieri per eventi: aggiunta, rimozione e riordino dei canti</li>
+                    </ul>
+                    <div class="note">
+                        L'editor gira in locale e scrive direttamente i file del repository: <code>make dev</code> dalla radice del progetto. Dettagli nel <a href="https://github.com/lussoluca/canzoniere/blob/main/editor/README.md">README dell'editor</a>.
+                    </div>
+                </div>
+            </div>
+        </section>
+__EVENTS__
+    </main>
+
+    <footer>
+        <div class="wrap">
+            <span>Canzoniere Alessandria 2</span>
+            <span>Aggiornato il __DATE__ ·__COMMIT__ <a href="https://github.com/lussoluca/canzoniere">Sorgenti su GitHub</a></span>
+        </div>
+    </footer>
+</body>
+</html>
