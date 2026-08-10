@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fade, fly } from 'svelte/transition';
 	import { base } from '$app/paths';
 	import { feedbackHref } from '$lib/feedback';
 	import type { Theme } from '$lib/theme';
@@ -14,9 +15,13 @@
 	} = $props();
 
 	const items = [
-		{ href: `${base}/accordi/`, label: '🎸 Cosa posso suonare' },
-		{ href: `${base}/raccolta/`, label: '🎵 Crea un canzoniere' },
-		{ href: feedbackHref('Commenti e suggerimenti sul canzoniere'), label: '✉️ Commenti e suggerimenti' }
+		{ href: `${base}/accordi/`, icon: '🎸', label: 'Cosa posso suonare' },
+		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea un canzoniere' },
+		{
+			href: feedbackHref('Commenti e suggerimenti sul canzoniere'),
+			icon: '✉️',
+			label: 'Commenti e suggerimenti'
+		}
 	];
 
 	let open = $state(false);
@@ -35,7 +40,7 @@
 <nav>
 	<div class="inline">
 		{#each items as item (item.href)}
-			<a href={item.href}>{item.label}</a>
+			<a href={item.href}>{item.icon} {item.label}</a>
 		{/each}
 		{#if mounted}
 			<button
@@ -58,19 +63,25 @@
 	</button>
 
 	{#if open}
-		<button class="overlay" onclick={close} aria-label="Chiudi il menu" tabindex="-1"></button>
-		<div class="drawer">
-			<div class="drawer-head">
-				<span>Menu</span>
-				<button class="close" onclick={close} aria-label="Chiudi il menu">✕</button>
-			</div>
+		<button
+			class="overlay"
+			onclick={close}
+			aria-label="Chiudi il menu"
+			tabindex="-1"
+			transition:fade={{ duration: 150 }}
+		></button>
+		<div class="drawer" transition:fly={{ x: -320, duration: 220, opacity: 1 }}>
+			<div class="drawer-brand">Canzoniere</div>
 			{#each items as item (item.href)}
-				<a href={item.href} onclick={close}>{item.label}</a>
+				<a href={item.href} onclick={close}>
+					<span class="icon">{item.icon}</span>
+					{item.label}
+				</a>
 			{/each}
-			<div class="divider"></div>
 			{#if mounted}
 				<button class="drawer-theme" onclick={ontoggletheme}>
-					{theme === 'dark' ? '☀️ Tema chiaro' : '🌙 Tema scuro'}
+					<span class="icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
+					{theme === 'dark' ? 'Tema chiaro' : 'Tema scuro'}
 				</button>
 			{/if}
 		</div>
@@ -134,56 +145,50 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.35);
+		background: rgba(0, 0, 0, 0.45);
 		border: none;
 		padding: 0;
 		z-index: 40;
 	}
 
+	/* Full-height sheet from the left; the page stays visible on the right
+	   under the dimmed overlay. */
 	.drawer {
 		position: fixed;
 		top: 0;
-		right: 0;
+		left: 0;
 		bottom: 0;
-		width: 78%;
+		width: 82%;
 		max-width: 320px;
-		background: var(--surface);
+		background: var(--bg);
 		color: var(--text);
 		z-index: 50;
-		box-shadow: -4px 0 24px var(--shadow);
-		padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+		border-radius: 0 24px 24px 0;
+		box-shadow: 4px 0 32px var(--shadow);
+		padding: calc(env(safe-area-inset-top) + 20px) 14px calc(env(safe-area-inset-bottom) + 20px)
+			calc(env(safe-area-inset-left) + 14px);
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: 2px;
 		box-sizing: border-box;
 	}
 
-	.drawer-head {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 12px;
+	.drawer-brand {
+		font-size: 22px;
 		font-weight: 700;
-		font-size: 16px;
-	}
-
-	.close {
-		font-size: 20px;
-		background: none;
-		border: none;
-		color: inherit;
-		cursor: pointer;
-		padding: 2px 4px;
-		-webkit-tap-highlight-color: transparent;
+		padding: 6px 12px 22px;
 	}
 
 	.drawer a,
 	.drawer-theme {
-		padding: 14px 10px;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 14px 12px;
 		text-decoration: none;
 		color: inherit;
-		border-radius: 10px;
-		font-size: 16px;
+		border-radius: 14px;
+		font-size: 17px;
 		text-align: left;
 		background: none;
 		border: none;
@@ -192,8 +197,15 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.divider {
-		border-top: 1px solid var(--border);
-		margin: 8px 0;
+	.drawer a:active,
+	.drawer-theme:active {
+		background: var(--surface);
+	}
+
+	.icon {
+		font-size: 19px;
+		width: 26px;
+		text-align: center;
+		flex-shrink: 0;
 	}
 </style>
