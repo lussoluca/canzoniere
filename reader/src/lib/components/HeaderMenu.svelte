@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fade, fly } from 'svelte/transition';
 	import { base } from '$app/paths';
 	import { feedbackHref } from '$lib/feedback';
 	import type { Theme } from '$lib/theme';
@@ -14,9 +15,13 @@
 	} = $props();
 
 	const items = [
-		{ href: `${base}/accordi/`, label: '🎸 Cosa posso suonare' },
-		{ href: `${base}/raccolta/`, label: '🎵 Crea un canzoniere' },
-		{ href: feedbackHref('Commenti e suggerimenti sul canzoniere'), label: '✉️ Commenti e suggerimenti' }
+		{ href: `${base}/accordi/`, icon: '🎸', label: 'Cosa posso suonare' },
+		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea un canzoniere' },
+		{
+			href: feedbackHref('Commenti e suggerimenti sul canzoniere'),
+			icon: '✉️',
+			label: 'Commenti e suggerimenti'
+		}
 	];
 
 	let open = $state(false);
@@ -35,7 +40,7 @@
 <nav>
 	<div class="inline">
 		{#each items as item (item.href)}
-			<a href={item.href}>{item.label}</a>
+			<a href={item.href}>{item.icon} {item.label}</a>
 		{/each}
 		{#if mounted}
 			<button
@@ -58,15 +63,25 @@
 	</button>
 
 	{#if open}
-		<button class="overlay" onclick={close} aria-label="Chiudi il menu" tabindex="-1"></button>
-		<div class="panel">
+		<button
+			class="overlay"
+			onclick={close}
+			aria-label="Chiudi il menu"
+			tabindex="-1"
+			transition:fade={{ duration: 150 }}
+		></button>
+		<div class="drawer" transition:fly={{ x: -320, duration: 220, opacity: 1 }}>
+			<div class="drawer-brand">Canzoniere</div>
 			{#each items as item (item.href)}
-				<a href={item.href} onclick={close}>{item.label}</a>
+				<a href={item.href} onclick={close}>
+					<span class="icon">{item.icon}</span>
+					{item.label}
+				</a>
 			{/each}
-			<div class="divider"></div>
 			{#if mounted}
-				<button class="panel-theme" onclick={ontoggletheme}>
-					{theme === 'dark' ? '☀️ Tema chiaro' : '🌙 Tema scuro'}
+				<button class="drawer-theme" onclick={ontoggletheme}>
+					<span class="icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
+					{theme === 'dark' ? 'Tema chiaro' : 'Tema scuro'}
 				</button>
 			{/if}
 		</div>
@@ -74,11 +89,6 @@
 </nav>
 
 <style>
-	/* Anchor for the absolutely-positioned dropdown panel. */
-	nav {
-		position: relative;
-	}
-
 	.inline {
 		display: flex;
 		align-items: center;
@@ -132,53 +142,70 @@
 		}
 	}
 
-	/* Transparent click-catcher: closes the menu on a tap anywhere outside
-	   the panel without dimming the page for a 4-item dropdown. */
 	.overlay {
 		position: fixed;
 		inset: 0;
-		background: transparent;
+		background: rgba(0, 0, 0, 0.45);
 		border: none;
 		padding: 0;
 		z-index: 40;
 	}
 
-	.panel {
-		position: absolute;
-		top: calc(100% + 10px);
-		right: 0;
-		width: max-content;
-		max-width: calc(100vw - 24px);
-		background: var(--surface);
+	/* Full-height sheet from the left; the page stays visible on the right
+	   under the dimmed overlay. */
+	.drawer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 82%;
+		max-width: 320px;
+		background: var(--bg);
 		color: var(--text);
 		z-index: 50;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		box-shadow: 0 8px 32px var(--shadow);
-		padding: 6px;
+		border-radius: 0 24px 24px 0;
+		box-shadow: 4px 0 32px var(--shadow);
+		padding: calc(env(safe-area-inset-top) + 20px) 14px calc(env(safe-area-inset-bottom) + 20px)
+			calc(env(safe-area-inset-left) + 14px);
 		display: flex;
 		flex-direction: column;
+		gap: 2px;
 		box-sizing: border-box;
 	}
 
-	.panel a,
-	.panel-theme {
-		padding: 12px 14px;
+	.drawer-brand {
+		font-size: 22px;
+		font-weight: 700;
+		padding: 6px 12px 22px;
+	}
+
+	.drawer a,
+	.drawer-theme {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 14px 12px;
 		text-decoration: none;
 		color: inherit;
-		border-radius: 9px;
-		font-size: 16px;
+		border-radius: 14px;
+		font-size: 17px;
 		text-align: left;
 		background: none;
 		border: none;
 		font-family: inherit;
 		cursor: pointer;
-		white-space: nowrap;
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.divider {
-		border-top: 1px solid var(--border);
-		margin: 6px 8px;
+	.drawer a:active,
+	.drawer-theme:active {
+		background: var(--surface);
+	}
+
+	.icon {
+		font-size: 19px;
+		width: 26px;
+		text-align: center;
+		flex-shrink: 0;
 	}
 </style>
