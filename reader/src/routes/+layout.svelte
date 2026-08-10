@@ -3,6 +3,7 @@
 	import { dev } from '$app/environment';
 	import { base } from '$app/paths';
 	import { loadTheme, saveTheme, applyTheme, type Theme } from '$lib/theme';
+	import HeaderMenu from '$lib/components/HeaderMenu.svelte';
 
 	let { children } = $props();
 
@@ -87,15 +88,7 @@
 			<img class="logo" src="{base}/icons/icon-192.png" alt="" />
 			Canzoniere Alessandria 2
 		</a>
-		{#if mounted}
-			<button
-				class="theme"
-				onclick={toggleTheme}
-				aria-label={effective === 'dark' ? 'Passa al tema chiaro' : 'Passa al tema scuro'}
-			>
-				{effective === 'dark' ? '☀️' : '🌙'}
-			</button>
-		{/if}
+		<HeaderMenu theme={effective} {mounted} ontoggletheme={toggleTheme} />
 	</header>
 
 	<main>
@@ -236,20 +229,6 @@
 		height: 28px;
 		border-radius: 6px;
 		flex-shrink: 0;
-	}
-
-	.theme {
-		font-size: 17px;
-		background: none;
-		border: none;
-		padding: 2px 4px;
-		/* Fixed height (same as the logo) so the header height does not depend
-		   on the emoji font's line box, which varies across platforms. */
-		height: 28px;
-		display: flex;
-		align-items: center;
-		cursor: pointer;
-		-webkit-tap-highlight-color: transparent;
 	}
 
 	main {
