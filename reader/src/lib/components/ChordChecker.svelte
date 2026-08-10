@@ -143,12 +143,9 @@
 {/if}
 
 <style>
+	/* the pieces lay out as flex items of the card's action row */
 	.checker {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 8px 12px;
-		margin-top: 10px;
+		display: contents;
 	}
 
 	.listen {
@@ -165,7 +162,7 @@
 	}
 
 	.result {
-		flex: 1 1 220px;
+		flex: 1 1 100%;
 		margin: 0;
 		font-size: 14px;
 		min-height: 1.4em;

@@ -45,13 +45,15 @@
 					Prova le corde una alla volta: se una non suona, avvicina il dito alla barretta
 					metallica e premi con la punta, non con il polpastrello piatto.
 				</p>
-				<ChordChecker {chord} />
 			</div>
 		{:else}
 			<p class="howto">Per questo accordo non c'è un diagramma nel canzoniere.</p>
 		{/if}
 	</div>
-	<button class="learned" onclick={onLearned}>Segna come imparato</button>
+	<div class="actions">
+		<button class="learned" onclick={onLearned}>Segna come imparato</button>
+		<ChordChecker {chord} />
+	</div>
 </details>
 
 <style>
@@ -132,11 +134,18 @@
 		font-size: 13px;
 	}
 
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px 12px;
+		margin: 12px 14px 14px;
+	}
+
 	.learned {
 		font: inherit;
 		font-size: 14px;
 		font-weight: 500;
-		margin: 12px 14px 14px;
 		padding: 8px 14px;
 		border: 1px solid var(--control-border);
 		border-radius: 999px;
