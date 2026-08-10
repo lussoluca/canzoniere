@@ -15,14 +15,18 @@
 	let phase = $state<Phase>('idle');
 	let verdict = $state<ChromaVerdict | null>(null); // null while too quiet to judge
 	let error = $state('');
+	let level = $state(0); // smoothed input level, drives the little meter
+	let mute = $state(false); // no signal at all from the microphone
 
 	let session: MicSession | null = null;
 	let timer: ReturnType<typeof setInterval> | undefined;
 
-	const RMS_GATE = 0.02; // below this the guitar isn't playing
+	const RMS_GATE = 0.006; // below this the guitar isn't playing (phone mics are quiet)
+	const RMS_SILENCE = 0.0005; // below this the stream is effectively dead
 	const TICK_MS = 90;
 	const WINDOW = 8; // sliding window of frames (~0.7 s) the verdict is computed on
 	const MIN_FRAMES = 3; // frames needed before the first verdict
+	const MUTE_TICKS = 40; // ~3.6 s of dead stream before warning about it
 
 	function stopAll() {
 		clearInterval(timer);
@@ -37,6 +41,8 @@
 		stopAll();
 		phase = 'idle';
 		verdict = null;
+		level = 0;
+		mute = false;
 	}
 
 	async function start() {
@@ -60,13 +66,21 @@
 		const time = new Float32Array(analyser.fftSize);
 		const freq = new Float32Array(analyser.frequencyBinCount);
 		const frames: Float32Array[] = [];
+		let deadTicks = 0;
 
 		timer = setInterval(() => {
 			if (!session) return;
 			analyser.getFloatTimeDomainData(time);
 			let sum = 0;
 			for (let i = 0; i < time.length; i++) sum += time[i] * time[i];
-			if (Math.sqrt(sum / time.length) < RMS_GATE) {
+			const rms = Math.sqrt(sum / time.length);
+			level = Math.max(rms, level * 0.8);
+
+			// a stream that stays flat isn't ambient silence, it's no input at all
+			deadTicks = rms < RMS_SILENCE ? deadTicks + 1 : 0;
+			mute = deadTicks >= MUTE_TICKS;
+
+			if (rms < RMS_GATE) {
 				// silence resets the window so the next strum starts clean
 				frames.length = 0;
 				verdict = null;
@@ -93,8 +107,16 @@
 			</button>
 		{/if}
 		{#if phase === 'listening'}
+			<div class="meter" aria-hidden="true">
+				<div class="meter-fill" style="width: {Math.min(100, level * 900)}%"></div>
+			</div>
 			<p class="result" aria-live="polite">
-				{#if !verdict}
+				{#if mute}
+					<span class="hint">
+						Non arriva segnale dal microfono: controlla che non sia coperto o usato da un'altra
+						app.
+					</span>
+				{:else if !verdict}
 					<span class="hint">Suona l'accordo, ti ascolto…</span>
 				{:else if verdict.ok}
 					<span class="ok">Suona bene ✓</span>
@@ -139,6 +161,21 @@
 		margin: 0;
 		font-size: 14px;
 		min-height: 1.4em;
+	}
+
+	.meter {
+		flex: 0 0 64px;
+		height: 6px;
+		border-radius: 3px;
+		background: var(--control-border);
+		overflow: hidden;
+	}
+
+	.meter-fill {
+		height: 100%;
+		border-radius: 3px;
+		background: var(--active-bg);
+		transition: width 90ms linear;
 	}
 
 	.hint {
