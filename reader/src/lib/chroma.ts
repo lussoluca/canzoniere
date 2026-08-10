@@ -53,12 +53,14 @@ export interface ChromaVerdict {
 	extra: number[]; // loud pitch classes outside the chord
 }
 
-// an "ok" needs most of the energy on the chord's notes and none of them absent
-const OK_SCORE = 0.7;
+// an "ok" needs most of the energy on the chord's notes and none of them
+// absent; a real guitar spreads energy on harmonics outside the chord (the
+// 3rd harmonic of Re lands on La), so these are looser than the ideal case
+const OK_SCORE = 0.6;
 // a chord note is missing when it holds less than this slice of its fair share
-const MISSING_RATIO = 0.25;
+const MISSING_RATIO = 0.12;
 // a foreign note is reported when it holds more than this share of the total
-const EXTRA_SHARE = 0.15;
+const EXTRA_SHARE = 0.22;
 
 export function evaluateChroma(chroma: Float32Array, chordPcs: number[]): ChromaVerdict {
 	let total = 0;

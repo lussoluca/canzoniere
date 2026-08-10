@@ -1,3 +1,8 @@
+<script lang="ts" module>
+	// one microphone at a time: starting a checker stops the one still listening
+	let stopActive: (() => void) | null = null;
+</script>
+
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { PITCH_NAMES, chromaFromSpectrum, evaluateChroma, type ChromaVerdict } from '$lib/chroma';
@@ -35,19 +40,22 @@
 		session = null;
 	}
 
-	onDestroy(stopAll);
-
 	function stop() {
 		stopAll();
 		phase = 'idle';
 		verdict = null;
 		level = 0;
 		mute = false;
+		if (stopActive === stop) stopActive = null;
 	}
+
+	onDestroy(stop);
 
 	async function start() {
 		const pcs = targets;
 		if (!pcs) return;
+		stopActive?.();
+		stopActive = stop;
 		verdict = null;
 		error = '';
 		try {
