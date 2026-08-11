@@ -130,9 +130,9 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	/* Narrow viewport: the inline links don't fit next to the brand, the
-	   burger and its drawer take over. */
-	@media (max-width: 700px) {
+	/* Up to iPad portrait and small-iPad landscape the inline links feel
+	   cramped next to the brand, the burger and its drawer take over. */
+	@media (max-width: 1024px) {
 		.inline {
 			display: none;
 		}
@@ -207,5 +207,14 @@
 		width: 26px;
 		text-align: center;
 		flex-shrink: 0;
+	}
+
+	/* Rotating the device past the breakpoint while the drawer is open would
+	   otherwise leave it on screen next to the inline links. */
+	@media (min-width: 1025px) {
+		.overlay,
+		.drawer {
+			display: none;
+		}
 	}
 </style>
