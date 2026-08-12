@@ -169,6 +169,7 @@
 				{/each}
 			{/if}
 			{#if mounted}
+				<div class="drawer-sep"></div>
 				<button class="drawer-theme" onclick={ontoggletheme}>
 					<span class="icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
 					{theme === 'dark' ? 'Tema chiaro' : 'Tema scuro'}
@@ -371,6 +372,12 @@
 	.drawer a:active,
 	.drawer-theme:active {
 		background: var(--surface);
+	}
+
+	.drawer-sep {
+		height: 1px;
+		background: var(--border);
+		margin: 10px 12px;
 	}
 
 	.drawer-section {
