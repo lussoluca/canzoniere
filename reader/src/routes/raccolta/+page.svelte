@@ -8,6 +8,7 @@
 	import { encodeCollection, decodeCollection, type CollectionSong } from '$lib/collection';
 	import { loadSavedSongPrefs } from '$lib/prefs';
 	import SearchBox from '$lib/components/SearchBox.svelte';
+	import QrScanner from '$lib/components/QrScanner.svelte';
 
 	// The chosen songs live in the URL (?l=), so a link is the whole songbook.
 	// With ?l= present the page is in view mode; otherwise it's the builder.
@@ -87,6 +88,30 @@
 		showQr = true;
 	}
 
+	// Receiving side of the QR flow: scanning from inside the app keeps the
+	// set in the installed PWA (the system camera would open the browser).
+	let showScanner = $state(false);
+
+	function handleScan(text: string): boolean {
+		let url: URL;
+		try {
+			url = new URL(text);
+		} catch {
+			return false;
+		}
+		const l = url.searchParams.get('l');
+		if (!l || decodeCollection(l).length === 0) return false;
+		const params = new URLSearchParams();
+		params.set('l', l);
+		const t = url.searchParams.get('t');
+		if (t) params.set('t', t);
+		// Full navigation on purpose: this page reads its params on mount, and
+		// the scanned QR may carry the deployed origin while the app runs on
+		// another one, so only the query is kept.
+		location.assign(`${location.pathname}?${params}`);
+		return true;
+	}
+
 	async function share() {
 		const url = shareUrl();
 		const shareTitle = title.trim() || 'Canzoniere';
@@ -139,6 +164,11 @@
 		nulla.
 	</p>
 
+	<div class="bar receive">
+		<button class="btn" onclick={() => (showScanner = true)}>📷 Inquadra un QR</button>
+		<span class="receive-hint">Ricevi una scaletta da un altro telefono.</span>
+	</div>
+
 	<input class="titolo" placeholder="Titolo (facoltativo)" bind:value={title} />
 
 	{#if selected.length > 0}
@@ -185,6 +215,10 @@
 			{#if query.trim() !== ''}<li class="none">Nessun canto trovato.</li>{/if}
 		{/each}
 	</ul>
+{/if}
+
+{#if showScanner}
+	<QrScanner onresult={handleScan} onclose={() => (showScanner = false)} />
 {/if}
 
 {#if showQr}
@@ -355,6 +389,16 @@
 
 	.none {
 		padding: 12px 4px;
+		color: var(--muted);
+	}
+
+	.receive {
+		align-items: center;
+		margin: 0 0 16px;
+	}
+
+	.receive-hint {
+		font-size: 13px;
 		color: var(--muted);
 	}
 
