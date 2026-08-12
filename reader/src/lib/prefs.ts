@@ -63,6 +63,18 @@ export function saveSongPrefs(
 	}
 }
 
+// The raw override saved on this device, if any: only the prefs the user
+// actually changed end up in a shared collection link.
+export function loadSavedSongPrefs(category: string, slug: string): Partial<SongPrefs> | null {
+	if (typeof localStorage === 'undefined') return null;
+	try {
+		const raw = localStorage.getItem(songKey(category, slug));
+		return raw ? (JSON.parse(raw) as Partial<SongPrefs>) : null;
+	} catch {
+		return null;
+	}
+}
+
 const FONT_KEY = 'reader:fontSize';
 export const FONT_MIN = 12;
 export const FONT_MAX = 26;
