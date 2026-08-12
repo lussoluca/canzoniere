@@ -6,6 +6,7 @@
 	import { allSongs, type SongRef } from '$lib/data';
 	import { parseQuery, matchesQuery } from '$lib/search';
 	import { encodeCollection, decodeCollection, type CollectionSong } from '$lib/collection';
+	import { rememberSharedCollection } from '$lib/shared-collections';
 	import { loadSavedSongPrefs } from '$lib/prefs';
 	import SearchBox from '$lib/components/SearchBox.svelte';
 	import QrScanner from '$lib/components/QrScanner.svelte';
@@ -26,6 +27,9 @@
 		hasParam = l !== null;
 		selected = decodeCollection(l);
 		title = page.url.searchParams.get('t') ?? '';
+		// Remember every opened set so the main menu can bring it back after
+		// the page is closed, and it can be re-shared from there.
+		if (l && selected.length > 0) rememberSharedCollection(l, title.trim());
 	});
 
 	const selectedKeys = $derived(new Set(selected.map((s) => `${s.category}/${s.slug}`)));
