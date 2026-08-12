@@ -1,7 +1,7 @@
 """Genera public/index.html per GitHub Pages a partire da site/template.html.
 
-Sostituisce i segnaposto __DATE__, __SHA__ e __EVENTS__ e copia gli
-screenshot in public/screenshots/.
+Sostituisce i segnaposto __DATE__, __SHA__ e __EVENTS__, copia gli
+screenshot in public/screenshots/ e il logo del gruppo in public/icons/.
 """
 
 import datetime
@@ -66,6 +66,8 @@ def main() -> None:
     PUBLIC.mkdir(exist_ok=True)
     (PUBLIC / "index.html").write_text(html, encoding="utf-8")
     shutil.copytree(SITE / "screenshots", PUBLIC / "screenshots", dirs_exist_ok=True)
+    (PUBLIC / "icons").mkdir(exist_ok=True)
+    shutil.copy(ROOT / "reader" / "static" / "icons" / "icon-192.png", PUBLIC / "icons")
 
 
 if __name__ == "__main__":
