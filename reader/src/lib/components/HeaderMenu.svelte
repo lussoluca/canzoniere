@@ -22,6 +22,7 @@
 	} = $props();
 
 	const items = [
+		{ href: `${base}/impara/`, icon: '🎓', label: 'Impara la chitarra' },
 		{ href: `${base}/accordi/`, icon: '🎸', label: 'Cosa posso suonare' },
 		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea un canzoniere' },
 		{
