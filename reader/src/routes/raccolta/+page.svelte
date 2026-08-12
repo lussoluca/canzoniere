@@ -2,14 +2,16 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { page } from '$app/state';
+	import qrcode from 'qrcode-generator';
 	import { allSongs, type SongRef } from '$lib/data';
 	import { parseQuery, matchesQuery } from '$lib/search';
-	import { encodeCollection, decodeCollection } from '$lib/collection';
+	import { encodeCollection, decodeCollection, type CollectionSong } from '$lib/collection';
+	import { loadSavedSongPrefs } from '$lib/prefs';
 	import SearchBox from '$lib/components/SearchBox.svelte';
 
 	// The chosen songs live in the URL (?l=), so a link is the whole songbook.
 	// With ?l= present the page is in view mode; otherwise it's the builder.
-	let selected = $state<SongRef[]>([]);
+	let selected = $state<CollectionSong[]>([]);
 	let title = $state('');
 	let query = $state('');
 	let copied = $state(false);
@@ -50,17 +52,39 @@
 		selected = copy;
 	}
 
+	// A shared entry keeps the prefs it arrived with; a song picked here gets
+	// the prefs saved on this device (transpose, simplified chords, scroll
+	// speed), so the link and the QR carry the sender's personalizations.
+	function withPrefs(song: CollectionSong): CollectionSong {
+		if (song.prefs) return song;
+		const saved = loadSavedSongPrefs(song.category, song.slug);
+		return saved ? { ...song, prefs: saved } : song;
+	}
+
 	// Carried on every song link so the song page shows the prev/next pager and
 	// a back link into this collection.
 	const songQuery = $derived.by(() => {
 		const params = new URLSearchParams();
-		params.set('l', encodeCollection(selected));
+		params.set('l', encodeCollection(selected.map(withPrefs)));
 		if (title.trim()) params.set('t', title.trim());
 		return params.toString();
 	});
 
 	function shareUrl(): string {
 		return `${location.origin}${location.pathname}?${songQuery}`;
+	}
+
+	// The QR is generated on the device (no network), so a set can be passed
+	// around by pointing cameras at a phone even where there is no signal.
+	let showQr = $state(false);
+	let qrSvg = $state('');
+
+	function openQr() {
+		const qr = qrcode(0, 'M');
+		qr.addData(shareUrl());
+		qr.make();
+		qrSvg = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+		showQr = true;
 	}
 
 	async function share() {
@@ -105,6 +129,7 @@
 	</ol>
 	<div class="bar">
 		<button class="btn" onclick={share}>{copied ? 'Link copiato ✓' : '📤 Condividi'}</button>
+		<button class="btn" onclick={openQr}>⊞ QR code</button>
 		<button class="btn" onclick={() => (editing = true)}>✏️ Modifica</button>
 	</div>
 {:else}
@@ -133,7 +158,12 @@
 		</ol>
 		<div class="bar">
 			<button class="btn primary" onclick={share}>{copied ? 'Link copiato ✓' : '📤 Condividi il link'}</button>
+			<button class="btn" onclick={openQr}>⊞ QR code</button>
 		</div>
+		<p class="prefs-hint">
+			Il link e il QR includono le tue personalizzazioni dei canti scelti: tonalità, accordi
+			semplici, velocità di scorrimento.
+		</p>
 	{/if}
 
 	<h2>Aggiungi canti</h2>
@@ -155,6 +185,20 @@
 			{#if query.trim() !== ''}<li class="none">Nessun canto trovato.</li>{/if}
 		{/each}
 	</ul>
+{/if}
+
+{#if showQr}
+	<div class="qr-sheet" role="dialog" aria-label="QR code della scaletta">
+		<div class="qr-head">
+			<span>{title.trim() || 'Canzoniere'}</span>
+			<button class="close" onclick={() => (showQr = false)} aria-label="Chiudi il QR code">✕</button>
+		</div>
+		<div class="qr-box">{@html qrSvg}</div>
+		<p class="qr-hint">
+			Inquadra con la fotocamera di un altro telefono: si apre la stessa scaletta, con le
+			personalizzazioni di chi la condivide.
+		</p>
+	</div>
 {/if}
 
 <style>
@@ -312,5 +356,71 @@
 	.none {
 		padding: 12px 4px;
 		color: var(--muted);
+	}
+
+	.prefs-hint {
+		margin: 10px 0 0;
+		font-size: 13px;
+		color: var(--muted);
+	}
+
+	/* Bottom sheet, same look as the diagram/note sheets on the song page. */
+	.qr-sheet {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
+		max-height: 80dvh;
+		overflow-y: auto;
+		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
+			calc(env(safe-area-inset-left) + 16px);
+	}
+
+	.qr-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		position: sticky;
+		top: 0;
+		background: var(--surface);
+		padding: 10px 0 6px;
+		font-weight: 600;
+	}
+
+	.close {
+		font: inherit;
+		font-size: 14px;
+		padding: 6px 12px;
+		border: 1px solid var(--control-border);
+		border-radius: 8px;
+		background: var(--surface);
+		color: inherit;
+		cursor: pointer;
+	}
+
+	/* Always on white with quiet-zone padding, so cameras read it in dark mode too. */
+	.qr-box {
+		background: #fff;
+		border-radius: 12px;
+		padding: 16px;
+		margin: 6px auto 0;
+		width: min(70vw, 280px);
+	}
+
+	.qr-box :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.qr-hint {
+		margin: 10px 0 4px;
+		font-size: 13px;
+		color: var(--muted);
+		text-align: center;
 	}
 </style>

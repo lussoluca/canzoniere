@@ -9,7 +9,7 @@
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { findSongbook } from '$lib/data';
 	import { feedbackHref } from '$lib/feedback';
-	import { decodeCollection } from '$lib/collection';
+	import { decodeCollection, type CollectionSong } from '$lib/collection';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
 	import SongSheet from '$lib/components/SongSheet.svelte';
@@ -23,7 +23,8 @@
 		FONT_DEFAULT,
 		SCROLL_MIN,
 		SCROLL_MAX,
-		SCROLL_DEFAULT
+		SCROLL_DEFAULT,
+		type SongPrefs
 	} from '$lib/prefs';
 	import type { PageProps } from './$types';
 
@@ -43,7 +44,13 @@
 	// ad-hoc shared collection (?l=...&t=...). Either way it gives the song list
 	// for the prev/next pager plus a back link and the query to carry forward.
 	// The query string only exists client-side (pages are prerendered without it).
-	const ctx = $derived.by(() => {
+	interface Ctx {
+		songs: CollectionSong[];
+		backHref: string;
+		backLabel: string;
+		query: string;
+	}
+	const ctx = $derived.by((): Ctx | undefined => {
 		if (!browser) return undefined;
 		const params = page.url.searchParams;
 		const name = params.get('from');
@@ -77,15 +84,27 @@
 	let fontSize = $state(FONT_DEFAULT);
 	let ready = $state(false);
 
+	// Prefs carried by a shared collection link (?l=...): the sender's
+	// transpose, simplified chords and scroll speed for this song.
+	const sharedPrefs = $derived(ctx && ctxIndex >= 0 ? ctx.songs[ctxIndex].prefs : undefined);
+
 	// Prefs are per song: reload whenever the song changes (client-side nav).
+	// Shared prefs override the local ones for the view but are never written
+	// to this device's storage: the reader's own prefs survive a shared set.
+	// While they differ from the local ones, saving stays off for this song
+	// (when they match, e.g. the sender opening their own collection, it stays
+	// on as usual).
 	$effect(() => {
 		const p = loadSongPrefs(data.song.category, data.song.slug, songScroll);
-		transpose = p.transpose;
-		simplify = p.simplify;
-		hideChords = p.hideChords;
-		scrollSpeed = p.scrollSpeed;
+		const shared = sharedPrefs;
+		const merged = { ...p, ...shared };
+		transpose = merged.transpose;
+		simplify = merged.simplify;
+		hideChords = merged.hideChords;
+		scrollSpeed = merged.scrollSpeed;
 		scrolling = false;
-		ready = true;
+		ready =
+			!shared || (Object.keys(shared) as (keyof SongPrefs)[]).every((k) => shared[k] === p[k]);
 	});
 
 	$effect(() => {
