@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+	import { afterNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { feedbackHref } from '$lib/feedback';
+	import {
+		loadSharedCollections,
+		forgetSharedCollection,
+		sharedCollectionQuery,
+		type SharedCollection
+	} from '$lib/shared-collections';
 	import type { Theme } from '$lib/theme';
 
 	let {
@@ -26,8 +33,38 @@
 
 	let open = $state(false);
 
+	// Temporary songbooks received via link/QR, kept in localStorage. Loaded
+	// after every navigation (afterNavigate also fires on the initial load,
+	// once the destination page has mounted and remembered its set) and again
+	// when a menu opens, so a set received mid-session shows up right away.
+	let shared = $state<SharedCollection[]>([]);
+	let sharedOpen = $state(false);
+
+	afterNavigate(() => {
+		shared = loadSharedCollections();
+	});
+
+	function sharedHref(c: SharedCollection): string {
+		return `${base}/raccolta/?${sharedCollectionQuery(c)}`;
+	}
+
+	function forget(c: SharedCollection) {
+		shared = forgetSharedCollection(c.l);
+	}
+
+	function toggleDrawer() {
+		if (!open) shared = loadSharedCollections();
+		open = !open;
+	}
+
+	function toggleShared() {
+		if (!sharedOpen) shared = loadSharedCollections();
+		sharedOpen = !sharedOpen;
+	}
+
 	function close() {
 		open = false;
+		sharedOpen = false;
 	}
 
 	function onKeydown(e: KeyboardEvent) {
@@ -42,6 +79,39 @@
 		{#each items as item (item.href)}
 			<a href={item.href}>{item.icon} {item.label}</a>
 		{/each}
+		{#if shared.length > 0}
+			<div class="inline-shared">
+				<button class="inline-shared-toggle" onclick={toggleShared} aria-expanded={sharedOpen}>
+					🎶 Canzonieri temporanei
+				</button>
+				{#if sharedOpen}
+					<button
+						class="inline-shared-dismiss"
+						onclick={() => (sharedOpen = false)}
+						aria-label="Chiudi i canzonieri temporanei"
+						tabindex="-1"
+					></button>
+					<div class="inline-shared-panel">
+						{#each shared as c (c.l)}
+							<div class="inline-shared-row">
+								<!-- Full page load: the raccolta page reads its params on mount,
+								     so a client-side hop from /raccolta/ would not refresh it. -->
+								<a href={sharedHref(c)} data-sveltekit-reload onclick={close}>
+									{c.t || 'Canzoniere'}
+								</a>
+								<button
+									class="forget"
+									onclick={() => forget(c)}
+									aria-label="Dimentica «{c.t || 'Canzoniere'}»"
+								>
+									✕
+								</button>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		{/if}
 		{#if mounted}
 			<button
 				class="theme"
@@ -55,7 +125,7 @@
 
 	<button
 		class="burger"
-		onclick={() => (open = !open)}
+		onclick={toggleDrawer}
 		aria-expanded={open}
 		aria-label={open ? 'Chiudi il menu' : 'Apri il menu'}
 	>
@@ -78,6 +148,26 @@
 					{item.label}
 				</a>
 			{/each}
+			{#if shared.length > 0}
+				<div class="drawer-section">Canzonieri temporanei</div>
+				{#each shared as c (c.l)}
+					<div class="drawer-row">
+						<!-- Full page load: the raccolta page reads its params on mount,
+						     so a client-side hop from /raccolta/ would not refresh it. -->
+						<a href={sharedHref(c)} data-sveltekit-reload onclick={close}>
+							<span class="icon">🎶</span>
+							<span class="drawer-row-title">{c.t || 'Canzoniere'}</span>
+						</a>
+						<button
+							class="forget"
+							onclick={() => forget(c)}
+							aria-label="Dimentica «{c.t || 'Canzoniere'}»"
+						>
+							✕
+						</button>
+					</div>
+				{/each}
+			{/if}
 			{#if mounted}
 				<button class="drawer-theme" onclick={ontoggletheme}>
 					<span class="icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
@@ -115,6 +205,87 @@
 		align-items: center;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
+	}
+
+	.inline-shared {
+		position: relative;
+	}
+
+	.inline-shared-toggle {
+		color: #e5e3dc;
+		font-family: inherit;
+		font-size: 14px;
+		font-weight: 500;
+		white-space: nowrap;
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	/* Invisible click-catcher: a click anywhere else closes the dropdown. */
+	.inline-shared-dismiss {
+		position: fixed;
+		inset: 0;
+		background: none;
+		border: none;
+		padding: 0;
+		z-index: 44;
+	}
+
+	.inline-shared-panel {
+		position: absolute;
+		top: calc(100% + 12px);
+		right: 0;
+		z-index: 45;
+		min-width: 230px;
+		max-width: 320px;
+		background: var(--surface);
+		color: var(--text);
+		border: 1px solid var(--control-border);
+		border-radius: 12px;
+		box-shadow: 0 8px 24px var(--shadow);
+		padding: 6px;
+	}
+
+	.inline-shared-row {
+		display: flex;
+		align-items: center;
+	}
+
+	.inline-shared-row a {
+		flex: 1;
+		min-width: 0;
+		padding: 10px 12px;
+		border-radius: 8px;
+		color: inherit;
+		text-decoration: none;
+		font-size: 15px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.inline-shared-row a:hover {
+		background: var(--bg);
+	}
+
+	.forget {
+		font-family: inherit;
+		font-size: 13px;
+		background: none;
+		border: none;
+		border-radius: 8px;
+		color: var(--muted);
+		padding: 10px 12px;
+		cursor: pointer;
+		flex-shrink: 0;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.forget:active {
+		background: var(--surface);
 	}
 
 	.burger {
@@ -200,6 +371,31 @@
 	.drawer a:active,
 	.drawer-theme:active {
 		background: var(--surface);
+	}
+
+	.drawer-section {
+		font-size: 13px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--muted);
+		padding: 18px 12px 6px;
+	}
+
+	.drawer-row {
+		display: flex;
+		align-items: center;
+	}
+
+	.drawer-row a {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.drawer-row-title {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.icon {
