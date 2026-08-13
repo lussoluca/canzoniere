@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordBuilder from '$lib/components/ChordBuilder.svelte';
+	import FretboardMap from '$lib/components/FretboardMap.svelte';
 	import { transposeChord } from '$songlib/chords';
 
 	// Movable-capo demo: the shapes stay the same, the sounding chord follows
@@ -19,8 +21,8 @@
 <h1>Impara la chitarra</h1>
 <p class="intro">
 	Tutto quello che serve per iniziare ad accompagnare i canti: com'è fatta la chitarra, come si
-	leggono i diagrammi, da dove nascono gli accordi, a cosa serve il capotasto e come si tiene il
-	ritmo.
+	leggono i diagrammi, come sono costruiti gli accordi, a cosa serve il capotasto e come si tiene
+	il ritmo.
 </p>
 
 <h2>La chitarra e le corde</h2>
@@ -129,9 +131,63 @@
 	<p>
 		Le sigle che trovi nel canzoniere si leggono così: <strong>La</strong> = La maggiore,
 		<strong>Lam</strong> = La minore, <strong>La7</strong> = La con una quarta nota aggiunta (la
-		<em>settima</em>, che crea attesa e spinge verso l'accordo dopo). Sulle sei corde le note della
-		triade si ripetono su più corde: per questo lo stesso accordo si può fare in posizioni diverse
-		del manico.
+		<em>settima</em>). Sulle sei corde le note della triade si ripetono su più corde: per questo lo
+		stesso accordo si può fare in posizioni diverse del manico.
+	</p>
+</div>
+
+<h2>Che nota fa ogni tasto</h2>
+<div class="card">
+	<p>
+		Un accordo non è una forma da imparare a memoria: è il modo più comodo di raccogliere sotto le
+		dita le note che servono. Per capire da dove esce una posizione basta sapere che nota dà ogni
+		corda.
+	</p>
+	<p>
+		Ogni corda a vuoto suona la sua nota, e ogni tasto in più la alza di un semitono. La 3ª corda a
+		vuoto è un <strong>Sol</strong>: premuta al 1º tasto dà Sol#, al 2º La, al 3º La#.
+	</p>
+	<FretboardMap />
+	<p class="hint">
+		Dopo 12 tasti le note ricominciano: al 12º tasto ogni corda ridà la sua nota a vuoto, un'ottava
+		sopra.
+	</p>
+</div>
+
+<h2>Costruisci un accordo</h2>
+<div class="card">
+	<p>
+		Alla triade si può aggiungere una quarta nota, e quasi tutte le sigle strane del canzoniere
+		nascono da lì. Le tre che incontri più spesso:
+	</p>
+	<ul>
+		<li>
+			<strong>La settima</strong> (Sol7, Lam7): la nota che sta 10 semitoni sopra la fondamentale.
+			Crea attesa e spinge verso l'accordo successivo.
+		</li>
+		<li>
+			<strong>La settima maggiore</strong> (Domaj7): un semitono più su, 11 dalla fondamentale.
+			Suona morbida e sospesa, senza spingere da nessuna parte.
+		</li>
+		<li>
+			<strong>Il sus4</strong> (Resus4): la terza sale di un semitono e diventa quarta. L'accordo
+			resta in bilico, né maggiore né minore, e chiede di tornare sulla triade.
+		</li>
+	</ul>
+	<p>
+		Prendi il <strong>Lam</strong>, cioè La&nbsp;Do&nbsp;Mi. La settima di La è il Sol, e sulla
+		chitarra ce l'hai già sotto le dita: la 3ª corda a vuoto <em>è</em> un Sol. Nel Lam quella corda
+		è premuta al 2º tasto e suona un La, che raddoppia la fondamentale. Nella posizione di Lam7 qui
+		sotto il Sol arriva invece dalla 1ª corda, al 3º tasto.
+	</p>
+	<p>
+		Scegli la fondamentale, il tipo di accordo e cosa aggiungere: sotto vedi quale dito si sposta,
+		che nota produce e che ruolo ha nell'accordo.
+	</p>
+	<ChordBuilder />
+	<p class="hint">
+		Le posizioni sono quelle stampate sul canzoniere. Lo stesso accordo si può fare anche altrove
+		sul manico: quello che conta è che ci siano le note giuste, non che ci sia quella forma.
 	</p>
 </div>
 
