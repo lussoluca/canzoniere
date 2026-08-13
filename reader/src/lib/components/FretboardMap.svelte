@@ -45,6 +45,7 @@
 	.scroller {
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
+		margin-bottom: 12px;
 	}
 
 	table {
