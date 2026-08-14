@@ -57,6 +57,18 @@ The final PDF is built with `make build` and is available at `canzoniere.pdf`. I
 
 The build uses ChordPro with `--transcode=latin` and the configuration in `chordpro.json`.
 
+## CI
+
+Everything lives under `.github/`:
+
+- `actions/test-stack/action.yml` — composite action with the whole test suite, so the workflows below share one definition: `npm ci` plus `npm run check` on `editor` and `reader`, the editor Playwright E2E tests, the reader production build, `go vet` and `go build` on `printer`, then a render of every `canzonieri/*.txt` to a throwaway PDF. Add a new check here, not in a single workflow.
+- `workflows/build.yml` — on push to `main`: builds `canzoniere.pdf`, the reader and the event songbooks, generates `index.html` with `site/generate.py` and deploys `public/` to GitHub Pages.
+- `workflows/ci.yml` — runs `test-stack` on every pull request against `main`.
+- `workflows/update-stack.yml` — daily at 04:00 UTC (and on demand): bumps the npm dependencies of `editor` and `reader` and the Go modules of `printer`, pushes the fixed branch `chore/aggiorna-stack`, opens or updates its pull request, runs `test-stack` on that branch and squash-merges only if the suite is green. The npm bump goes through `npm-check-updates -u --peer` so the target versions stay inside the peer ranges declared by the installed packages: without it TypeScript jumps to a major that `@sveltejs/kit` and `svelte-check` reject, and `npm install` dies on ERESOLVE. The tests run inside this workflow rather than as pull request checks because a pull request opened with `GITHUB_TOKEN` does not trigger the `pull_request` event, so an auto-merge would wait forever for checks that never start.
+- `dependabot.yml` — weekly bumps of the action versions, which `update-stack.yml` does not touch. The `github-actions` ecosystem only scans `.github/workflows` from `/`, so `actions/test-stack` is listed as a second directory.
+
+The scheduled workflow needs "Allow GitHub Actions to create and approve pull requests" enabled in Settings → Actions → General, otherwise `gh pr create` fails.
+
 ## ChordPro Parser Notes
 
 - Note names are in Latin format (`Do`, `Re`, `Mi`, `Fa`, `Sol`, `La`, `Si`).
