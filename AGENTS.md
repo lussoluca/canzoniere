@@ -29,6 +29,28 @@ Commands:
 - E2E tests (Playwright, isolated in `editor/e2e/.tmp-songs` and `editor/e2e/.tmp-songbooks`, never touch real data): `cd editor && npm test`
 - Env overrides: `SONGS_DIR` (default `../canzoni`), `SONGBOOKS_DIR` (default `../canzonieri`).
 
+## Web reader
+
+Map of `reader/src/`, so the layout does not have to be rediscovered on every task. Keep it in sync when routes or lib modules are added or renamed.
+
+Routes (`src/routes/`, every page prerendered, `trailingSlash: 'always'` from `+layout.ts`):
+
+- `+layout.svelte` — header with the brand, `HeaderMenu`, the service-worker registration and update banner, and the theme CSS variables (`--bg`, `--text`, `--muted`, `--surface`, `--border`, `--control-border`, `--brand`, `--link`, `--active-bg`, `--active-text`, `--shadow`, …). Light is the default; dark is defined twice, once under `prefers-color-scheme` and once under `[data-theme='dark']` for the explicit toggle, and the two blocks must stay in sync.
+- `+page.svelte` — home: search box and the category list.
+- `c/[category]/` — songs of one category.
+- `s/[category]/[slug]/` — the song sheet (transpose, chord display, per-song prefs).
+- `k/[name]/` — an event songbook from `canzonieri/`.
+- `raccolta/` — build a songbook in the browser and share it by link or QR.
+- `accordi/` — "Cosa posso suonare": pick the chords you know, get the playable songs.
+- `impara/` — "Impara la chitarra": guitar primer with diagrams, chord builder and fretboard map.
+- `crediti/` — credits and rights notice.
+
+Modules (`src/lib/`): `data.ts` (songs and songbooks bundled via `import.meta.glob`, plus `allSongs`/`categories`/`findSong`), `search.ts`, `prefs.ts`, `favorites.ts`, `theme.ts`, `feedback.ts` (`mailto:` builder for `canzoniere@alessandriascout.it`), `collection.ts` and `shared-collections.ts` (songbooks built in-app and the ones received by link/QR), `known-chords.ts`, `chord-tutorial.ts`, `chord-listener.ts`, `harmony.ts`, `notes.ts`, `chroma.ts`.
+
+Components (`src/lib/components/`): `HeaderMenu.svelte` (the `items` array is the single source of the menu entries, rendered both inline and in the drawer), `SearchBox`, `SongSheet`, `ChordBuilder`, `ChordChecker`, `ChordTutorialCard`, `FretboardMap`, `QrScanner`.
+
+Conventions for a static page: `<svelte:head><title>… — Canzoniere Alessandria 2</title></svelte:head>`, then `<nav><a href="{base}/">← Canzoniere</a></nav>`, an `<h1>`, a `<p class="intro">` and uppercase `<h2>` section headings; links always built from `base` (`$app/paths`). Styles stay local to the component and take colours from the CSS variables only, never hardcoded, so both themes work. All user-facing text is in Italian.
+
 ## Build the final PDF
 
 The final PDF is built with `make build` and is available at `canzoniere.pdf`. It is generated from the ChordPro files in the repository using the ChordPro parser with the configuration in `chordpro.json`. The PDF is formatted for A4 paper size.

@@ -29,7 +29,8 @@
 			href: feedbackHref('Commenti e suggerimenti sul canzoniere'),
 			icon: '✉️',
 			label: 'Commenti e suggerimenti'
-		}
+		},
+		{ href: `${base}/crediti/`, icon: '📜', label: 'Crediti' }
 	];
 
 	let open = $state(false);
