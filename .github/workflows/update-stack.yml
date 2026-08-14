@@ -39,8 +39,16 @@ jobs:
 
       - name: Update npm dependencies
         run: |
+          # --peer keeps the target versions within the peer ranges declared by
+          # the installed packages, so npm install does not hit ERESOLVE; it
+          # reads node_modules, hence the npm ci first.
           for app in editor reader; do
-            (cd "$app" && npx --yes npm-check-updates -u && npm install --no-audit --no-fund)
+            (
+              cd "$app"
+              npm ci
+              npx --yes npm-check-updates -u --peer
+              npm install --no-audit --no-fund
+            )
           done
 
       - name: Update Go dependencies
