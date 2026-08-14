@@ -64,7 +64,7 @@
 			if (songs.length > 0) {
 				const t = params.get('t') ?? '';
 				const query = `l=${encodeURIComponent(l)}${t ? `&t=${encodeURIComponent(t)}` : ''}`;
-				return { songs, backHref: `${base}/raccolta/?${query}`, backLabel: t.trim() || 'Canzoniere', query };
+				return { songs, backHref: `${base}/raccolta/?${query}`, backLabel: t.trim() || 'Scaletta', query };
 			}
 		}
 		return undefined;

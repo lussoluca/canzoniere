@@ -118,7 +118,7 @@
 
 	async function share() {
 		const url = shareUrl();
-		const shareTitle = title.trim() || 'Canzoniere';
+		const shareTitle = title.trim() || 'Scaletta';
 		if (navigator.share) {
 			try {
 				await navigator.share({ title: shareTitle, url });
@@ -138,13 +138,13 @@
 </script>
 
 <svelte:head>
-	<title>{viewing ? title.trim() || 'Canzoniere' : 'Crea un canzoniere'} — Canzoniere Alessandria 2</title>
+	<title>{viewing ? title.trim() || 'Scaletta' : 'Crea una scaletta'} — Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <nav><a href="{base}/">← Canzoniere</a></nav>
 
 {#if viewing}
-	<h1>🎵 {title.trim() || 'Canzoniere'}</h1>
+	<h1>🎵 {title.trim() || 'Scaletta'}</h1>
 	<ol class="songs">
 		{#each selected as song, i (song.category + '/' + song.slug)}
 			<li>
@@ -162,7 +162,7 @@
 		<button class="btn" onclick={() => (editing = true)}>✏️ Modifica</button>
 	</div>
 {:else}
-	<h1>Crea un canzoniere</h1>
+	<h1>Crea una scaletta</h1>
 	<p class="intro">
 		Scegli i canti, poi condividi il link: chi lo riceve vede la stessa scaletta, senza installare
 		nulla.
@@ -228,7 +228,7 @@
 {#if showQr}
 	<div class="qr-sheet" role="dialog" aria-label="QR code della scaletta">
 		<div class="qr-head">
-			<span>{title.trim() || 'Canzoniere'}</span>
+			<span>{title.trim() || 'Scaletta'}</span>
 			<button class="close" onclick={() => (showQr = false)} aria-label="Chiudi il QR code">✕</button>
 		</div>
 		<div class="qr-box">{@html qrSvg}</div>

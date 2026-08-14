@@ -24,7 +24,7 @@
 	const items = [
 		{ href: `${base}/impara/`, icon: '🎓', label: 'Impara la chitarra' },
 		{ href: `${base}/accordi/`, icon: '🎸', label: 'Cosa posso suonare' },
-		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea un canzoniere' },
+		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea una scaletta' },
 		{
 			href: feedbackHref('Commenti e suggerimenti sul canzoniere'),
 			icon: '✉️',
@@ -84,13 +84,13 @@
 		{#if shared.length > 0}
 			<div class="inline-shared">
 				<button class="inline-shared-toggle" onclick={toggleShared} aria-expanded={sharedOpen}>
-					🎶 Canzonieri temporanei
+					🎶 Scalette temporanee
 				</button>
 				{#if sharedOpen}
 					<button
 						class="inline-shared-dismiss"
 						onclick={() => (sharedOpen = false)}
-						aria-label="Chiudi i canzonieri temporanei"
+						aria-label="Chiudi le scalette temporanee"
 						tabindex="-1"
 					></button>
 					<div class="inline-shared-panel">
@@ -99,12 +99,12 @@
 								<!-- Full page load: the raccolta page reads its params on mount,
 								     so a client-side hop from /raccolta/ would not refresh it. -->
 								<a href={sharedHref(c)} data-sveltekit-reload onclick={close}>
-									{c.t || 'Canzoniere'}
+									{c.t || 'Scaletta'}
 								</a>
 								<button
 									class="forget"
 									onclick={() => forget(c)}
-									aria-label="Dimentica «{c.t || 'Canzoniere'}»"
+									aria-label="Dimentica «{c.t || 'Scaletta'}»"
 								>
 									✕
 								</button>
@@ -151,19 +151,19 @@
 				</a>
 			{/each}
 			{#if shared.length > 0}
-				<div class="drawer-section">Canzonieri temporanei</div>
+				<div class="drawer-section">Scalette temporanee</div>
 				{#each shared as c (c.l)}
 					<div class="drawer-row">
 						<!-- Full page load: the raccolta page reads its params on mount,
 						     so a client-side hop from /raccolta/ would not refresh it. -->
 						<a href={sharedHref(c)} data-sveltekit-reload onclick={close}>
 							<span class="icon">🎶</span>
-							<span class="drawer-row-title">{c.t || 'Canzoniere'}</span>
+							<span class="drawer-row-title">{c.t || 'Scaletta'}</span>
 						</a>
 						<button
 							class="forget"
 							onclick={() => forget(c)}
-							aria-label="Dimentica «{c.t || 'Canzoniere'}»"
+							aria-label="Dimentica «{c.t || 'Scaletta'}»"
 						>
 							✕
 						</button>
