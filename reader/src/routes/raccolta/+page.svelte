@@ -6,7 +6,7 @@
 	import { allSongs, type SongRef } from '$lib/data';
 	import { parseQuery, matchesQuery } from '$lib/search';
 	import { encodeCollection, decodeCollection, type CollectionSong } from '$lib/collection';
-	import { rememberSharedCollection } from '$lib/shared-collections';
+	import { rememberCollection, newCollectionId } from '$lib/saved-collections';
 	import { loadSavedSongPrefs } from '$lib/prefs';
 	import SearchBox from '$lib/components/SearchBox.svelte';
 	import QrScanner from '$lib/components/QrScanner.svelte';
@@ -20,6 +20,13 @@
 	let editing = $state(false);
 	let hasParam = $state(false);
 
+	// Identity of the set in the device storage: it comes from ?i= when the set
+	// is reopened from the menu, and is minted on the first edit otherwise.
+	let localId = $state<string | undefined>(undefined);
+	// Autosaving only starts once the URL has been read, so an empty builder
+	// cannot overwrite the set it is about to load.
+	let loaded = $state(false);
+
 	const viewing = $derived(!editing && selected.length > 0 && hasParam);
 
 	onMount(() => {
@@ -27,9 +34,24 @@
 		hasParam = l !== null;
 		selected = decodeCollection(l);
 		title = page.url.searchParams.get('t') ?? '';
+		localId = page.url.searchParams.get('i') ?? undefined;
 		// Remember every opened set so the main menu can bring it back after
 		// the page is closed, and it can be re-shared from there.
-		if (l && selected.length > 0) rememberSharedCollection(l, title.trim());
+		if (l && selected.length > 0) localId = rememberCollection(l, title.trim(), localId);
+		loaded = true;
+	});
+
+	// A set built here is kept on this device too, so closing the app does not
+	// lose it: it comes back from the "Scalette temporanee" menu. Debounced
+	// because it reacts to every pick, reorder and keystroke in the title.
+	$effect(() => {
+		const l = encodeCollection(selected.map(withPrefs));
+		const t = title.trim();
+		if (!loaded || selected.length === 0) return;
+		const timer = setTimeout(() => {
+			localId = rememberCollection(l, t, localId ?? newCollectionId());
+		}, 600);
+		return () => clearTimeout(timer);
 	});
 
 	const selectedKeys = $derived(new Set(selected.map((s) => `${s.category}/${s.slug}`)));
@@ -197,6 +219,9 @@
 		<p class="prefs-hint">
 			Il link e il QR includono le tue personalizzazioni dei canti scelti: tonalità, accordi
 			semplici, velocità di scorrimento.
+		</p>
+		<p class="prefs-hint">
+			La scaletta resta su questo telefono: la ritrovi nel menu, sotto «Scalette temporanee».
 		</p>
 	{/if}
 

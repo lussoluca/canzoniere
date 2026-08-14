@@ -4,11 +4,11 @@
 	import { base } from '$app/paths';
 	import { feedbackHref } from '$lib/feedback';
 	import {
-		loadSharedCollections,
-		forgetSharedCollection,
-		sharedCollectionQuery,
-		type SharedCollection
-	} from '$lib/shared-collections';
+		loadSavedCollections,
+		forgetCollection,
+		savedCollectionQuery,
+		type SavedCollection
+	} from '$lib/saved-collections';
 	import type { Theme } from '$lib/theme';
 
 	let {
@@ -35,32 +35,33 @@
 
 	let open = $state(false);
 
-	// Temporary songbooks received via link/QR, kept in localStorage. Loaded
-	// after every navigation (afterNavigate also fires on the initial load,
-	// once the destination page has mounted and remembered its set) and again
-	// when a menu opens, so a set received mid-session shows up right away.
-	let shared = $state<SharedCollection[]>([]);
+	// Temporary songbooks built on this device or received via link/QR, kept in
+	// localStorage. Loaded after every navigation (afterNavigate also fires on
+	// the initial load, once the destination page has mounted and remembered
+	// its set) and again when a menu opens, so a set created or received
+	// mid-session shows up right away.
+	let shared = $state<SavedCollection[]>([]);
 	let sharedOpen = $state(false);
 
 	afterNavigate(() => {
-		shared = loadSharedCollections();
+		shared = loadSavedCollections();
 	});
 
-	function sharedHref(c: SharedCollection): string {
-		return `${base}/raccolta/?${sharedCollectionQuery(c)}`;
+	function sharedHref(c: SavedCollection): string {
+		return `${base}/raccolta/?${savedCollectionQuery(c)}`;
 	}
 
-	function forget(c: SharedCollection) {
-		shared = forgetSharedCollection(c.l);
+	function forget(c: SavedCollection) {
+		shared = forgetCollection(c);
 	}
 
 	function toggleDrawer() {
-		if (!open) shared = loadSharedCollections();
+		if (!open) shared = loadSavedCollections();
 		open = !open;
 	}
 
 	function toggleShared() {
-		if (!sharedOpen) shared = loadSharedCollections();
+		if (!sharedOpen) shared = loadSavedCollections();
 		sharedOpen = !sharedOpen;
 	}
 
@@ -94,7 +95,7 @@
 						tabindex="-1"
 					></button>
 					<div class="inline-shared-panel">
-						{#each shared as c (c.l)}
+						{#each shared as c (c.id ?? c.l)}
 							<div class="inline-shared-row">
 								<!-- Full page load: the raccolta page reads its params on mount,
 								     so a client-side hop from /raccolta/ would not refresh it. -->
@@ -152,7 +153,7 @@
 			{/each}
 			{#if shared.length > 0}
 				<div class="drawer-section">Scalette temporanee</div>
-				{#each shared as c (c.l)}
+				{#each shared as c (c.id ?? c.l)}
 					<div class="drawer-row">
 						<!-- Full page load: the raccolta page reads its params on mount,
 						     so a client-side hop from /raccolta/ would not refresh it. -->

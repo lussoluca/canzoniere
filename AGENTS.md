@@ -45,7 +45,7 @@ Routes (`src/routes/`, every page prerendered, `trailingSlash: 'always'` from `+
 - `impara/` — "Impara la chitarra": guitar primer with diagrams, chord builder and fretboard map.
 - `crediti/` — credits and rights notice.
 
-Modules (`src/lib/`): `data.ts` (songs and songbooks bundled via `import.meta.glob`, plus `allSongs`/`categories`/`findSong`), `search.ts`, `prefs.ts`, `favorites.ts`, `theme.ts`, `feedback.ts` (`mailto:` builder for `canzoniere@alessandriascout.it`), `collection.ts` and `shared-collections.ts` (set lists built in-app and the ones received by link/QR), `known-chords.ts`, `chord-tutorial.ts`, `chord-listener.ts`, `harmony.ts`, `notes.ts`, `chroma.ts`.
+Modules (`src/lib/`): `data.ts` (songs and songbooks bundled via `import.meta.glob`, plus `allSongs`/`categories`/`findSong`), `search.ts`, `prefs.ts`, `favorites.ts`, `theme.ts`, `feedback.ts` (`mailto:` builder for `canzoniere@alessandriascout.it`), `collection.ts` (set lists encoded into the URL) and `saved-collections.ts` (the sets kept on the device, both the ones built in-app and the ones received by link/QR, listed in the menu under "Scalette temporanee"), `known-chords.ts`, `chord-tutorial.ts`, `chord-listener.ts`, `harmony.ts`, `notes.ts`, `chroma.ts`.
 
 Components (`src/lib/components/`): `HeaderMenu.svelte` (the `items` array is the single source of the menu entries, rendered both inline and in the drawer), `SearchBox`, `SongSheet`, `ChordBuilder`, `ChordChecker`, `ChordTutorialCard`, `FretboardMap`, `QrScanner`.
 
