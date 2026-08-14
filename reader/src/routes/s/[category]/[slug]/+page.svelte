@@ -82,6 +82,8 @@
 	let hideChords = $state(false);
 	let scrollSpeed = $state(SCROLL_DEFAULT);
 	let fontSize = $state(FONT_DEFAULT);
+	let appliedSize = $state(FONT_DEFAULT); // size actually rendered (fit-to-width)
+	const fitLimited = $derived(!hideChords && appliedSize < fontSize);
 	let ready = $state(false);
 
 	// Prefs carried by a shared collection link (?l=...): the sender's
@@ -383,8 +385,20 @@
 	</div>
 
 	<div class="group" aria-label="Dimensione testo">
-		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
-		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
+		<button
+			onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))}
+			disabled={fontSize <= FONT_MIN}
+			aria-label="Testo più piccolo">A−</button>
+		<button
+			class="value"
+			class:active={fontSize !== FONT_DEFAULT}
+			onclick={() => (fontSize = FONT_DEFAULT)}
+			title="Ripristina la dimensione predefinita"
+			aria-label="Dimensione del testo, tocca per ripristinare">{fontSize}</button>
+		<button
+			onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))}
+			disabled={fontSize >= FONT_MAX}
+			aria-label="Testo più grande">A+</button>
 	</div>
 
 	<button class="toggle" class:active={simplify} onclick={() => (simplify = !simplify)}>
@@ -425,7 +439,11 @@
 	{/if}
 </div>
 
-<SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
+{#if fitLimited}
+	<p class="fit-note">Testo adattato alla larghezza dello schermo.</p>
+{/if}
+
+<SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} bind:appliedSize />
 
 {#if showDiagrams}
 	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
@@ -536,6 +554,12 @@
 	.artist {
 		margin: 2px 0 0;
 		color: var(--muted);
+	}
+
+	.fit-note {
+		margin: 0 0 10px;
+		font-size: 12px;
+		color: var(--faint);
 	}
 
 	.controls {
