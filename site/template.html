@@ -122,6 +122,7 @@
             line-height: 1.2; margin-bottom: 16px;
         }
         .section p { max-width: 60ch; }
+        .section p + p { margin-top: 14px; }
         .split {
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 48px; align-items: center;
@@ -140,6 +141,7 @@
             background: var(--card); border: 1px solid var(--line);
             border-radius: var(--radius); font-size: 0.92rem; color: var(--muted);
         }
+        .note p { max-width: none; }
         .note code {
             font-family: var(--mono); font-size: 0.9em;
             background: var(--paper); padding: 2px 6px; border-radius: 4px;
@@ -204,6 +206,10 @@
         footer a { color: #d7dde5; }
 
         @media (max-width: 820px) {
+            /* Narrow screens: the links do not fit next to the wordmark,
+               they move to a second row of the band. */
+            .topbar .wrap { flex-wrap: wrap; gap: 4px 16px; }
+            .topbar nav { flex-wrap: wrap; gap: 16px; }
             .split { grid-template-columns: 1fr; gap: 36px; }
             .split .media { order: -1; }
             .hero { padding: 52px 0 48px; }
@@ -225,6 +231,7 @@
                 <a href="#reader">Reader</a>
                 <a href="#scalette">Scalette</a>
                 <a href="#editor">Editor</a>
+                <a href="#crediti">Crediti</a>
                 <a href="https://github.com/lussoluca/canzoniere">GitHub</a>
             </nav>
         </div>
@@ -319,6 +326,20 @@
             </div>
         </section>
 __EVENTS__
+
+        <section class="section" id="crediti">
+            <div class="wrap">
+                <p class="eyebrow">Chi lo fa</p>
+                <h2>Crediti</h2>
+                <p>I canti raccolti qui sono stati scelti dai ragazzi del reparto del <strong>Gruppo Scout Alessandria 2</strong>: sono i canti che si cantano davvero attorno al fuoco, in route, alle veglie e alle messe.</p>
+                <p>Il canzoniere digitale, la web app, l'editor dei canti e il PDF stampabile, è stato realizzato da <strong>Luca Lusso</strong>.</p>
+                <div class="note">
+                    <p><strong>Diritti d'autore.</strong> I testi e le musiche dei brani riprodotti sono di proprietà dei rispettivi autori ed editori, ai quali appartengono tutti i diritti di utilizzazione economica e i diritti morali ai sensi della legge 22 aprile 1941 n. 633. Questa raccolta non ha alcuna finalità di lucro e non viene venduta né distribuita commercialmente: i testi sono riprodotti al solo scopo di studio, di preghiera e di animazione delle attività educative del gruppo scout. Le eventuali attribuzioni indicate nei singoli canti sono riportate in buona fede e possono essere incomplete o imprecise.</p>
+                    <p>Se sei titolare dei diritti su uno dei brani e desideri correggere l'attribuzione o richiedere la rimozione del testo, scrivi a <a href="mailto:canzoniere@alessandriascout.it?subject=Segnalazione%20diritti%20d%27autore">canzoniere@alessandriascout.it</a>: il contenuto sarà corretto o rimosso senza indugio.</p>
+                </div>
+                <a class="section-cta" href="app/crediti/">Apri i crediti nel reader →</a>
+            </div>
+        </section>
     </main>
 
     <footer>
