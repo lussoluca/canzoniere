@@ -1,0 +1,65 @@
+name: Test stack
+description: Type-check and build the web apps, run the editor E2E tests, build the printer tool.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Install editor dependencies
+      shell: bash
+      run: cd editor && npm ci
+
+    - name: Check editor
+      shell: bash
+      run: cd editor && npm run check
+
+    - name: Install Playwright browsers
+      shell: bash
+      run: cd editor && npx playwright install --with-deps chromium
+
+    - name: Run editor E2E tests
+      shell: bash
+      run: cd editor && npm test
+
+    - name: Install reader dependencies
+      shell: bash
+      run: cd reader && npm ci
+
+    - name: Check reader
+      shell: bash
+      run: cd reader && npm run check
+
+    - name: Build reader
+      shell: bash
+      env:
+        BASE_PATH: /canzoniere/app
+      run: cd reader && npm run build
+
+    - name: Vet printer
+      shell: bash
+      run: cd printer && go vet ./...
+
+    - name: Build printer
+      shell: bash
+      run: cd printer && go build -o printer .
+
+    - name: Build event songbooks
+      shell: bash
+      run: |
+        shopt -s nullglob
+        for txt in canzonieri/*.txt; do
+          ./printer/printer \
+            -input="$txt" \
+            -output="$(mktemp -t canzoniere.XXXXXX).pdf" \
+            -songs=canzoni \
+            -dedup-chorus
+        done

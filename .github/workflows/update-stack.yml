@@ -1,0 +1,121 @@
+name: Update stack
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-stack
+  cancel-in-progress: false
+
+env:
+  BRANCH: chore/aggiorna-stack
+  MANIFESTS: editor/package.json editor/package-lock.json reader/package.json reader/package-lock.json printer/go.mod printer/go.sum
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.commit.outputs.has_changes }}
+      pr: ${{ steps.pr.outputs.number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Update npm dependencies
+        run: |
+          for app in editor reader; do
+            (cd "$app" && npx --yes npm-check-updates -u && npm install --no-audit --no-fund)
+          done
+
+      - name: Update Go dependencies
+        run: cd printer && go get -u ./... && go mod tidy
+
+      - name: Summarise the updates
+        id: summary
+        run: |
+          {
+            echo 'Aggiornamento automatico delle dipendenze dello stack.'
+            echo
+            echo 'Manifest modificati:'
+            echo
+            echo '```diff'
+            git diff -- editor/package.json reader/package.json printer/go.mod
+            echo '```'
+          } > "$RUNNER_TEMP/pr-body.md"
+          cat "$RUNNER_TEMP/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push the branch
+        id: commit
+        run: |
+          if git diff --quiet -- $MANIFESTS; then
+            echo 'Nessun aggiornamento disponibile.'
+            echo 'has_changes=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "$BRANCH"
+          git add -- $MANIFESTS
+          git commit -m 'chore: aggiorna le dipendenze dello stack'
+          git push --force origin "HEAD:refs/heads/$BRANCH"
+          echo 'has_changes=true' >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the pull request
+        id: pr
+        if: steps.commit.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          number=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -z "$number" ]; then
+            number=$(gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title 'chore: aggiorna le dipendenze dello stack' \
+              --body-file "$RUNNER_TEMP/pr-body.md" \
+              | grep -oE '[0-9]+$')
+          else
+            gh pr edit "$number" --body-file "$RUNNER_TEMP/pr-body.md"
+          fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: update
+    if: needs.update.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the update branch
+        uses: actions/checkout@v4
+        with:
+          ref: chore/aggiorna-stack
+
+      - name: Test stack
+        uses: ./.github/actions/test-stack
+
+  merge:
+    needs: [update, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Merge the pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge "${{ needs.update.outputs.pr }}" --squash --delete-branch
