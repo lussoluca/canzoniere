@@ -25,7 +25,7 @@ jobs:
       pr: ${{ steps.pr.outputs.number }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the update branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: chore/aggiorna-stack
 
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Merge the pull request
         env:
