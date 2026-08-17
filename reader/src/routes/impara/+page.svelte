@@ -90,7 +90,7 @@
 	</p>
 </div>
 
-<h2>Da dove nascono gli accordi</h2>
+<h2>Che nota fa ogni tasto</h2>
 <div class="card">
 	<p>
 		Le note sono 12 e poi si ripetono. La distanza tra una e la successiva si chiama
@@ -100,9 +100,23 @@
 		{#each NOTES as n (n)}<span class:alt={n.includes('#')}>{n}</span>{/each}
 	</p>
 	<p>
-		Un accordo è un gruppo di note suonate insieme. Quelli delle canzoni sono quasi tutti
-		<em>triadi</em>: tre note scelte così, partendo dalla nota che dà il nome all'accordo (la
-		<em>fondamentale</em>):
+		Ogni corda a vuoto suona la sua nota, e ogni tasto in più la alza di un semitono. La 3ª corda a
+		vuoto è un <strong>Sol</strong>: premuta al 1º tasto dà Sol#, al 2º La, al 3º La#.
+	</p>
+	<FretboardMap />
+	<p class="hint">
+		Dopo 12 tasti le note ricominciano: al 12º tasto ogni corda ridà la sua nota a vuoto, un'ottava
+		sopra.
+	</p>
+</div>
+
+<h2>Da dove nascono gli accordi</h2>
+<div class="card">
+	<p>
+		Un accordo è un gruppo di note suonate insieme, e non è una forma da imparare a memoria: è il
+		modo più comodo di raccogliere sotto le dita le note che servono. Quelli delle canzoni sono
+		quasi tutti <em>triadi</em>: tre note scelte così, partendo dalla nota che dà il nome
+		all'accordo (la <em>fondamentale</em>):
 	</p>
 	<ul>
 		<li>
@@ -133,24 +147,6 @@
 		<strong>Lam</strong> = La minore, <strong>La7</strong> = La con una quarta nota aggiunta (la
 		<em>settima</em>). Sulle sei corde le note della triade si ripetono su più corde: per questo lo
 		stesso accordo si può fare in posizioni diverse del manico.
-	</p>
-</div>
-
-<h2>Che nota fa ogni tasto</h2>
-<div class="card">
-	<p>
-		Un accordo non è una forma da imparare a memoria: è il modo più comodo di raccogliere sotto le
-		dita le note che servono. Per capire da dove esce una posizione basta sapere che nota dà ogni
-		corda.
-	</p>
-	<p>
-		Ogni corda a vuoto suona la sua nota, e ogni tasto in più la alza di un semitono. La 3ª corda a
-		vuoto è un <strong>Sol</strong>: premuta al 1º tasto dà Sol#, al 2º La, al 3º La#.
-	</p>
-	<FretboardMap />
-	<p class="hint">
-		Dopo 12 tasti le note ricominciano: al 12º tasto ogni corda ridà la sua nota a vuoto, un'ottava
-		sopra.
 	</p>
 </div>
 
