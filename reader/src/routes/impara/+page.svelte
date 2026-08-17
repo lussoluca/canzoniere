@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import CapoFinder from '$lib/components/CapoFinder.svelte';
 	import ChordBuilder from '$lib/components/ChordBuilder.svelte';
+	import ChordChange from '$lib/components/ChordChange.svelte';
 	import FretboardMap from '$lib/components/FretboardMap.svelte';
+	import StringTuner from '$lib/components/StringTuner.svelte';
+	import StrumTrainer from '$lib/components/StrumTrainer.svelte';
 	import { transposeChord } from '$songlib/chords';
 
 	// Movable-capo demo: the shapes stay the same, the sounding chord follows
@@ -22,7 +26,8 @@
 <p class="intro">
 	Tutto quello che serve per iniziare ad accompagnare i canti: com'è fatta la chitarra, come si
 	leggono i diagrammi, come sono costruiti gli accordi, a cosa serve il capotasto e come si tiene
-	il ritmo.
+	il ritmo. Diverse parti si possono toccare e ascoltare: il suono viene generato dal telefono,
+	quindi funziona anche senza rete.
 </p>
 
 <h2>La chitarra e le corde</h2>
@@ -57,6 +62,58 @@
 		La 6ª e la 1ª sono entrambe Mi: quella grossa si chiama «Mi basso», quella sottile «Mi
 		cantino». Per accordarti usa un accordatore (ce ne sono tanti gratis per telefono): all'inizio
 		è la cosa più semplice e sicura.
+	</p>
+</div>
+
+<h2>Come si tiene</h2>
+<div class="card">
+	<ul>
+		<li>
+			Siediti in avanti sulla sedia, schiena diritta, chitarra appoggiata sulla gamba del lato della
+			mano che pizzica. La cassa sta contro la pancia, il manico punta un po' in alto.
+		</li>
+		<li>
+			La mano che preme non regge la chitarra: se togli il braccio destro lo strumento deve restare
+			su da solo. Se scivola, la sinistra si irrigidisce e gli accordi non suonano.
+		</li>
+		<li>
+			<strong>Pollice</strong> dietro il manico, più o meno in mezzo, non aggrappato sopra il bordo.
+			Le altre dita arrivano curve sulle corde, con l'unghia corta.
+		</li>
+		<li>
+			<strong>Polso</strong> in fuori e non piegato all'estremo: se fa male, quasi sempre è il polso
+			troppo storto o la spalla tirata su.
+		</li>
+	</ul>
+	<p class="hint">
+		In cerchio intorno al fuoco si finisce a suonare in piedi o accovacciati: cerca comunque di
+		tenere il manico alto e il polso libero, altrimenti i barrè diventano impossibili.
+	</p>
+</div>
+
+<h2>Accordarsi a orecchio</h2>
+<div class="card">
+	<p>
+		Con l'accordatore è tutto più semplice, ma capita di non averlo. Tocca una corda qui sotto per
+		sentire la sua nota e confrontarla con la tua:
+	</p>
+	<StringTuner />
+	<p>
+		Se hai almeno una corda giusta puoi accordare le altre da sola, col <strong>trucco del 5º
+		tasto</strong>: la corda premuta al 5º tasto dà la stessa nota della corda più sottile accanto,
+		suonata a vuoto. Vale per tutte le coppie tranne una:
+	</p>
+	<ul>
+		<li>6ª al 5º tasto = 5ª a vuoto (La)</li>
+		<li>5ª al 5º tasto = 4ª a vuoto (Re)</li>
+		<li>4ª al 5º tasto = 3ª a vuoto (Sol)</li>
+		<li>3ª al <strong>4º</strong> tasto = 2ª a vuoto (Si), l'eccezione</li>
+		<li>2ª al 5º tasto = 1ª a vuoto (Mi)</li>
+	</ul>
+	<p class="hint">
+		Suona le due corde una dopo l'altra e gira la meccanica di quella da accordare finché il
+		«battimento», quel pulsare che senti quando due note sono vicine ma non uguali, sparisce. Tira
+		sempre da sotto: se sei troppo alto, scendi e risali.
 	</p>
 </div>
 
@@ -112,10 +169,11 @@
 		Nella tabella qui sotto le corde sono in orizzontale, una per riga, dalla 6ª alla 1ª: è la
 		stessa fila di corde dei diagrammi, girata di un quarto di giro.
 	</p>
-	<FretboardMap />
+	<FretboardMap interactive />
 	<p class="hint">
 		Dopo 12 tasti le note ricominciano: al 12º tasto ogni corda ridà la sua nota a vuoto, un'ottava
-		sopra.
+		sopra. Prova a cercare lo stesso nome su corde diverse: il La della 5ª a vuoto lo ritrovi sulla
+		3ª al 2º tasto, ed è per questo che lo stesso accordo si può fare in più punti del manico.
 	</p>
 </div>
 
@@ -197,6 +255,21 @@
 	</p>
 </div>
 
+<h2>Passare da un accordo all'altro</h2>
+<div class="card">
+	<p>
+		Suonare un accordo è facile, cambiarlo a tempo è la parte difficile. Il trucco è non smontare la
+		mano ogni volta: quasi sempre uno o due dita stanno già dove servono anche nell'accordo
+		successivo, e restano giù come cardine mentre le altre si spostano.
+	</p>
+	<ChordChange />
+	<p class="hint">
+		Esercizio: due accordi, quattro pennate ciascuno, senza fermarsi mai. Se il cambio arriva in
+		ritardo rallenta il tempo, non le dita. Meglio un passaggio lento e pulito che uno veloce e
+		sporco.
+	</p>
+</div>
+
 <h2>Il barrè</h2>
 <div class="card">
 	<div class="row">
@@ -260,6 +333,12 @@
 			Esempio: con il capo al 2º tasto, la posizione del Re suona come un {transposeChord('Re', 2)}.
 		</p>
 	</div>
+	<p>
+		Di solito però il problema arriva dall'altra parte: sai che accordo ti serve e vuoi evitare il
+		barrè. Scegli l'accordo e la pagina cerca un tasto di capo che lo trasformi in una posizione
+		aperta:
+	</p>
+	<CapoFinder />
 </div>
 
 <h2>La mano destra: il ritmo</h2>
@@ -279,19 +358,77 @@
 			«giù, giù-su, su-giù-su».
 		</li>
 	</ul>
+	<p>Prova a tempo: scegli il ritmo, l'accordo e la velocità, poi segui la freccia accesa.</p>
+	<StrumTrainer />
 	<p class="hint">
 		Prima di tutto questo: tieni un accordo solo e dai le pennate a tempo con il canto. Poi aggiungi il
 		cambio di accordo, all'inizio rallentando senza fermarti mai.
 	</p>
 </div>
 
+<h2>Perché quegli accordi e non altri</h2>
+<div class="card">
+	<p>
+		Un canto non pesca accordi a caso: ne usa un gruppetto che sta bene insieme, quello della sua
+		<em>tonalità</em>. La tonalità prende il nome dall'accordo su cui il canto si appoggia e finisce,
+		e gli altri accordi sono i suoi vicini di casa. Tre giri coprono buona parte del canzoniere:
+	</p>
+	<ul>
+		<li><strong>Tonalità di Do</strong>: Do, Fa, Sol, Lam. Il giro classico è Do Sol Lam Fa.</li>
+		<li><strong>Tonalità di Sol</strong>: Sol, Do, Re, Mim. Giro: Sol Re Mim Do.</li>
+		<li><strong>Tonalità di Lam</strong> (malinconica): Lam, Rem, Mi o Mi7, Fa, Sol.</li>
+	</ul>
+	<p>
+		Da qui nascono due cose che vedi in giro per il canzoniere. La prima: l'accordo che «chiama» il
+		ritorno a casa è quello con la settima (Sol7 in Do, Re7 in Sol, Mi7 in Lam), ed è per questo che
+		lo trovi quasi sempre in fondo alla strofa. La seconda: se un canto è in una tonalità scomoda,
+		non serve cambiare accordi uno per uno, basta spostare tutto della stessa quantità, che è
+		esattamente quello che fanno il capotasto e il tasto di trasporto del canzoniere.
+	</p>
+	<p class="hint">
+		Se non sai in che tonalità è un canto, guarda l'ultimo accordo: nove volte su dieci è quello che
+		dà il nome alla tonalità.
+	</p>
+</div>
+
+<h2>Come si legge una pagina del canzoniere</h2>
+<div class="card">
+	<ul>
+		<li>
+			L'accordo è scritto <strong>sopra la sillaba</strong> in cui va cambiato, non a inizio riga: il
+			cambio cade esattamente lì, mentre canti quella sillaba.
+		</li>
+		<li>
+			Se un accordo resta lo stesso per due righe, non viene ripetuto: continui a suonare quello di
+			prima.
+		</li>
+		<li>
+			Il ritornello è rientrato e marcato: torna più volte identico, quindi conviene impararlo per
+			primo.
+		</li>
+		<li>
+			Le sigle sono in notazione latina (Do, Re, Mi) come nel resto d'Italia; su internet trovi le
+			stesse cose in notazione inglese (C, D, E).
+		</li>
+	</ul>
+	<p>
+		Sull'app ogni canto ha i pulsanti per <strong>trasportare</strong> (spostare tutti gli accordi
+		insieme, per adattarli alle voci), per <strong>semplificare</strong> (le settime e i sus
+		diventano accordi base) e per nascondere del tutto gli accordi quando ti serve solo il testo.
+	</p>
+	<p class="hint">
+		Trasporto e capotasto risolvono lo stesso problema in due modi: il trasporto cambia gli accordi
+		scritti, il capo li lascia uguali e sposta lo strumento.
+	</p>
+</div>
+
 <h2>Da dove cominciare</h2>
 <div class="card">
 	<ol>
-		<li>Accorda la chitarra (con un accordatore).</li>
+		<li>Accorda la chitarra (con un accordatore, o a orecchio col trucco del 5º tasto).</li>
 		<li>Impara 2 o 3 accordi aperti e falli suonare puliti, corda per corda.</li>
 		<li>Passa da un accordo all'altro lentamente, senza guardare il ritmo.</li>
-		<li>Aggiungi la pennata base e poi il ritmo «classico».</li>
+		<li>Aggiungi la pennata base e poi il ritmo «classico», col metronomo lento.</li>
 		<li>Scegli un canto con pochi accordi e suonalo tutto, anche piano.</li>
 	</ol>
 	<p>

@@ -42,12 +42,12 @@ Routes (`src/routes/`, every page prerendered, `trailingSlash: 'always'` from `+
 - `k/[name]/` — an event songbook from `canzonieri/`.
 - `raccolta/` — build a set list ("scaletta") in the browser and share it by link or QR.
 - `accordi/` — "Cosa posso suonare": pick the chords you know, get the playable songs.
-- `impara/` — "Impara la chitarra": guitar primer with diagrams, chord builder and fretboard map.
+- `impara/` — "Impara la chitarra": guitar primer with diagrams, chord builder, playable fretboard map, string reference tones, chord-change explainer, capo finder and strumming metronome. The sounds are synthesized in the browser by `audio.ts`, so the page also works offline.
 - `crediti/` — credits and rights notice.
 
-Modules (`src/lib/`): `data.ts` (songs and songbooks bundled via `import.meta.glob`, plus `allSongs`/`categories`/`findSong`), `search.ts`, `prefs.ts`, `favorites.ts`, `theme.ts`, `feedback.ts` (`mailto:` builder for `canzoniere@alessandriascout.it`), `collection.ts` (set lists encoded into the URL) and `saved-collections.ts` (the sets kept on the device, both the ones built in-app and the ones received by link/QR, listed in the menu under "Scalette temporanee"), `known-chords.ts`, `chord-tutorial.ts`, `chord-listener.ts`, `harmony.ts`, `notes.ts`, `chroma.ts`.
+Modules (`src/lib/`): `data.ts` (songs and songbooks bundled via `import.meta.glob`, plus `allSongs`/`categories`/`findSong`), `search.ts`, `prefs.ts`, `favorites.ts`, `theme.ts`, `feedback.ts` (`mailto:` builder for `canzoniere@alessandriascout.it`), `collection.ts` (set lists encoded into the URL) and `saved-collections.ts` (the sets kept on the device, both the ones built in-app and the ones received by link/QR, listed in the menu under "Scalette temporanee"), `known-chords.ts`, `chord-tutorial.ts`, `chord-listener.ts` (microphone in), `audio.ts` (synthesized notes, strums and metronome click out, on a shared lazy `AudioContext`), `harmony.ts` (notes and MIDI of a chord shape, plus the string-by-string comparison of two shapes), `notes.ts`, `chroma.ts`.
 
-Components (`src/lib/components/`): `HeaderMenu.svelte` (the `items` array is the single source of the menu entries, rendered both inline and in the drawer), `SearchBox`, `SongSheet`, `ChordBuilder`, `ChordChecker`, `ChordTutorialCard`, `FretboardMap`, `QrScanner`.
+Components (`src/lib/components/`): `HeaderMenu.svelte` (the `items` array is the single source of the menu entries, rendered both inline and in the drawer), `SearchBox`, `SongSheet`, `ChordBuilder`, `ChordChange`, `ChordChecker`, `ChordTutorialCard`, `CapoFinder`, `FretboardMap` (`interactive` makes its cells playable), `StringTuner`, `StrumTrainer`, `QrScanner`.
 
 Conventions for a static page: `<svelte:head><title>… — Canzoniere Alessandria 2</title></svelte:head>`, then `<nav><a href="{base}/">← Canzoniere</a></nav>`, an `<h1>`, a `<p class="intro">` and uppercase `<h2>` section headings; links always built from `base` (`$app/paths`). Styles stay local to the component and take colours from the CSS variables only, never hardcoded, so both themes work. All user-facing text is in Italian.
 
