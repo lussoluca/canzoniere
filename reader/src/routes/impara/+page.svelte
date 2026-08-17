@@ -100,6 +100,11 @@
 		{#each NOTES as n (n)}<span class:alt={n.includes('#')}>{n}</span>{/each}
 	</p>
 	<p>
+		Le cinque note con il <em>diesis</em> (#) hanno due nomi per lo stesso tasto: Re# è un Re alzato
+		di un semitono, ma è anche un Mi abbassato di un semitono, cioè un Mi <em>bemolle</em> (Mi♭).
+		Qui e nei diagrammi trovi sempre i diesis; nei nomi degli accordi può comparire il bemolle.
+	</p>
+	<p>
 		Ogni corda a vuoto suona la sua nota, e ogni tasto in più la alza di un semitono. La 3ª corda a
 		vuoto è un <strong>Sol</strong>: premuta al 1º tasto dà Sol#, al 2º La, al 3º La#.
 	</p>
@@ -129,7 +134,8 @@
 		</li>
 		<li>
 			<strong>Accordo minore</strong>: fondamentale + 3 semitoni (<em>terza minore</em>) + altri 4.
-			Dom = Do&nbsp;Mi♭&nbsp;Sol. Suona più malinconico.
+			Dom = Do&nbsp;Mi♭&nbsp;Sol, dove Mi♭ è il tasto che nella lista sopra si chiama Re#. Suona più
+			malinconico.
 		</li>
 	</ul>
 	<p>
