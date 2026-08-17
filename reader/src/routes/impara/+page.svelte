@@ -103,6 +103,10 @@
 		Ogni corda a vuoto suona la sua nota, e ogni tasto in più la alza di un semitono. La 3ª corda a
 		vuoto è un <strong>Sol</strong>: premuta al 1º tasto dà Sol#, al 2º La, al 3º La#.
 	</p>
+	<p>
+		Nella tabella qui sotto le corde sono in orizzontale, una per riga, dalla 6ª alla 1ª: è la
+		stessa fila di corde dei diagrammi, girata di un quarto di giro.
+	</p>
 	<FretboardMap />
 	<p class="hint">
 		Dopo 12 tasti le note ricominciano: al 12º tasto ogni corda ridà la sua nota a vuoto, un'ottava
