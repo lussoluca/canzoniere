@@ -1,18 +1,28 @@
 <script lang="ts">
-	import { noteAt, STRING_NAMES } from '$lib/harmony';
+	import { midiAt, noteAt, STRING_NAMES } from '$lib/harmony';
+	import { audioSupported, playNote } from '$lib/audio';
 
 	interface Props {
 		/** Fret to mark on each string, from the 6ª to the 1ª: -1 mutes the string. */
 		highlight?: number[];
 		/** How many frets to show after the open string. */
 		frets?: number;
+		/** Make the cells playable: a tap sounds the note and keeps it selected. */
+		interactive?: boolean;
 	}
 
-	let { highlight, frets = 4 }: Props = $props();
+	let { highlight, frets = 4, interactive = false }: Props = $props();
 
 	const columns = $derived(Array.from({ length: frets + 1 }, (_, f) => f));
 	// same order as the diagrams: the 6ª first, the 1ª last
 	const rows = [0, 1, 2, 3, 4, 5];
+
+	let picked = $state<{ string: number; fret: number } | null>(null);
+
+	function pick(s: number, fret: number) {
+		picked = { string: s, fret };
+		playNote(midiAt(s, fret), { duration: 2 });
+	}
 </script>
 
 <div class="scroller">
@@ -33,13 +43,37 @@
 						<span class="who">{STRING_NAMES[s]}</span>
 					</th>
 					{#each columns as f (f)}
-						<td class:on={highlight?.[s] === f}>{noteAt(s, f)}</td>
+						<td
+							class:on={highlight?.[s] === f}
+							class:picked={picked?.string === s && picked?.fret === f}
+							class:playable={interactive}
+						>
+							{#if interactive}
+								<button onclick={() => pick(s, f)}>{noteAt(s, f)}</button>
+							{:else}
+								{noteAt(s, f)}
+							{/if}
+						</td>
 					{/each}
 				</tr>
 			{/each}
 		</tbody>
 	</table>
 </div>
+
+{#if interactive}
+	<p class="readout" aria-live="polite">
+		{#if picked}
+			{6 - picked.string}ª corda ({STRING_NAMES[picked.string]})
+			{#if picked.fret === 0}a vuoto{:else}al {picked.fret}º tasto{/if}: suona un
+			<strong>{noteAt(picked.string, picked.fret)}</strong>.
+		{:else if audioSupported()}
+			Tocca una casella per sentire la nota che esce da quella corda a quel tasto.
+		{:else}
+			Questo browser non riesce a generare suoni: resta la tabella delle note.
+		{/if}
+	</p>
+{/if}
 
 <style>
 	.scroller {
@@ -97,6 +131,29 @@
 		font-weight: 700;
 	}
 
+	td.playable {
+		padding: 0;
+	}
+
+	td button {
+		font: inherit;
+		font-size: 13px;
+		display: block;
+		width: 100%;
+		padding: 7px 4px;
+		border: none;
+		background: none;
+		color: inherit;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	td.picked {
+		background: var(--active-bg);
+		color: var(--active-text);
+		font-weight: 700;
+	}
+
 	tr.muted th,
 	tr.muted td {
 		color: var(--faint);
@@ -105,5 +162,15 @@
 	tr.muted th::after {
 		content: ' ✕';
 		color: var(--faint);
+	}
+
+	.readout {
+		margin: 0 0 10px;
+		font-size: 13px;
+		color: var(--muted);
+	}
+
+	.readout strong {
+		color: var(--chord);
 	}
 </style>

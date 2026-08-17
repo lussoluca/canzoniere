@@ -21,6 +21,9 @@ const NOTE_SEMITONE: Record<string, number> = {
 // standard tuning, from the 6ª to the 1ª: Mi La Re Sol Si Mi
 const OPEN_STRINGS = [4, 9, 2, 7, 11, 4];
 
+// the same tuning as MIDI note numbers, for the synthesized playback
+const OPEN_MIDI = [40, 45, 50, 55, 59, 64];
+
 /** Name of each string, from the 6ª to the 1ª. */
 export const STRING_NAMES = ['Mi basso', 'La', 'Re', 'Sol', 'Si', 'Mi cantino'];
 
@@ -32,6 +35,16 @@ export function stringLabel(s: number): string {
 /** The note the string at index `s` gives when pressed at `fret` (0 = open). */
 export function noteAt(s: number, fret: number): string {
 	return SCALE[(OPEN_STRINGS[s] + fret) % 12];
+}
+
+/** MIDI number of that same note, for playback. */
+export function midiAt(s: number, fret: number): number {
+	return OPEN_MIDI[s] + fret;
+}
+
+/** MIDI number of every string of a shape, from the 6ª to the 1ª; null when muted. */
+export function voicingMidi(voicing: Voicing): (number | null)[] {
+	return voicing.strings.map((s) => (s.fret < 0 ? null : midiAt(s.string, s.fret)));
 }
 
 // "Sol" must come before "Si" so that "Sol#" is not parsed as "Si"
@@ -173,4 +186,76 @@ export function changeSentence(change: VoicingChange, toChord: string): string {
 				? `, che è la ${to.role} di ${toChord}`
 				: `, che è la ${to.role} di ${toChord} al posto della ${from.role}`;
 	return `${head} ${move}${tail}.`;
+}
+
+/** What the hand does on one string when going from a chord to another one. */
+export type MoveKind =
+	| 'still' // a finger already there and it does not move: the pivot
+	| 'open' // the string was and stays open
+	| 'moves' // the finger slides to another fret
+	| 'press' // a finger comes down on a string that was open
+	| 'lift' // the finger comes off and the string rings open
+	| 'mute' // the string stops being played
+	| 'enter'; // the string comes back into the chord
+
+export interface StringMove {
+	string: number;
+	from: StringNote;
+	to: StringNote;
+	kind: MoveKind;
+}
+
+function moveKind(from: StringNote, to: StringNote): MoveKind {
+	if (to.fret < 0) return 'mute';
+	if (from.fret < 0) return 'enter';
+	if (from.fret === to.fret) return to.fret === 0 ? 'open' : 'still';
+	if (from.fret === 0) return 'press';
+	if (to.fret === 0) return 'lift';
+	return 'moves';
+}
+
+/**
+ * String by string, what changes between two chord shapes. Unlike
+ * `voicingDiff`, which only lists the strings that differ, this keeps every
+ * string: for a chord change the ones that stay put matter just as much, since
+ * they are the fingers to leave down while the others move.
+ */
+export function voicingMoves(from: Voicing, to: Voicing): StringMove[] {
+	return from.strings.map((a, s) => {
+		const b = to.strings[s];
+		return { string: s, from: a, to: b, kind: moveKind(a, b) };
+	});
+}
+
+/** One sentence for a string that changes, ending with the note's role in the new chord. */
+export function moveSentence(move: StringMove, toChord: string): string {
+	const { from, to, kind } = move;
+	const head = `Sulla ${stringLabel(move.string)}`;
+	const role = to.role ? `, che in ${toChord} è la ${to.role}` : '';
+	switch (kind) {
+		case 'mute':
+			return `${head} togli il dito e non suoni più la corda.`;
+		case 'enter':
+			return to.fret === 0
+				? `${head} la corda torna a suonare, a vuoto: dà il ${to.note}${role}.`
+				: `${head} appoggi un dito al ${to.fret}º tasto e la corda rientra con il ${to.note}${role}.`;
+		case 'press':
+			return `${head} appoggi un dito al ${to.fret}º tasto: da ${from.note} a vuoto passi al ${to.note}${role}.`;
+		case 'lift':
+			return `${head} alzi il dito dal ${from.fret}º tasto e la corda suona a vuoto il ${to.note}${role}.`;
+		case 'moves':
+			return `${head} sposti il dito dal ${from.fret}º al ${to.fret}º tasto: dà il ${to.note}${role}.`;
+		case 'still':
+			return `${head} il dito resta al ${to.fret}º tasto e continua a dare il ${to.note}${role}.`;
+		case 'open':
+			return `${head} non tocchi niente: resta a vuoto sul ${to.note}${role}.`;
+	}
+}
+
+/** "la 4ª e la 2ª corda" from a list of string indexes, for the summary lines. */
+export function stringList(strings: number[]): string {
+	const names = strings.map((s) => `la ${6 - s}ª`);
+	if (names.length === 0) return '';
+	if (names.length === 1) return `${names[0]} corda`;
+	return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]} corda`;
 }
