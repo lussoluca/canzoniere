@@ -39,13 +39,28 @@
 
 	const missing = $derived(chords.filter((c) => !known.includes(c)));
 
+	let panel: HTMLElement;
+
+	// Each step is a different height, so changing step leaves the reader
+	// somewhere in the middle of the new one. Bring the panel's head back up,
+	// just below the sticky controls of the song page.
+	function scrollToPanel() {
+		const controls = document.querySelector('.controls');
+		const stuck = controls
+			? parseFloat(getComputedStyle(controls).top) + controls.getBoundingClientRect().height
+			: 0;
+		const top = panel.getBoundingClientRect().top + window.scrollY - stuck - 8;
+		window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+	}
+
 	function go(next: StudyStep) {
 		step = next;
 		saveStudyStep(category, slug, next);
+		scrollToPanel();
 	}
 </script>
 
-<div class="panel">
+<div class="panel" bind:this={panel}>
 	<div class="head">
 		<strong>🎓 Studia questo canto</strong>
 		<button class="close" onclick={onclose} aria-label="Chiudi il percorso di studio">✕</button>
