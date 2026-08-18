@@ -30,6 +30,7 @@
 			icon: '✉️',
 			label: 'Commenti e suggerimenti'
 		},
+		{ href: `${base}/impostazioni/`, icon: '⚙️', label: 'Impostazioni' },
 		{ href: `${base}/crediti/`, icon: '📜', label: 'Crediti' }
 	];
 

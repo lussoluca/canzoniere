@@ -3,7 +3,7 @@
 	// current one lights up while the chord and the click are played. Sounds are
 	// scheduled ahead on the audio clock (setTimeout is far too jittery for a
 	// rhythm), and the highlight follows that clock instead of driving it.
-	import { onDestroy } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import { audioSupported, now, playClick, playStrum } from '$lib/audio';
 	import { chordVoicing, voicingMidi } from '$lib/harmony';
 
@@ -40,11 +40,28 @@
 		}
 	];
 
-	const CHORDS = ['Lam', 'Mim', 'Do', 'Sol', 'Re'];
+	interface Props {
+		// The primer trains on a fixed handful of chords; a song's study panel
+		// passes the song's own chords and a slower starting tempo.
+		chords?: string[];
+		initialBpm?: number;
+	}
+
+	const COMMON = ['Lam', 'Mim', 'Do', 'Sol', 'Re'];
+
+	let { chords = COMMON, initialBpm = 80 }: Props = $props();
 
 	let patternId = $state('classico');
-	let chord = $state('Lam');
-	let bpm = $state(80);
+	// svelte-ignore state_referenced_locally
+	let chord = $state(chords[0] ?? 'Lam');
+	// svelte-ignore state_referenced_locally
+	let bpm = $state(initialBpm);
+
+	// A new chord list (another song's study panel) can leave the selection
+	// pointing at a chord that is no longer on offer.
+	$effect(() => {
+		if (!chords.includes(untrack(() => chord))) chord = chords[0] ?? 'Lam';
+	});
 	let withClick = $state(true);
 	let playing = $state(false);
 	let slot = $state(-1);
@@ -142,7 +159,7 @@
 	<div class="picker">
 		<span class="picker-label" id="strum-chord">Accordo</span>
 		<div class="chips" role="group" aria-labelledby="strum-chord">
-			{#each CHORDS as c (c)}
+			{#each chords as c (c)}
 				<button class="chip" class:on={chord === c} aria-pressed={chord === c} onclick={() => (chord = c)}>
 					{c}
 				</button>

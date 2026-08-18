@@ -12,7 +12,17 @@
 	import { decodeCollection, type CollectionSong } from '$lib/collection';
 	import { isFavorite, toggleFavorite } from '$lib/favorites';
 	import { loadNote, saveNote } from '$lib/notes';
+	import { loadStudentMode } from '$lib/student';
+	import {
+		baseChord,
+		chordChanges,
+		loadKnownChords,
+		readiness,
+		saveKnownChords
+	} from '$lib/known-chords';
 	import SongSheet from '$lib/components/SongSheet.svelte';
+	import ChordHelp from '$lib/components/ChordHelp.svelte';
+	import StudyPanel from '$lib/components/StudyPanel.svelte';
 	import {
 		loadSongPrefs,
 		saveSongPrefs,
@@ -346,6 +356,55 @@
 		}
 		return out;
 	});
+
+	// Student mode: the song doubles as a lesson. The chords above the lyrics
+	// become buttons, a readiness line says what is still missing and the study
+	// panel walks through the song with the tools of the guitar primer. All of it
+	// is off, and invisible, unless the mode is on.
+	let student = $state(false);
+	let known = $state<string[]>([]);
+	let knownReady = $state(false);
+	let helpChord = $state<string | null>(null);
+	let study = $state(false);
+
+	onMount(() => {
+		student = loadStudentMode();
+		known = loadKnownChords();
+		knownReady = true;
+	});
+
+	$effect(() => {
+		if (!knownReady) return;
+		saveKnownChords(known);
+	});
+
+	function learn(chord: string, on = true) {
+		const base = baseChord(chord);
+		if (on) known = known.includes(base) ? known : [...known, base];
+		else known = known.filter((c) => c !== base);
+	}
+
+	// The song measured against the chords the reader can play, in the key they
+	// are currently seeing.
+	const progress = $derived(readiness(uniqueChords, known));
+
+	// The chord changes of this song, in the reader's key, most frequent first.
+	const changes = $derived(
+		chordChanges(data.song.source, (c) => {
+			let name = c;
+			if (simplify) name = simplifyChord(name);
+			if (transpose !== 0) name = transposeChord(name, transpose);
+			return name;
+		})
+	);
+
+	// Last step of the study panel: play the song for real, with the copilot on
+	// and the page scrolling by itself.
+	function playAlong() {
+		study = false;
+		copilot = true;
+		scrolling = true;
+	}
 </script>
 
 <svelte:head>
@@ -373,6 +432,29 @@
 	</button>
 </h1>
 {#if data.song.artist}<p class="artist">{data.song.artist}</p>{/if}
+
+{#if student && progress.chords.length > 0}
+	<div class="readiness">
+		{#if progress.missing.length === 0}
+			<span class="ok">✓ Gli accordi di questo canto li sai tutti</span>
+		{:else}
+			<span>
+				Sai {progress.known.length}
+				{progress.chords.length === 1 ? 'accordo' : 'accordi'} su {progress.chords.length}. Ti
+				manca:
+			</span>
+			{#each progress.missing as chord (chord)}
+				<button class="miss" onclick={() => (helpChord = chord)}>{chord}</button>
+			{/each}
+			{#if progress.transpose !== null}
+				{@const shift = progress.transpose}
+				<button class="fix" onclick={() => bumpTranspose(shift)}>
+					con {shift > 0 ? `+${shift}` : shift} li sai tutti
+				</button>
+			{/if}
+		{/if}
+	</div>
+{/if}
 
 <div class="controls">
 	<div class="group" aria-label="Trasposizione">
@@ -423,9 +505,35 @@
 			🧭 Copilota
 		</button>
 	{/if}
+
+	{#if student && uniqueChords.length > 0}
+		<button class="toggle" class:active={study} onclick={() => (study = !study)}>
+			🎓 Studia
+		</button>
+	{/if}
 </div>
 
-<SongSheet {song} {transpose} {simplify} {hideChords} {fontSize} />
+{#if student && study}
+	<StudyPanel
+		category={data.song.category}
+		slug={data.song.slug}
+		chords={progress.chords}
+		{changes}
+		{known}
+		onknown={(chord) => learn(chord)}
+		onplay={playAlong}
+		onclose={() => (study = false)}
+	/>
+{/if}
+
+<SongSheet
+	{song}
+	{transpose}
+	{simplify}
+	{hideChords}
+	{fontSize}
+	onchord={student && !hideChords ? (chord) => (helpChord = chord) : undefined}
+/>
 
 {#if showDiagrams}
 	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
@@ -479,6 +587,16 @@
 			</div>
 		{/if}
 	</div>
+{/if}
+
+{#if helpChord}
+	{@const chord = helpChord}
+	<ChordHelp
+		{chord}
+		known={known.includes(baseChord(chord))}
+		onknown={(on) => learn(chord, on)}
+		onclose={() => (helpChord = null)}
+	/>
 {/if}
 
 <p class="feedback">
@@ -536,6 +654,38 @@
 	.artist {
 		margin: 2px 0 0;
 		color: var(--muted);
+	}
+
+	/* Student mode: how ready the reader is for this song, and the shortcuts out
+	   of it (a missing chord's lesson, or the key that avoids it). */
+	.readiness {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 6px;
+		margin: 8px 0 0;
+		font-size: 14px;
+		color: var(--muted);
+	}
+
+	.ok {
+		color: var(--muted);
+	}
+
+	.readiness button {
+		height: 28px;
+		padding: 0 10px;
+		font-size: 13px;
+		border-radius: 999px;
+	}
+
+	.miss {
+		font-weight: 600;
+		color: var(--chord);
+	}
+
+	.fix {
+		border-style: dashed;
 	}
 
 	.controls {

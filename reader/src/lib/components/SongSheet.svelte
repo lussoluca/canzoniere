@@ -8,9 +8,19 @@
 		simplify?: boolean;
 		hideChords?: boolean;
 		fontSize?: number;
+		// Student mode: given a handler, every chord above the lyrics becomes a
+		// button that opens its lesson.
+		onchord?: (chord: string) => void;
 	}
 
-	let { song, transpose = 0, simplify = false, hideChords = false, fontSize = 16 }: Props = $props();
+	let {
+		song,
+		transpose = 0,
+		simplify = false,
+		hideChords = false,
+		fontSize = 16,
+		onchord
+	}: Props = $props();
 
 	function transform(chord: string): string {
 		let out = chord;
@@ -21,19 +31,33 @@
 
 	// A chord row is rendered as a monospace line above the lyrics; each chord is
 	// placed at its character position, pushed right when it would overlap the
-	// previous one.
-	function chordRow(chords: Chord[]): string {
-		const sorted = [...chords].sort((a, b) => a.pos - b.pos);
-		let row = '';
-		for (const c of sorted) {
-			if (row.length < c.pos) row += ' '.repeat(c.pos - row.length);
-			else if (row.length > 0) row += ' ';
-			row += transform(c.chord);
-		}
-		return row;
+	// previous one. The row is kept as (padding, chord) pairs so that each chord
+	// can become a button of its own without disturbing the alignment.
+	interface ChordSegment {
+		gap: string;
+		chord: string;
 	}
 
-	type DisplayLine = Line & { chorus: boolean; chordRow: string };
+	function chordSegments(chords: Chord[]): ChordSegment[] {
+		const sorted = [...chords].sort((a, b) => a.pos - b.pos);
+		const out: ChordSegment[] = [];
+		let width = 0;
+		for (const c of sorted) {
+			let gap = '';
+			if (width < c.pos) gap = ' '.repeat(c.pos - width);
+			else if (width > 0) gap = ' ';
+			const chord = transform(c.chord);
+			out.push({ gap, chord });
+			width += gap.length + chord.length;
+		}
+		return out;
+	}
+
+	function rowWidth(segments: ChordSegment[]): number {
+		return segments.reduce((n, s) => n + s.gap.length + s.chord.length, 0);
+	}
+
+	type DisplayLine = Line & { chorus: boolean; chordRow: ChordSegment[] };
 
 	const displayLines: DisplayLine[] = $derived.by(() => {
 		const out: DisplayLine[] = [];
@@ -48,7 +72,7 @@
 				continue;
 			}
 			if (line.type === 'directive') continue;
-			const row = line.type === 'lyric' && !hideChords ? chordRow(line.chords) : '';
+			const row = line.type === 'lyric' && !hideChords ? chordSegments(line.chords) : [];
 			out.push({ ...line, chorus, chordRow: row });
 		}
 		return out;
@@ -66,7 +90,7 @@
 		let max = 0;
 		for (const line of displayLines) {
 			if (line.type === 'lyric') {
-				max = Math.max(max, line.text.length, line.chordRow.length);
+				max = Math.max(max, line.text.length, rowWidth(line.chordRow));
 			} else if (line.type === 'tab') {
 				for (const row of line.text.split('\n')) max = Math.max(max, row.length);
 			}
@@ -85,8 +109,9 @@
 	{#each displayLines as line}
 		{#if line.type === 'lyric'}
 			<div class="line" class:chorus={line.chorus}>
-				{#if line.chordRow !== ''}
-					<pre class="chords">{line.chordRow}</pre>
+				{#if line.chordRow.length > 0}
+					<pre
+						class="chords">{#each line.chordRow as seg, i (i)}{seg.gap}{#if onchord}<button class="chord" onclick={() => onchord?.(seg.chord)} title="Come si suona {seg.chord}">{seg.chord}</button>{:else}{seg.chord}{/if}{/each}</pre>
 				{/if}
 				{#if line.text.trim() !== ''}
 					<pre class="text">{line.text}</pre>
@@ -123,6 +148,26 @@
 	.chords {
 		color: var(--chord);
 		font-weight: 700;
+	}
+
+	/* Student mode: the chord keeps its place in the monospace grid, the dotted
+	   underline is the only hint that it can be tapped. */
+	.chord {
+		font: inherit;
+		color: inherit;
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 0;
+		text-decoration: underline dotted;
+		text-underline-offset: 2px;
+		cursor: pointer;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.chord:active {
+		color: var(--link);
 	}
 
 	.chorus {
