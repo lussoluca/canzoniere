@@ -2,11 +2,17 @@
 // classified against this set (matching on simplified base triads) into
 // "playable now", "one chord away" and "later".
 
-import { simplifyChord, englishChordToLatin } from '$songlib/chords';
+import { simplifyChord, englishChordToLatin, transposeChord } from '$songlib/chords';
 import { allSongs, type SongRef } from '$lib/data';
 import { parse } from '$songlib/chordpro';
 
 const KEY = 'reader:known-chords';
+
+// The form chords are compared in: the base triad, in latin names, so that
+// "Am", "Lam7" and "Lam" all count as the same chord to know.
+export function baseChord(chord: string): string {
+	return englishChordToLatin(simplifyChord(chord));
+}
 
 export function loadKnownChords(): string[] {
 	if (typeof localStorage === 'undefined') return [];
@@ -40,16 +46,18 @@ let cache: SongChords[] | null = null;
 
 export function songsWithChords(): SongChords[] {
 	if (cache) return cache;
-	cache = allSongs.map((song) => {
-		const seen = new Set<string>();
-		for (const line of parse(song.source).lines) {
-			if (line.type !== 'lyric') continue;
-			// English names are normalized to latin so "Am" and "Lam" match.
-			for (const c of line.chords) seen.add(englishChordToLatin(simplifyChord(c.chord)));
-		}
-		return { song, chords: [...seen].sort() };
-	});
+	cache = allSongs.map((song) => ({ song, chords: chordsOf(song.source) }));
 	return cache;
+}
+
+/** The base triads one ChordPro source uses, sorted. */
+export function chordsOf(source: string): string[] {
+	const seen = new Set<string>();
+	for (const line of parse(source).lines) {
+		if (line.type !== 'lyric') continue;
+		for (const c of line.chords) seen.add(baseChord(c.chord));
+	}
+	return [...seen].sort();
 }
 
 /** Every base triad used in the repertoire, with the number of songs using it. */
@@ -96,4 +104,64 @@ export function classify(known: string[]): Classification {
 		.sort((a, b) => b.count - a.count || a.chord.localeCompare(b.chord));
 
 	return { playable, almost, later, unlocks };
+}
+
+export interface Readiness {
+	chords: string[]; // the base triads of the song, first appearance order kept by the caller
+	known: string[];
+	missing: string[];
+	// A shift, relative to what the reader is seeing now, that leaves only
+	// chords they already know; null when no shift within an octave does.
+	transpose: number | null;
+}
+
+// How ready the reader is for one song. The chords come in as the reader sees
+// them (already transposed and simplified by their prefs), so the suggested
+// shift is relative to the current view.
+export function readiness(displayChords: string[], knownList: string[]): Readiness {
+	const set = new Set(knownList);
+	const chords = [...new Set(displayChords.map(baseChord))];
+	const known = chords.filter((c) => set.has(c));
+	const missing = chords.filter((c) => !set.has(c));
+
+	let transpose: number | null = null;
+	if (missing.length > 0) {
+		// nearest shift first: a semitone up reads better than five down
+		for (const d of [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6]) {
+			if (chords.every((c) => set.has(baseChord(transposeChord(c, d))))) {
+				transpose = d;
+				break;
+			}
+		}
+	}
+
+	return { chords, known, missing, transpose };
+}
+
+// The chord changes a song actually asks for, most frequent first. The names
+// pass through `map` first, so the caller can show them transposed as the
+// reader sees them.
+export function chordChanges(
+	source: string,
+	map: (chord: string) => string = (c) => c
+): { from: string; to: string; count: number }[] {
+	const counts = new Map<string, number>();
+	let prev: string | null = null;
+	for (const line of parse(source).lines) {
+		if (line.type !== 'lyric') continue;
+		for (const c of [...line.chords].sort((a, b) => a.pos - b.pos)) {
+			const chord = baseChord(map(c.chord));
+			if (prev && prev !== chord) {
+				const pair = `${prev}>${chord}`;
+				counts.set(pair, (counts.get(pair) ?? 0) + 1);
+			}
+			prev = chord;
+		}
+	}
+	return [...counts.entries()]
+		.map(([pair, count]) => {
+			const [from, to] = pair.split('>');
+			return { from, to, count };
+		})
+		.sort((a, b) => b.count - a.count || a.from.localeCompare(b.from));
 }

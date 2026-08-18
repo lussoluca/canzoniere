@@ -436,6 +436,11 @@
 		<a href="{base}/accordi/">Cosa posso suonare</a> ti dice quali accordi conviene imparare prima,
 		come mettere le dita e quali canti puoi già accompagnare con quelli che sai.
 	</p>
+	<p>
+		Mentre suoni, la <a href="{base}/impostazioni/">modalità studente</a> porta questa pagina dentro
+		i canti: gli accordi sopra le parole si toccano e si aprono sulla loro scheda, ogni canto dice
+		quanto sei pronto e il pulsante «Studia» lo smonta in accordi, cambi e suonata finale.
+	</p>
 	<p class="hint">
 		Meglio 10 minuti tutti i giorni che un'ora una volta a settimana. E suona con gli altri appena
 		puoi: si impara il doppio.

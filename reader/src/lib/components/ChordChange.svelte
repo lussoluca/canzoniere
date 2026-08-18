@@ -13,8 +13,16 @@
 	} from '$lib/harmony';
 	import { audioSupported, now, playStrum } from '$lib/audio';
 
+	interface Props {
+		// Which chords the pickers offer and where they start: the primer shows
+		// the common open chords, a song's study panel only its own chords.
+		chords?: string[];
+		initialFrom?: string;
+		initialTo?: string;
+	}
+
 	// the open chords that show up most often in the songbook
-	const CHORDS = [
+	const COMMON = [
 		'Do',
 		'Re',
 		'Rem',
@@ -33,8 +41,19 @@
 		'Si7'
 	];
 
-	let from = $state('Lam');
-	let to = $state('Do');
+	let { chords = COMMON, initialFrom = 'Lam', initialTo = 'Do' }: Props = $props();
+
+	// svelte-ignore state_referenced_locally
+	let from = $state(initialFrom);
+	// svelte-ignore state_referenced_locally
+	let to = $state(initialTo);
+
+	// A new pair arriving from the parent (another change picked in the study
+	// panel) replaces the local selection.
+	$effect(() => {
+		from = initialFrom;
+		to = initialTo;
+	});
 
 	const fromVoicing = $derived(chordVoicing(from));
 	const toVoicing = $derived(chordVoicing(to));
@@ -63,7 +82,7 @@
 	<div class="picker">
 		<span class="picker-label" id="change-from">Parti da</span>
 		<div class="chips" role="group" aria-labelledby="change-from">
-			{#each CHORDS as c (c)}
+			{#each chords as c (c)}
 				<button class="chip" class:on={from === c} aria-pressed={from === c} onclick={() => (from = c)}>
 					{c}
 				</button>
@@ -73,7 +92,7 @@
 	<div class="picker">
 		<span class="picker-label" id="change-to">Vai su</span>
 		<div class="chips" role="group" aria-labelledby="change-to">
-			{#each CHORDS as c (c)}
+			{#each chords as c (c)}
 				<button class="chip" class:on={to === c} aria-pressed={to === c} onclick={() => (to = c)}>
 					{c}
 				</button>
