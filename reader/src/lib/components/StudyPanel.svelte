@@ -5,6 +5,7 @@
 	import ChordTutorialCard from '$lib/components/ChordTutorialCard.svelte';
 	import ChordChange from '$lib/components/ChordChange.svelte';
 	import StrumTrainer from '$lib/components/StrumTrainer.svelte';
+	import { tick } from 'svelte';
 	import { loadStudyStep, saveStudyStep, type StudyStep } from '$lib/study';
 
 	interface Props {
@@ -43,20 +44,27 @@
 
 	// Each step is a different height, so changing step leaves the reader
 	// somewhere in the middle of the new one. Bring the panel's head back up,
-	// just below the sticky controls of the song page.
+	// just below the sticky controls of the song page. The jump is instant on
+	// purpose: a smooth scroll started while the document is still shrinking
+	// (the tall "cambi" step giving way to the short "suona" one) is cut off by
+	// the browser clamping the scroll position, and the panel never arrives.
 	function scrollToPanel() {
 		const controls = document.querySelector('.controls');
 		const stuck = controls
 			? parseFloat(getComputedStyle(controls).top) + controls.getBoundingClientRect().height
 			: 0;
 		const top = panel.getBoundingClientRect().top + window.scrollY - stuck - 8;
-		window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+		window.scrollTo(0, Math.max(0, top));
 	}
 
-	function go(next: StudyStep) {
+	// The scroll waits for the new step to be in the page and laid out: going
+	// from the tall "cambi" step to the short "suona" one makes the document
+	// shrink, and a scroll asked for before that lands nowhere.
+	async function go(next: StudyStep) {
 		step = next;
 		saveStudyStep(category, slug, next);
-		scrollToPanel();
+		await tick();
+		requestAnimationFrame(scrollToPanel);
 	}
 </script>
 
