@@ -5,7 +5,7 @@
 	import ChordTutorialCard from '$lib/components/ChordTutorialCard.svelte';
 	import ChordChange from '$lib/components/ChordChange.svelte';
 	import StrumTrainer from '$lib/components/StrumTrainer.svelte';
-	import { tick } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { loadStudyStep, saveStudyStep, type StudyStep } from '$lib/study';
 
 	interface Props {
@@ -42,29 +42,70 @@
 
 	let panel: HTMLElement;
 
-	// Each step is a different height, so changing step leaves the reader
-	// somewhere in the middle of the new one. Bring the panel's head back up,
-	// just below the sticky controls of the song page. The jump is instant on
-	// purpose: a smooth scroll started while the document is still shrinking
-	// (the tall "cambi" step giving way to the short "suona" one) is cut off by
-	// the browser clamping the scroll position, and the panel never arrives.
-	function scrollToPanel() {
+	// Where the panel's head belongs: right under the sticky controls of the
+	// song page, which would otherwise cover it.
+	function panelTop(): number {
 		const controls = document.querySelector('.controls');
 		const stuck = controls
 			? parseFloat(getComputedStyle(controls).top) + controls.getBoundingClientRect().height
 			: 0;
-		const top = panel.getBoundingClientRect().top + window.scrollY - stuck - 8;
-		window.scrollTo(0, Math.max(0, top));
+		return Math.max(0, panel.getBoundingClientRect().top + window.scrollY - stuck - 8);
 	}
 
-	// The scroll waits for the new step to be in the page and laid out: going
-	// from the tall "cambi" step to the short "suona" one makes the document
-	// shrink, and a scroll asked for before that lands nowhere.
+	// Each step has a different height, so changing step leaves the reader
+	// somewhere in the middle of the new one and the panel's head has to come
+	// back up. The glide is animated frame by frame instead of asking the
+	// browser for a smooth scroll: leaving the tall "cambi" step shortens the
+	// document by hundreds of pixels, and iOS cuts a native smooth scroll short
+	// when that happens. Driving it ourselves also lets the target be recomputed
+	// every frame, while the new step is still settling.
+	let glide = 0;
+	let stopGlide: (() => void) | null = null;
+
+	function glideToPanel() {
+		stopGlide?.();
+		const from = window.scrollY;
+		if (Math.abs(panelTop() - from) < 2) return;
+
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			window.scrollTo(0, panelTop());
+			return;
+		}
+
+		const ms = Math.min(520, 200 + Math.abs(panelTop() - from) * 0.3);
+		let start: number | null = null;
+
+		// A finger or a wheel means the reader took over: leave the page alone.
+		const cancel = () => stopGlide?.();
+		stopGlide = () => {
+			cancelAnimationFrame(glide);
+			window.removeEventListener('touchstart', cancel);
+			window.removeEventListener('wheel', cancel);
+			stopGlide = null;
+		};
+		window.addEventListener('touchstart', cancel, { passive: true });
+		window.addEventListener('wheel', cancel, { passive: true });
+
+		const frame = (now: number) => {
+			start ??= now;
+			const t = Math.min(1, (now - start) / ms);
+			const ease = t < 0.5 ? 2 * t * t : 1 - (2 - 2 * t) ** 2 / 2;
+			window.scrollTo(0, from + (panelTop() - from) * ease);
+			if (t < 1) glide = requestAnimationFrame(frame);
+			else stopGlide?.();
+		};
+		glide = requestAnimationFrame(frame);
+	}
+
+	onDestroy(() => stopGlide?.());
+
+	// The glide starts once the new step is in the page and laid out: its height
+	// decides where the panel ends up.
 	async function go(next: StudyStep) {
 		step = next;
 		saveStudyStep(category, slug, next);
 		await tick();
-		requestAnimationFrame(scrollToPanel);
+		requestAnimationFrame(glideToPanel);
 	}
 </script>
 
