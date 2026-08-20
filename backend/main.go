@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -19,10 +20,10 @@ type config struct {
 func loadConfig() config {
 	cfg := config{
 		port:            envOr("PORT", "8080"),
-		githubToken:     os.Getenv("GITHUB_TOKEN"),
+		githubToken:     strings.TrimSpace(os.Getenv("GITHUB_TOKEN")),
 		repo:            envOr("GITHUB_REPO", "lussoluca/canzoniere"),
 		baseBranch:      envOr("GITHUB_BASE_BRANCH", "main"),
-		turnstileSecret: os.Getenv("TURNSTILE_SECRET"),
+		turnstileSecret: strings.TrimSpace(os.Getenv("TURNSTILE_SECRET")),
 	}
 	for _, o := range splitAndTrim(envOr("ALLOWED_ORIGINS", "https://lussoluca.github.io")) {
 		cfg.allowedOrigins = append(cfg.allowedOrigins, o)
