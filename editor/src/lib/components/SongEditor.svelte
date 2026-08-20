@@ -121,7 +121,13 @@
 		}
 	});
 
+	// The metadata form is collapsible; it starts collapsed on narrow screens
+	// to leave the room to the sheet.
+	let metaOpen = $state(true);
+
 	onMount(() => {
+		if (window.matchMedia('(max-width: 900px)').matches) metaOpen = false;
+
 		const handler = (e: BeforeUnloadEvent) => {
 			if (dirty) {
 				e.preventDefault();
@@ -324,6 +330,22 @@
 <svelte:window onclick={() => (openAddMenu = null)} />
 
 <div class="meta" data-testid="meta-form">
+	<button
+		type="button"
+		class="meta-toggle"
+		onclick={() => (metaOpen = !metaOpen)}
+		aria-expanded={metaOpen}
+		data-testid="meta-toggle"
+	>
+		<span class="chevron" class:open={metaOpen}>▸</span>
+		{#if metaOpen}
+			Dettagli canzone
+		{:else}
+			<strong>{song.meta.title || 'Senza titolo'}</strong>
+			{#if song.meta.artist}<span class="meta-summary">— {song.meta.artist}</span>{/if}
+		{/if}
+	</button>
+	{#if metaOpen}
 	<label>
 		Titolo
 		<input bind:value={song.meta.title} data-testid="meta-title" />
@@ -380,6 +402,7 @@
 		Tag
 		<TagInput bind:tags={song.meta.labels} suggestions={allTags} />
 	</label>
+	{/if}
 </div>
 
 <div class="tabs">
@@ -447,15 +470,17 @@
 			+1
 		</button>
 	</span>
-	{#if dirty}
-		<span class="dirty" data-testid="dirty-indicator" title="Ci sono modifiche non salvate">
-			● Modifiche non salvate
-		</span>
-	{/if}
-	<span class="status" data-testid="save-status">{status}</span>
-	<button class="btn primary" onclick={save} disabled={saving || !dirty} data-testid="save">
-		{mode === 'new' ? 'Crea' : 'Salva'}
-	</button>
+	<span class="save-tools">
+		{#if dirty}
+			<span class="dirty" data-testid="dirty-indicator" title="Ci sono modifiche non salvate">
+				● Modifiche non salvate
+			</span>
+		{/if}
+		<span class="status" data-testid="save-status">{status}</span>
+		<button class="btn primary" onclick={save} disabled={saving || !dirty} data-testid="save">
+			{mode === 'new' ? 'Crea' : 'Salva'}
+		</button>
+	</span>
 </div>
 
 {#snippet addMenu(afterIdx: number | null, key: number | 'end')}
@@ -567,6 +592,36 @@
 		color: #777;
 		gap: 0.2rem;
 	}
+	.meta-toggle {
+		grid-column: 1 / -1;
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		border: none;
+		background: none;
+		padding: 0;
+		cursor: pointer;
+		text-align: left;
+		font-size: 0.82rem;
+		color: #777;
+		min-height: 1.4rem;
+	}
+	.meta-toggle strong {
+		color: #2b2b2b;
+		font-size: 0.95rem;
+	}
+	.meta-summary {
+		color: #999;
+		font-size: 0.88rem;
+	}
+	.chevron {
+		display: inline-block;
+		transition: transform 0.15s;
+		font-size: 0.8rem;
+	}
+	.chevron.open {
+		transform: rotate(90deg);
+	}
 	.tags-field {
 		grid-column: 1 / -1;
 	}
@@ -623,6 +678,12 @@
 	.chord-tools .toggled {
 		background: #2f3e46;
 		color: #ffd166;
+	}
+	.save-tools {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin-left: auto;
 	}
 	.status {
 		font-size: 0.85rem;
