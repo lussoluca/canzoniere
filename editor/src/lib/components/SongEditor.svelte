@@ -581,7 +581,9 @@
 	.tabs {
 		display: flex;
 		align-items: center;
+		flex-wrap: wrap;
 		gap: 0.4rem;
+		row-gap: 0.5rem;
 		margin-bottom: 0.6rem;
 	}
 	.tabs > button:not(.btn) {
@@ -790,5 +792,28 @@
 		border-top: 1px solid #eee;
 		display: flex;
 		align-items: center;
+	}
+
+	/* Narrow screens (tablet portrait and phones): the metadata grid collapses
+	   to two columns and the chord diagrams panel disappears, leaving the room
+	   to the sheet. */
+	@media (max-width: 900px) {
+		.meta {
+			grid-template-columns: 1fr 1fr;
+		}
+		.chords-panel {
+			display: none;
+		}
+	}
+
+	/* Phones: single-column metadata and always-visible line tools (there is
+	   no hover). */
+	@media (max-width: 600px) {
+		.meta {
+			grid-template-columns: 1fr;
+		}
+		.line-tools {
+			visibility: visible;
+		}
 	}
 </style>

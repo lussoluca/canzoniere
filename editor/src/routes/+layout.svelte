@@ -107,6 +107,21 @@
 		border-radius: 6px;
 		flex-shrink: 0;
 	}
+	/* Phones: the brand and the nav stack instead of overlapping. */
+	@media (max-width: 640px) {
+		.topbar {
+			flex-wrap: wrap;
+			gap: 0.4rem 1rem;
+		}
+		.brand {
+			font-size: 15px;
+			white-space: nowrap;
+		}
+		.topbar nav {
+			gap: 0.8rem;
+			flex-wrap: wrap;
+		}
+	}
 	main {
 		max-width: 1100px;
 		margin: 0 auto;
