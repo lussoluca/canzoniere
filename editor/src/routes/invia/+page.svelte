@@ -104,7 +104,7 @@
 			<thead>
 				<tr>
 					<th>Canzone</th>
-					<th>File</th>
+					<th class="file-col">File</th>
 					<th>Salvata</th>
 					<th></th>
 				</tr>
@@ -113,8 +113,8 @@
 				{#each pendingSongs() as s (s.path)}
 					<tr>
 						<td>{s.title}</td>
-						<td><code>{s.path}</code></td>
-						<td>{formatWhen(s.savedAt)}</td>
+						<td class="file-col"><code>{s.path}</code></td>
+						<td class="when">{formatWhen(s.savedAt)}</td>
 						<td>
 							<button class="btn danger" onclick={() => discard(s.path, s.title)}>Scarta</button>
 						</td>
@@ -213,5 +213,17 @@
 	code {
 		font-size: 0.82rem;
 		color: #777;
+		overflow-wrap: anywhere;
+	}
+	.when {
+		white-space: nowrap;
+	}
+
+	/* Phones: the file path column goes away (the title identifies the song)
+	   so the table never forces a horizontal scroll. */
+	@media (max-width: 600px) {
+		.file-col {
+			display: none;
+		}
 	}
 </style>

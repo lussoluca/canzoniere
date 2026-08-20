@@ -130,7 +130,8 @@
 	let showLineTools = $state(false);
 
 	onMount(() => {
-		if (window.matchMedia('(max-width: 900px)').matches) metaOpen = false;
+		// A new song needs its (required) title typed in, so the form stays open.
+		if (mode === 'edit' && window.matchMedia('(max-width: 900px)').matches) metaOpen = false;
 
 		const handler = (e: BeforeUnloadEvent) => {
 			if (dirty) {
