@@ -169,6 +169,7 @@
 		flex-direction: column;
 		gap: 0.7rem;
 		max-width: 480px;
+		margin-inline: auto;
 	}
 	.card.form label {
 		display: flex;
