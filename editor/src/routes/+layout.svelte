@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { online } from '$lib/online';
-	import { pendingCount } from '$lib/pending.svelte';
+	import HeaderMenu from '$lib/components/HeaderMenu.svelte';
 
 	let { children } = $props();
 
@@ -21,19 +20,7 @@
 		<img class="logo" src="{base}/logo.png" alt="" />
 		Canzoniere Alessandria 2
 	</a>
-	<nav>
-		<a href="{base}/">Canzoni</a>
-		{#if online}
-			<a href="{base}/invia" class="send" data-testid="nav-invia">
-				Invia modifiche{#if pendingCount() > 0}&nbsp;<span class="badge">{pendingCount()}</span
-					>{/if}
-			</a>
-		{:else}
-			<a href="{base}/songbooks">Canzonieri</a>
-			<a href="{base}/categories">Categorie</a>
-		{/if}
-		<a href="{base}/help">Guida</a>
-	</nav>
+	<HeaderMenu />
 </header>
 
 <main>
@@ -64,33 +51,6 @@
 		align-items: center;
 		gap: 1.4rem;
 	}
-	.topbar nav {
-		display: flex;
-		gap: 1rem;
-	}
-	.topbar nav a {
-		color: #cdd7da;
-		text-decoration: none;
-		font-size: 0.92rem;
-	}
-	.topbar nav a:hover {
-		color: #fff;
-	}
-	.topbar nav a.send {
-		color: #ffd166;
-		font-weight: 600;
-	}
-	.badge {
-		display: inline-block;
-		min-width: 1.2em;
-		text-align: center;
-		background: #ffd166;
-		color: #2f3e46;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 700;
-		padding: 0.05rem 0.35rem;
-	}
 	.brand {
 		display: flex;
 		align-items: center;
@@ -107,19 +67,11 @@
 		border-radius: 6px;
 		flex-shrink: 0;
 	}
-	/* Phones: the brand and the nav stack instead of overlapping. */
+	/* Phones: keep the brand on one line next to the burger. */
 	@media (max-width: 640px) {
-		.topbar {
-			flex-wrap: wrap;
-			gap: 0.4rem 1rem;
-		}
 		.brand {
 			font-size: 15px;
 			white-space: nowrap;
-		}
-		.topbar nav {
-			gap: 0.8rem;
-			flex-wrap: wrap;
 		}
 	}
 	main {

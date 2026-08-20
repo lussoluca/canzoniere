@@ -125,6 +125,10 @@
 	// to leave the room to the sheet.
 	let metaOpen = $state(true);
 
+	// Phones have no hover, so the per-line tools (delete, add) are hidden
+	// behind this toggle instead of crowding every line.
+	let showLineTools = $state(false);
+
 	onMount(() => {
 		if (window.matchMedia('(max-width: 900px)').matches) metaOpen = false;
 
@@ -342,7 +346,7 @@
 			Dettagli canzone
 		{:else}
 			<strong>{song.meta.title || 'Senza titolo'}</strong>
-			{#if song.meta.artist}<span class="meta-summary">— {song.meta.artist}</span>{/if}
+			{#if song.meta.artist}<span class="meta-summary">{song.meta.artist}</span>{/if}
 		{/if}
 	</button>
 	{#if metaOpen}
@@ -470,6 +474,16 @@
 			+1
 		</button>
 	</span>
+	<button
+		class="btn line-tools-toggle"
+		class:toggled={showLineTools}
+		onclick={() => (showLineTools = !showLineTools)}
+		aria-pressed={showLineTools}
+		title="Mostra gli strumenti di riga (elimina, aggiungi)"
+		data-testid="line-tools-toggle"
+	>
+		✎ Righe
+	</button>
 	<span class="save-tools">
 		{#if dirty}
 			<span class="dirty" data-testid="dirty-indicator" title="Ci sono modifiche non salvate">
@@ -515,7 +529,7 @@
 
 {#if tab === 'visual'}
 	<div class="visual-layout">
-	<div class="sheet" data-testid="visual-editor">
+	<div class="sheet" class:show-tools={showLineTools} data-testid="visual-editor">
 		{#if song.lines.length === 0}
 			<p class="hint">
 				Nessun testo. Aggiungi righe qui sotto oppure incolla il testo nella scheda «ChordPro».
@@ -684,6 +698,19 @@
 		align-items: center;
 		gap: 0.4rem;
 		margin-left: auto;
+	}
+	/* The «Righe» toggle exists only where hover does not. */
+	.line-tools-toggle {
+		display: none;
+	}
+	@media (max-width: 600px) {
+		.line-tools-toggle {
+			display: inline-block;
+		}
+		.line-tools-toggle.toggled {
+			background: #2f3e46;
+			color: #ffd166;
+		}
 	}
 	.status {
 		font-size: 0.85rem;
@@ -867,13 +894,17 @@
 		}
 	}
 
-	/* Phones: single-column metadata and always-visible line tools (there is
-	   no hover). */
+	/* Phones: single-column metadata; the per-line tools have no hover, so
+	   they stay off until the «Righe» toggle turns them on. */
 	@media (max-width: 600px) {
 		.meta {
 			grid-template-columns: 1fr;
 		}
 		.line-tools {
+			display: none;
+		}
+		.sheet.show-tools .line-tools {
+			display: flex;
 			visibility: visible;
 		}
 	}
