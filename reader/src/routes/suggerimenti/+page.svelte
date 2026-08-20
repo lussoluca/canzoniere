@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
+	import { page } from '$app/state';
 	import { sendSuggestion } from '$lib/feedback';
 
 	let song = $state('');
@@ -10,8 +10,11 @@
 	let issueUrl = $state('');
 	let error = $state('');
 
-	onMount(() => {
-		song = new URLSearchParams(location.search).get('canto') ?? '';
+	// The song comes from the ?canto= query param. Client-side navigation can
+	// land on this route without remounting it (song page link, then the menu
+	// entry), so the field follows the URL instead of being read once on mount.
+	$effect(() => {
+		song = page.url.searchParams.get('canto') ?? '';
 	});
 
 	async function submit(event: SubmitEvent) {
