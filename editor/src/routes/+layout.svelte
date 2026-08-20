@@ -36,6 +36,8 @@
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		background: #f6f5f2;
 		color: #2b2b2b;
+		/* No iOS text inflation in landscape (same as the reader). */
+		-webkit-text-size-adjust: 100%;
 	}
 	/* Same look as the reader header (reader/src/routes/+layout.svelte). */
 	.topbar {
