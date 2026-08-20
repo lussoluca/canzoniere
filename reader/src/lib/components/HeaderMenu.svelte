@@ -2,7 +2,6 @@
 	import { fade, fly } from 'svelte/transition';
 	import { afterNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
-	import { feedbackHref } from '$lib/feedback';
 	import {
 		loadSavedCollections,
 		forgetCollection,
@@ -26,8 +25,8 @@
 		{ href: `${base}/accordi/`, icon: '🎸', label: 'Cosa posso suonare' },
 		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea una scaletta' },
 		{
-			href: feedbackHref('Commenti e suggerimenti sul canzoniere'),
-			icon: '✉️',
+			href: `${base}/suggerimenti/`,
+			icon: '💬',
 			label: 'Commenti e suggerimenti'
 		},
 		{ href: `${base}/impostazioni/`, icon: '⚙️', label: 'Impostazioni' },
