@@ -131,8 +131,8 @@ func (c *gitHubClient) createPullRequest(ctx context.Context, title, head, base,
 	return out.HTMLURL, err
 }
 
-func (c *gitHubClient) createIssue(ctx context.Context, title, body string) (string, error) {
-	req := map[string]string{"title": title, "body": body}
+func (c *gitHubClient) createIssue(ctx context.Context, title, body string, labels []string) (string, error) {
+	req := map[string]any{"title": title, "body": body, "labels": labels}
 	var out struct {
 		HTMLURL string `json:"html_url"`
 	}

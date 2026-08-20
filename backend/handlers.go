@@ -151,8 +151,10 @@ func (s *server) handleSuggestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	title := "Suggerimento dal sito"
+	label := "feedback-generale"
 	if song := strings.TrimSpace(req.Song); song != "" {
 		title = fmt.Sprintf("Suggerimento: %s", song)
+		label = "feedback-canto"
 	}
 	var body strings.Builder
 	body.WriteString(message)
@@ -163,7 +165,7 @@ func (s *server) handleSuggestion(w http.ResponseWriter, r *http.Request) {
 	if song := strings.TrimSpace(req.Song); song != "" {
 		fmt.Fprintf(&body, "\n**Canzone:** %s\n", song)
 	}
-	issueURL, err := s.gh.createIssue(r.Context(), title, body.String())
+	issueURL, err := s.gh.createIssue(r.Context(), title, body.String(), []string{label})
 	if err != nil {
 		s.serverError(w, "creating issue", err)
 		return
