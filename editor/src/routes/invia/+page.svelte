@@ -69,6 +69,14 @@
 	function formatWhen(ts: number): string {
 		return new Date(ts).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' });
 	}
+
+	// Existing songs have a prerendered edit page; songs created on this
+	// device reopen from /new via the local queue.
+	function editHref(s: { path: string; isNew?: boolean }): string {
+		if (s.isNew) return `${base}/new?pending=${encodeURIComponent(s.path)}`;
+		const [, category, file] = s.path.split('/');
+		return `${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`;
+	}
 </script>
 
 <svelte:head>
@@ -112,7 +120,7 @@
 			<tbody>
 				{#each pendingSongs() as s (s.path)}
 					<tr>
-						<td>{s.title}</td>
+						<td><a class="song-link" href={editHref(s)}>{s.title}</a></td>
 						<td class="file-col"><code>{s.path}</code></td>
 						<td class="when">{formatWhen(s.savedAt)}</td>
 						<td>
@@ -214,6 +222,14 @@
 		font-size: 0.82rem;
 		color: #777;
 		overflow-wrap: anywhere;
+	}
+	.song-link {
+		color: #2f3e46;
+		font-weight: 600;
+		text-decoration: none;
+	}
+	.song-link:hover {
+		text-decoration: underline;
 	}
 	.when {
 		white-space: nowrap;

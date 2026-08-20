@@ -3,7 +3,7 @@
 	import { goto, beforeNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { online } from '$lib/online';
-	import { savePending } from '$lib/pending.svelte';
+	import { savePending, removePending } from '$lib/pending.svelte';
 	import { parse, serialize, type Song, type Line } from '$lib/chordpro';
 	import { categoryLabel } from '$lib/categories';
 	import { englishChordToLatin, simplifyChord, transposeChord } from '$lib/chords';
@@ -314,7 +314,10 @@
 
 	// Online mode: the file name of a song created on this device, frozen at
 	// the first save so later title changes keep updating the same queue entry.
-	let onlineNewFile: string | null = $state(null);
+	let onlineNewFile: string | null = $state(file ?? null);
+	// The queue entry written by the last save, so a category change on a new
+	// song moves the entry instead of leaving a stale duplicate behind.
+	let savedPath: string | null = $state(file ? `canzoni/${initialCategory}/${file}` : null);
 
 	// Online mode: the song goes into the local queue; the "Invia modifiche"
 	// page ships the queue to the backend.
@@ -326,8 +329,12 @@
 			onlineNewFile ??= slugify(song.meta.title) + '.cho';
 			targetFile = onlineNewFile;
 		}
-		savePending(`canzoni/${category}/${targetFile}`, song.meta.title, content);
+		const path = `canzoni/${category}/${targetFile}`;
+		if (savedPath && savedPath !== path) removePending(savedPath);
+		savePending(path, song.meta.title, content, mode === 'new');
+		savedPath = path;
 		savedContent = content;
+		savedCategory = category;
 		status = 'Salvato sul dispositivo ✓ (da «Invia modifiche» arriva al canzoniere)';
 	}
 </script>

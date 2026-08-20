@@ -8,6 +8,9 @@ export interface PendingSong {
 	title: string;
 	content: string;
 	savedAt: number;
+	// true for a song created on this device: it has no prerendered edit page,
+	// so it reopens from /new?pending=<path>.
+	isNew?: boolean;
 }
 
 const STORAGE_KEY = 'editor:pending';
@@ -40,8 +43,8 @@ export function getPending(path: string): PendingSong | undefined {
 	return store.songs.find((s) => s.path === path);
 }
 
-export function savePending(path: string, title: string, content: string): void {
-	const entry: PendingSong = { path, title, content, savedAt: Date.now() };
+export function savePending(path: string, title: string, content: string, isNew = false): void {
+	const entry: PendingSong = { path, title, content, savedAt: Date.now(), isNew };
 	const idx = store.songs.findIndex((s) => s.path === path);
 	if (idx >= 0) store.songs[idx] = entry;
 	else store.songs.push(entry);
