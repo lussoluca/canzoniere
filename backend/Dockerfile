@@ -1,12 +1,10 @@
-# syntax=docker/dockerfile:1
-
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS build
-ARG TARGETOS
-ARG TARGETARCH
+# Built by Cloud Build (legacy docker, no BuildKit) and run on Cloud Run:
+# the only supported target is linux/amd64.
+FROM golang:1.24-alpine AS build
 WORKDIR /src
 COPY go.mod ./
 COPY *.go ./
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath -ldflags="-s -w" -o /out/backend .
 
 FROM gcr.io/distroless/static-debian12:nonroot
