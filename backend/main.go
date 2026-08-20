@@ -47,7 +47,9 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
+	// /healthz is intercepted by Google's frontend on run.app domains, so the
+	// health endpoint lives under a non-reserved path.
+	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 	mux.HandleFunc("POST /api/songs", srv.handleSongEdit)

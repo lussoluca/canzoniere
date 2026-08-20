@@ -8,7 +8,7 @@ alcun token GitHub raggiunga il browser.
 
 | Metodo | Path               | Effetto                                                    |
 | ------ | ------------------ | ---------------------------------------------------------- |
-| `GET`  | `/healthz`         | Health check                                               |
+| `GET`  | `/health`          | Health check                                               |
 | `POST` | `/api/songs`       | Crea branch + commit + pull request con la canzone inviata |
 | `POST` | `/api/suggestions` | Apre una issue sul repository con il suggerimento          |
 
