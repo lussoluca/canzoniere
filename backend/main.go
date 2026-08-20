@@ -14,6 +14,7 @@ type config struct {
 	repo            string // owner/name
 	baseBranch      string
 	turnstileSecret string
+	editorKey       string
 	allowedOrigins  []string
 }
 
@@ -24,6 +25,7 @@ func loadConfig() config {
 		repo:            envOr("GITHUB_REPO", "lussoluca/canzoniere"),
 		baseBranch:      envOr("GITHUB_BASE_BRANCH", "main"),
 		turnstileSecret: strings.TrimSpace(os.Getenv("TURNSTILE_SECRET")),
+		editorKey:       strings.TrimSpace(os.Getenv("EDITOR_KEY")),
 	}
 	for _, o := range splitAndTrim(envOr("ALLOWED_ORIGINS", "https://lussoluca.github.io")) {
 		cfg.allowedOrigins = append(cfg.allowedOrigins, o)
@@ -53,7 +55,9 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 	})
 	mux.HandleFunc("POST /api/songs", srv.handleSongEdit)
+	mux.HandleFunc("POST /api/songs/batch", srv.handleSongBatch)
 	mux.HandleFunc("POST /api/suggestions", srv.handleSuggestion)
+	mux.HandleFunc("GET /api/editor/ping", srv.handleEditorPing)
 
 	handler := srv.cors(srv.rateLimit(mux))
 	log.Printf("listening on :%s", cfg.port)

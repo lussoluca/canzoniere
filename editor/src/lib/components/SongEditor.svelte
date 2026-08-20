@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto, beforeNavigate } from '$app/navigation';
+	import { base } from '$app/paths';
+	import { online } from '$lib/online';
+	import { savePending } from '$lib/pending.svelte';
 	import { parse, serialize, type Song, type Line } from '$lib/chordpro';
 	import { categoryLabel } from '$lib/categories';
 	import { englishChordToLatin, simplifyChord, transposeChord } from '$lib/chords';
@@ -247,11 +250,15 @@
 		saving = true;
 		status = '';
 		try {
+			if (online) {
+				saveToDevice(content);
+				return;
+			}
 			if (mode === 'edit' && file) {
 				const moved = category !== savedCategory;
 				if (moved) {
 					const res = await fetch(
-						`/api/songs/${encodeURIComponent(savedCategory)}/${encodeURIComponent(file)}`,
+						`${base}/api/songs/${encodeURIComponent(savedCategory)}/${encodeURIComponent(file)}`,
 						{
 							method: 'PATCH',
 							headers: { 'content-type': 'application/json' },
@@ -262,7 +269,7 @@
 					savedCategory = category;
 				}
 				const res = await fetch(
-					`/api/songs/${encodeURIComponent(category)}/${encodeURIComponent(file)}`,
+					`${base}/api/songs/${encodeURIComponent(category)}/${encodeURIComponent(file)}`,
 					{
 						method: 'PUT',
 						headers: { 'content-type': 'application/json' },
@@ -273,11 +280,11 @@
 				savedContent = content;
 				status = 'Salvato ✓';
 				if (moved) {
-					await goto(`/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`);
+					await goto(`${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`);
 				}
 			} else {
 				const newFile = slugify(song.meta.title) + '.cho';
-				const res = await fetch('/api/songs', {
+				const res = await fetch(`${base}/api/songs`, {
 					method: 'POST',
 					headers: { 'content-type': 'application/json' },
 					body: JSON.stringify({ category, file: newFile, content })
@@ -285,13 +292,32 @@
 				if (!res.ok) throw new Error(await res.text());
 				savedContent = content;
 				status = 'Creato ✓';
-				await goto(`/edit/${encodeURIComponent(category)}/${encodeURIComponent(newFile)}`);
+				await goto(`${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(newFile)}`);
 			}
 		} catch (e) {
 			status = `Errore: ${e instanceof Error ? e.message : e}`;
 		} finally {
 			saving = false;
 		}
+	}
+
+	// Online mode: the file name of a song created on this device, frozen at
+	// the first save so later title changes keep updating the same queue entry.
+	let onlineNewFile: string | null = $state(null);
+
+	// Online mode: the song goes into the local queue; the "Invia modifiche"
+	// page ships the queue to the backend.
+	function saveToDevice(content: string) {
+		let targetFile: string;
+		if (mode === 'edit' && file) {
+			targetFile = file;
+		} else {
+			onlineNewFile ??= slugify(song.meta.title) + '.cho';
+			targetFile = onlineNewFile;
+		}
+		savePending(`canzoni/${category}/${targetFile}`, song.meta.title, content);
+		savedContent = content;
+		status = 'Salvato sul dispositivo ✓ (da «Invia modifiche» arriva al canzoniere)';
 	}
 </script>
 
@@ -335,9 +361,13 @@
 			data-testid="meta-scroll"
 		/>
 	</label>
-	<label>
+	<label
+		title={online && mode === 'edit'
+			? 'Lo spostamento di categoria è disponibile solo in locale'
+			: undefined}
+	>
 		Categoria
-		<select bind:value={category} data-testid="meta-category">
+		<select bind:value={category} disabled={online && mode === 'edit'} data-testid="meta-category">
 			{#each categories as c (c)}
 				<option value={c}>{categoryLabel(c)}</option>
 			{/each}

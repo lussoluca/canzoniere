@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { invalidateAll } from '$app/navigation';
 	import { categoryLabel, isValidCategoryName } from '$lib/categories';
 	import { slugify } from '$lib/slug';
@@ -23,7 +24,7 @@
 		creating = true;
 		createError = '';
 		try {
-			const res = await fetch('/api/categories', {
+			const res = await fetch(`${base}/api/categories`, {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ name })
@@ -61,7 +62,7 @@
 			return;
 		}
 		try {
-			const res = await fetch(`/api/categories/${encodeURIComponent(oldName)}`, {
+			const res = await fetch(`${base}/api/categories/${encodeURIComponent(oldName)}`, {
 				method: 'PATCH',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ name })
@@ -79,7 +80,7 @@
 		const j = index + dir;
 		if (j < 0 || j >= order.length) return;
 		[order[index], order[j]] = [order[j], order[index]];
-		const res = await fetch('/api/categories', {
+		const res = await fetch(`${base}/api/categories`, {
 			method: 'PUT',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ order })
@@ -115,7 +116,7 @@
 		}
 		if (!confirm(`Eliminare la categoria "${category}"${count > 0 ? ` e spostare ${count} canzoni in "${dest}"` : ''}?`))
 			return;
-		const res = await fetch(`/api/categories/${encodeURIComponent(category)}`, {
+		const res = await fetch(`${base}/api/categories/${encodeURIComponent(category)}`, {
 			method: 'DELETE',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ target: dest })
@@ -182,7 +183,7 @@
 					</td>
 				{:else}
 					<td>
-						<a href={`/c/${encodeURIComponent(c.category)}`}>{categoryLabel(c.category)}</a>
+						<a href={`${base}/c/${encodeURIComponent(c.category)}`}>{categoryLabel(c.category)}</a>
 					</td>
 					<td><code>{c.category}</code></td>
 				{/if}

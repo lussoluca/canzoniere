@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { categoryLabel } from '$lib/categories';
+	import { online } from '$lib/online';
+	import { getPending } from '$lib/pending.svelte';
 
 	let { data } = $props();
 
@@ -16,7 +19,7 @@
 
 	async function move(file: string, newCategory: string) {
 		const res = await fetch(
-			`/api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`,
+			`${base}/api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`,
 			{
 				method: 'PATCH',
 				headers: { 'content-type': 'application/json' },
@@ -33,7 +36,7 @@
 	async function remove(file: string, title: string) {
 		if (!confirm(`Eliminare "${title}"?`)) return;
 		const res = await fetch(
-			`/api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`,
+			`${base}/api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`,
 			{ method: 'DELETE' }
 		);
 		if (!res.ok) {
@@ -44,7 +47,7 @@
 	}
 </script>
 
-<nav class="crumbs"><a href="/">Categorie</a> / {categoryLabel(data.category)}</nav>
+<nav class="crumbs"><a href="{base}/">Categorie</a> / {categoryLabel(data.category)}</nav>
 
 <div class="toolbar">
 	<input
@@ -54,7 +57,7 @@
 		data-testid="search"
 	/>
 	<a
-		href={`/new?category=${encodeURIComponent(data.category)}`}
+		href={`${base}/new?category=${encodeURIComponent(data.category)}`}
 		class="btn primary"
 		data-testid="new-song"
 	>
@@ -69,36 +72,45 @@
 		<tr>
 			<th>Titolo</th>
 			<th>Artista</th>
-			<th></th>
+			{#if !online}
+				<th></th>
+			{/if}
 		</tr>
 	</thead>
 	<tbody>
 		{#each filtered as s (s.file)}
 			<tr data-testid="song-row">
 				<td>
-					<a href={`/edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`}>
+					<a href={`${base}/edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`}>
 						{s.title}
 					</a>
+					{#if online && getPending(`canzoni/${s.category}/${s.file}`)}
+						<span class="edited" title="Modificato su questo dispositivo, in attesa di invio">
+							● modificato
+						</span>
+					{/if}
 				</td>
 				<td>{s.artist}</td>
-				<td class="actions">
-					<select
-						class="move"
-						value=""
-						data-testid="move-select"
-						onchange={(e) => {
-							const v = e.currentTarget.value;
-							e.currentTarget.value = '';
-							if (v) move(s.file, v);
-						}}
-					>
-						<option value="" disabled>Sposta in…</option>
-						{#each data.categories.filter((c) => c !== data.category) as c (c)}
-							<option value={c}>{categoryLabel(c)}</option>
-						{/each}
-					</select>
-					<button class="btn danger" onclick={() => remove(s.file, s.title)}>Elimina</button>
-				</td>
+				{#if !online}
+					<td class="actions">
+						<select
+							class="move"
+							value=""
+							data-testid="move-select"
+							onchange={(e) => {
+								const v = e.currentTarget.value;
+								e.currentTarget.value = '';
+								if (v) move(s.file, v);
+							}}
+						>
+							<option value="" disabled>Sposta in…</option>
+							{#each data.categories.filter((c) => c !== data.category) as c (c)}
+								<option value={c}>{categoryLabel(c)}</option>
+							{/each}
+						</select>
+						<button class="btn danger" onclick={() => remove(s.file, s.title)}>Elimina</button>
+					</td>
+				{/if}
 			</tr>
 		{/each}
 	</tbody>
@@ -128,6 +140,13 @@
 	.count {
 		color: #777;
 		font-size: 0.85rem;
+	}
+	.edited {
+		color: #b54708;
+		font-size: 0.78rem;
+		font-weight: 600;
+		margin-left: 0.4rem;
+		white-space: nowrap;
 	}
 	table {
 		width: 100%;

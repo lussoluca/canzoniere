@@ -31,6 +31,13 @@ runs:
       shell: bash
       run: cd editor && npm test
 
+    - name: Build editor (online mode)
+      shell: bash
+      env:
+        BASE_PATH: /canzoniere/editor
+        VITE_ONLINE: '1'
+      run: cd editor && npm run build
+
     - name: Install reader dependencies
       shell: bash
       run: cd reader && npm ci
