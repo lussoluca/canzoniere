@@ -33,8 +33,8 @@
 		da <strong>Luca Lusso</strong>.
 	</p>
 	<p class="muted">
-		Segnalazioni, correzioni e richieste di nuovi canti sono benvenute:
-		<a href={feedbackHref('Commenti e suggerimenti sul canzoniere')}>{FEEDBACK_EMAIL}</a>.
+		Segnalazioni, correzioni e richieste di nuovi canti sono benvenute: usa la pagina
+		<a href="{base}/suggerimenti/">Commenti e suggerimenti</a>.
 	</p>
 </div>
 
