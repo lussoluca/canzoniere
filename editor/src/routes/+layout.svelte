@@ -1,5 +1,7 @@
 <script lang="ts">
-	const favicon = '/logo.png';
+	import { base } from '$app/paths';
+	import { online } from '$lib/online';
+	import { pendingCount } from '$lib/pending.svelte';
 
 	let { children } = $props();
 
@@ -10,20 +12,27 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" href="{base}/logo.png" />
 	<title>Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <header class="topbar">
-	<a href="/" class="brand">
-		<img class="logo" src="/logo.png" alt="" />
+	<a href="{base}/" class="brand">
+		<img class="logo" src="{base}/logo.png" alt="" />
 		Canzoniere Alessandria 2
 	</a>
 	<nav>
-		<a href="/">Canzoni</a>
-		<a href="/songbooks">Canzonieri</a>
-		<a href="/categories">Categorie</a>
-		<a href="/help">Guida</a>
+		<a href="{base}/">Canzoni</a>
+		{#if online}
+			<a href="{base}/invia" class="send" data-testid="nav-invia">
+				Invia modifiche{#if pendingCount() > 0}&nbsp;<span class="badge">{pendingCount()}</span
+					>{/if}
+			</a>
+		{:else}
+			<a href="{base}/songbooks">Canzonieri</a>
+			<a href="{base}/categories">Categorie</a>
+		{/if}
+		<a href="{base}/help">Guida</a>
 	</nav>
 </header>
 
@@ -66,6 +75,21 @@
 	}
 	.topbar nav a:hover {
 		color: #fff;
+	}
+	.topbar nav a.send {
+		color: #ffd166;
+		font-weight: 600;
+	}
+	.badge {
+		display: inline-block;
+		min-width: 1.2em;
+		text-align: center;
+		background: #ffd166;
+		color: #2f3e46;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		font-weight: 700;
+		padding: 0.05rem 0.35rem;
 	}
 	.brand {
 		display: flex;

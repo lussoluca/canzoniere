@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { page } from '$app/state';
 	import { categoryLabel } from '$lib/categories';
 
@@ -29,7 +30,7 @@
 
 <div class="head">
 	<h2>Categorie</h2>
-	<a href="/new" class="btn primary" data-testid="new-song">+ Nuova canzone</a>
+	<a href="{base}/new" class="btn primary" data-testid="new-song">+ Nuova canzone</a>
 </div>
 
 <input
@@ -56,13 +57,13 @@
 			{#each filtered as s (s.category + '/' + s.file)}
 				<tr data-testid="song-row">
 					<td>
-						<a href={`/edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`}>
+						<a href={`${base}/edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`}>
 							{s.title}
 						</a>
 					</td>
 					<td>{s.artist}</td>
 					<td>
-						<a class="category" href={`/c/${encodeURIComponent(s.category)}`}>
+						<a class="category" href={`${base}/c/${encodeURIComponent(s.category)}`}>
 							{categoryLabel(s.category)}
 						</a>
 					</td>
@@ -73,7 +74,7 @@
 {:else}
 	<div class="folders">
 		{#each data.categories as c (c.category)}
-			<a href={`/c/${encodeURIComponent(c.category)}`} class="folder" data-testid="folder">
+			<a href={`${base}/c/${encodeURIComponent(c.category)}`} class="folder" data-testid="folder">
 				<span class="icon">📁</span>
 				<span class="name">{categoryLabel(c.category)}</span>
 				<span class="count">{c.count} canzoni</span>

@@ -43,11 +43,21 @@ jobs:
         npm ci
         npm run build
 
+    - name: Build editor app
+      env:
+        BASE_PATH: /canzoniere/editor
+        VITE_ONLINE: '1'
+      run: |
+        cd editor
+        npm ci
+        npm run build
+
     - name: Prepare public directory
       run: |
         mkdir -p public/canzonieri
         cp canzoniere.pdf public/
         cp -r reader/build public/app
+        cp -r editor/build public/editor
 
     - name: Build event songbooks
       run: |

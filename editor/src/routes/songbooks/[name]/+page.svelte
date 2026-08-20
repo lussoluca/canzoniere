@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { categoryLabel } from '$lib/categories';
 
 	let { data } = $props();
@@ -41,7 +42,7 @@
 		saving = true;
 		status = '';
 		try {
-			const res = await fetch(`/api/songbooks/${encodeURIComponent(data.name)}`, {
+			const res = await fetch(`${base}/api/songbooks/${encodeURIComponent(data.name)}`, {
 				method: 'PUT',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ entries: $state.snapshot(entries) })
@@ -56,7 +57,7 @@
 	}
 </script>
 
-<nav class="crumbs"><a href="/songbooks">Canzonieri</a> / {data.name}</nav>
+<nav class="crumbs"><a href="{base}/songbooks">Canzonieri</a> / {data.name}</nav>
 
 <div class="head">
 	<h2>{data.name}</h2>

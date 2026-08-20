@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { goto, invalidateAll } from '$app/navigation';
 
 	let { data } = $props();
@@ -13,13 +14,13 @@
 		creating = true;
 		createError = '';
 		try {
-			const res = await fetch('/api/songbooks', {
+			const res = await fetch(`${base}/api/songbooks`, {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ name, entries: [] })
 			});
 			if (!res.ok) throw new Error((await res.json()).message ?? res.statusText);
-			await goto(`/songbooks/${encodeURIComponent(name)}`);
+			await goto(`${base}/songbooks/${encodeURIComponent(name)}`);
 		} catch (e) {
 			createError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -29,7 +30,7 @@
 
 	async function remove(name: string) {
 		if (!confirm(`Eliminare il canzoniere "${name}"?`)) return;
-		const res = await fetch(`/api/songbooks/${encodeURIComponent(name)}`, { method: 'DELETE' });
+		const res = await fetch(`${base}/api/songbooks/${encodeURIComponent(name)}`, { method: 'DELETE' });
 		if (!res.ok) {
 			alert("Errore durante l'eliminazione");
 			return;
@@ -65,7 +66,7 @@
 	<tbody>
 		{#each data.songbooks as b (b.name)}
 			<tr data-testid="songbook-row">
-				<td><a href={`/songbooks/${encodeURIComponent(b.name)}`}>{b.name}</a></td>
+				<td><a href={`${base}/songbooks/${encodeURIComponent(b.name)}`}>{b.name}</a></td>
 				<td>{b.count}</td>
 				<td class="actions">
 					<button class="btn danger" onclick={() => remove(b.name)}>Elimina</button>

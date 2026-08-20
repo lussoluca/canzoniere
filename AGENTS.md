@@ -24,11 +24,14 @@ The `editor/` directory contains a SvelteKit (Svelte 5) app:
 - Chord tools, available in both tabs: convert english chord names to latin (`Am` → `Lam`) and transpose all chords ±1 semitone.
 - Canzonieri section: list/create/delete the event songbooks in `canzonieri/` and edit each one (add/remove/reorder songs, resolved to titles; saving writes the `.txt` in the format consumed by the Go tool).
 
+Online mode (`VITE_ONLINE=1` at build time): the same app builds statically with `adapter-static` — every page is prerendered, the server loads read `../canzoni` at build time — and is deployed by CI to GitHub Pages under `/canzoniere/editor/`. Saving queues the song in localStorage (`$lib/pending.svelte.ts`) instead of calling the local `/api` routes; the "Invia modifiche" page (`/invia`) ships the queue to the backend's `POST /api/songs/batch` with the shared editor password (`X-Editor-Key`) and links the resulting pull request. Reopening a queued song shows the local version. Management operations (categories, songbooks, move/delete) are local-only and hidden online.
+
 Commands:
 
 - Run: `cd editor && npm install && npm run dev` (or `make dev` from the repo root)
 - E2E tests (Playwright, isolated in `editor/e2e/.tmp-songs` and `editor/e2e/.tmp-songbooks`, never touch real data): `cd editor && npm test`
-- Env overrides: `SONGS_DIR` (default `../canzoni`), `SONGBOOKS_DIR` (default `../canzonieri`).
+- Online build: `cd editor && VITE_ONLINE=1 BASE_PATH=/canzoniere/editor npm run build`
+- Env overrides: `SONGS_DIR` (default `../canzoni`), `SONGBOOKS_DIR` (default `../canzonieri`), `VITE_API_BASE` (backend URL in online mode).
 
 ## Web reader
 
