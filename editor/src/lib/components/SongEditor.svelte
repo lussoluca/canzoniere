@@ -10,6 +10,7 @@
 	import { slugify } from '$lib/slug';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
+	import LineByLineEditor from './LineByLineEditor.svelte';
 	import TagInput from './TagInput.svelte';
 	import ChordDiagram from '../../../../shared/ChordDiagram.svelte';
 
@@ -129,7 +130,18 @@
 	// behind this toggle instead of crowding every line.
 	let showLineTools = $state(false);
 
+	// On screens up to an iPhone in landscape the whole-sheet editor is too
+	// cramped for chord work, so the visual tab defaults to the line-by-line
+	// mode; the toggle lets the user go back to the full sheet.
+	let compact = $state(false);
+	let lineModePref: boolean | null = $state(null);
+	let lineMode = $derived(compact && (lineModePref ?? true));
+
 	onMount(() => {
+		const mq = window.matchMedia('(max-width: 950px)');
+		compact = mq.matches;
+		const onMq = () => (compact = mq.matches);
+		mq.addEventListener('change', onMq);
 		// A new song needs its (required) title typed in, so the form stays open.
 		if (mode === 'edit' && window.matchMedia('(max-width: 900px)').matches) metaOpen = false;
 
@@ -155,6 +167,7 @@
 		window.addEventListener('keydown', keyHandler);
 
 		return () => {
+			mq.removeEventListener('change', onMq);
 			window.removeEventListener('beforeunload', handler);
 			window.removeEventListener('keydown', keyHandler);
 		};
@@ -482,6 +495,18 @@
 			+1
 		</button>
 	</span>
+	{#if compact && tab === 'visual'}
+		<button
+			class="btn line-mode-toggle"
+			class:toggled={lineMode}
+			onclick={() => (lineModePref = !lineMode)}
+			aria-pressed={lineMode}
+			title="Inserisci gli accordi una riga alla volta"
+			data-testid="line-mode-toggle"
+		>
+			≡ Riga per riga
+		</button>
+	{/if}
 	<button
 		class="btn line-tools-toggle"
 		class:toggled={showLineTools}
@@ -535,7 +560,9 @@
 	</span>
 {/snippet}
 
-{#if tab === 'visual'}
+{#if tab === 'visual' && lineMode}
+	<LineByLineEditor bind:song {usedChords} {displayChord} />
+{:else if tab === 'visual'}
 	<div class="visual-layout">
 	<div class="sheet" class:show-tools={showLineTools} data-testid="visual-editor">
 		{#if song.lines.length === 0}
@@ -706,6 +733,10 @@
 		align-items: center;
 		gap: 0.4rem;
 		margin-left: auto;
+	}
+	.line-mode-toggle.toggled {
+		background: #2f3e46;
+		color: #ffd166;
 	}
 	/* The «Righe» toggle exists only where hover does not. */
 	.line-tools-toggle {

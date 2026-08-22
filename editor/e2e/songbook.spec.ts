@@ -566,3 +566,99 @@ test('song tags: add with normalization, save as x_tag, autocomplete on existing
 	await page.getByTestId('tag-remove').click();
 	await expect(page.getByTestId('tag-chip')).toHaveCount(0);
 });
+
+// --- line-by-line chord mode (small screens) ---
+
+const FOCUS_SEED = `{title:Prova riga per riga}
+{tag:Varie}
+
+[Do]Alza gli occhi verso il cielo
+e respira il vento nuovo
+canta forte la tua gioia
+`;
+
+function seedFocusSong() {
+	fs.writeFileSync(path.join(TMP, 'varie', 'prova_riga_per_riga.cho'), FOCUS_SEED, 'utf-8');
+}
+
+test('small screens: the visual tab opens in line-by-line mode, tap places chords', async ({
+	page
+}) => {
+	seedFocusSong();
+	await page.setViewportSize({ width: 852, height: 393 }); // iPhone 15 landscape
+	await goto(page, '/edit/varie/prova_riga_per_riga.cho');
+
+	// the line-by-line mode replaces the whole-sheet editor
+	await expect(page.getByTestId('line-mode')).toBeVisible();
+	await expect(page.getByTestId('visual-editor')).toHaveCount(0);
+	await expect(page.getByTestId('line-counter')).toHaveText('1 / 3');
+
+	// the palette lists the chords already in the song
+	const chips = page.getByTestId('palette-chip');
+	await expect(chips).toHaveCount(1);
+	await expect(chips.first()).toHaveText('Do');
+
+	// add a new chord to the palette; it comes back armed (selected)
+	await page.getByTestId('palette-add-input').fill('Sol');
+	await page.getByTestId('palette-add').click();
+	await expect(chips).toHaveCount(2);
+
+	// tap a character: the armed chord lands there ("Alza " -> before "gli")
+	await page.getByTestId('focus-text').locator('button[data-pos="5"]').click();
+	await expect(page.getByTestId('focus-pill').nth(1)).toHaveText('Sol');
+	await expect(page.getByTestId('focus-pill').nth(1)).toHaveAttribute('data-pos', '5');
+
+	// next line: the counter advances and the palette chord can be re-placed by tap
+	await page.getByTestId('next-line').click();
+	await expect(page.getByTestId('line-counter')).toHaveText('2 / 3');
+	await expect(page.getByTestId('focus-pill')).toHaveCount(0);
+	await chips.first().click(); // arm Do
+	await page.getByTestId('focus-text').locator('button[data-pos="0"]').click();
+	await expect(page.getByTestId('focus-pill')).toHaveText('Do');
+
+	// save and verify the generated chordpro
+	await page.getByTestId('save').click();
+	await expect(page.getByTestId('save-status')).toHaveText('Salvato ✓');
+	const content = fs.readFileSync(path.join(TMP, 'varie', 'prova_riga_per_riga.cho'), 'utf-8');
+	expect(content).toContain('[Do]Alza [Sol]gli occhi verso il cielo');
+	expect(content).toContain('[Do]e respira il vento nuovo');
+});
+
+test('small screens: drag a chord from the palette onto the line', async ({ page }) => {
+	seedFocusSong();
+	await page.setViewportSize({ width: 852, height: 393 });
+	await goto(page, '/edit/varie/prova_riga_per_riga.cho');
+	await expect(page.getByTestId('line-mode')).toBeVisible();
+
+	// drag the Do chip onto "verso" (pos 15)
+	const chip = page.getByTestId('palette-chip').first();
+	const chipBox = await chip.boundingBox();
+	const target = await page.getByTestId('focus-text').locator('button[data-pos="15"]').boundingBox();
+	await page.mouse.move(chipBox!.x + chipBox!.width / 2, chipBox!.y + chipBox!.height / 2);
+	await page.mouse.down();
+	await page.mouse.move(target!.x + 2, target!.y + target!.height / 2, { steps: 10 });
+	await page.mouse.up();
+
+	const pills = page.getByTestId('focus-pill');
+	await expect(pills).toHaveCount(2);
+	await expect(pills.nth(1)).toHaveAttribute('data-pos', '15');
+
+	// tap the new pill: the popover can remove it
+	await pills.nth(1).click();
+	await page.getByTestId('focus-chord-remove').click();
+	await expect(pills).toHaveCount(1);
+});
+
+test('small screens: the toggle switches back to the whole-sheet editor', async ({ page }) => {
+	seedFocusSong();
+	await page.setViewportSize({ width: 852, height: 393 });
+	await goto(page, '/edit/varie/prova_riga_per_riga.cho');
+	await expect(page.getByTestId('line-mode')).toBeVisible();
+
+	await page.getByTestId('line-mode-toggle').click();
+	await expect(page.getByTestId('visual-editor')).toBeVisible();
+	await expect(page.getByTestId('line-mode')).toHaveCount(0);
+
+	await page.getByTestId('line-mode-toggle').click();
+	await expect(page.getByTestId('line-mode')).toBeVisible();
+});
