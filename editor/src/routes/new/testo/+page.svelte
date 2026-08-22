@@ -105,16 +105,17 @@
 
 {#if category}
 	<div class="form" data-testid="simple-form">
+		<p class="legend"><span class="req">*</span> campo obbligatorio</p>
 		<label>
-			Titolo <span class="req">(obbligatorio)</span>
+			<span class="lbl">Titolo <span class="req">*</span></span>
 			<input bind:value={title} data-testid="simple-title" />
 		</label>
 		<label>
-			Artista <span class="opt">(facoltativo)</span>
+			<span class="lbl">Artista</span>
 			<input bind:value={artist} data-testid="simple-artist" />
 		</label>
 		<label>
-			Categoria
+			<span class="lbl">Categoria</span>
 			<select bind:value={category} data-testid="simple-category">
 				{#each data.categories as c (c)}
 					<option value={c}>{categoryLabel(c)}</option>
@@ -125,11 +126,11 @@
 			class="tags-field"
 			title="Tag liberi per la ricerca nel reader (es. #omelia). Suggerisce quelli già usati."
 		>
-			Tag <span class="opt">(facoltativo)</span>
+			<span class="lbl">Tag</span>
 			<TagInput bind:tags={labels} suggestions={data.allTags} />
 		</label>
 		<label>
-			Colonne <span class="opt">(facoltativo)</span>
+			<span class="lbl">Colonne</span>
 			<input
 				type="number"
 				min="1"
@@ -143,7 +144,7 @@
 			/>
 		</label>
 		<label title="Velocità iniziale dello scorrimento automatico nel reader (1–10). Vuoto = predefinito.">
-			Scorrimento <span class="opt">(facoltativo)</span>
+			<span class="lbl">Scorrimento</span>
 			<input
 				type="number"
 				min="1"
@@ -158,7 +159,7 @@
 			/>
 		</label>
 		<label class="text-field">
-			Testo <span class="req">(obbligatorio)</span>
+			<span class="lbl">Testo <span class="req">*</span></span>
 			<textarea
 				bind:value={text}
 				rows="14"
@@ -199,13 +200,14 @@
 		font-weight: 600;
 		color: #555;
 	}
+	.legend {
+		grid-column: 1 / -1;
+		margin: 0;
+		color: #999;
+		font-size: 0.8rem;
+	}
 	.req {
 		color: #b3261e;
-		font-weight: 400;
-	}
-	.opt {
-		color: #999;
-		font-weight: 400;
 	}
 	input,
 	select,
