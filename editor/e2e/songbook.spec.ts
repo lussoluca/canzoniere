@@ -643,7 +643,24 @@ test('small screens: drag a chord from the palette onto the line', async ({ page
 	await expect(pills).toHaveCount(2);
 	await expect(pills.nth(1)).toHaveAttribute('data-pos', '15');
 
-	// tap the new pill: the popover can remove it
+	// tap the new pill: the action bar appears (no text input, the phone keyboard stays closed)
+	await pills.nth(1).click();
+	await expect(page.getByTestId('pill-actions')).toBeVisible();
+	expect(await page.locator('input:focus').count()).toBe(0);
+
+	// with the pill selected, a tap on a character moves it there
+	await page.getByTestId('focus-text').locator('button[data-pos="20"]').click();
+	await expect(pills.nth(1)).toHaveAttribute('data-pos', '20');
+	await expect(page.getByTestId('pill-actions')).toHaveCount(0);
+
+	// with the pill selected, a tap on a palette chip replaces the chord
+	await page.getByTestId('palette-add-input').fill('Mim');
+	await page.getByTestId('palette-add').click();
+	await pills.nth(1).click();
+	await page.getByTestId('palette-chip').nth(1).click();
+	await expect(pills.nth(1)).toHaveText('Mim');
+
+	// the remove button deletes the selected pill
 	await pills.nth(1).click();
 	await page.getByTestId('focus-chord-remove').click();
 	await expect(pills).toHaveCount(1);

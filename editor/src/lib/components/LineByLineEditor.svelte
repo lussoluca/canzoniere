@@ -87,6 +87,10 @@
 			if (dropPos !== null && line) {
 				line.chords.push({ pos: dropPos, chord });
 			}
+		} else if (editingIdx !== null && line) {
+			// a pill is selected: the tapped chord replaces it
+			line.chords[editingIdx].chord = chord;
+			editingIdx = null;
 		} else {
 			// a plain tap arms the chord: the next tap on a character places it
 			selected = selected === chord ? null : chord;
@@ -95,10 +99,15 @@
 		dropPos = null;
 	}
 
-	// tap on a character: place the armed chord there
+	// tap on a character: move the selected pill there, or place the armed chord
 	function placeAt(pos: number) {
-		if (!line || !selected) return;
-		line.chords.push({ pos, chord: selected });
+		if (!line) return;
+		if (editingIdx !== null) {
+			line.chords[editingIdx].pos = pos;
+			editingIdx = null;
+		} else if (selected) {
+			line.chords.push({ pos, chord: selected });
+		}
 	}
 
 	// --- edit/move the pills already on the line (same gestures as the full editor) ---
@@ -125,44 +134,18 @@
 		if (!wasDrag) openEditChord(idx);
 	}
 
-	// --- popover to change or remove an existing chord ---
+	// --- selected pill: no text input here, so the phone keyboard stays closed;
+	// the palette replaces the chord, a character tap moves it, a button removes it
 	let editingIdx: number | null = $state(null);
-	let chordInput = $state('');
-	let chordError = $state(false);
-	let inputEl: HTMLInputElement | undefined = $state();
 
 	function openEditChord(idx: number) {
-		editingIdx = idx;
-		chordInput = line!.chords[idx].chord;
-		chordError = false;
-		queueMicrotask(() => inputEl?.select());
-	}
-
-	function commitChord() {
-		if (editingIdx === null || !line) return;
-		const value = sanitizeChord(chordInput);
-		if (value !== '' && !isValidChord(value)) {
-			chordError = true;
-			inputEl?.focus();
-			return;
-		}
-		if (value === '') {
-			line.chords.splice(editingIdx, 1);
-		} else {
-			line.chords[editingIdx].chord = value;
-		}
-		closePopover();
+		editingIdx = editingIdx === idx ? null : idx;
+		selected = null;
 	}
 
 	function removeChord() {
 		if (editingIdx !== null && line) line.chords.splice(editingIdx, 1);
-		closePopover();
-	}
-
-	function closePopover() {
 		editingIdx = null;
-		chordInput = '';
-		chordError = false;
 	}
 
 	// --- inline lyric text editing ---
@@ -272,7 +255,8 @@
 						<span class="chord-anchor" style={`left: ${c.left}ch`}>
 							<button
 								class="chord-pill"
-								title="Tocca per modificare, trascina per spostare"
+								class:editing={editingIdx === c.idx}
+								title="Tocca per selezionare, trascina per spostare"
 								data-testid="focus-pill"
 								data-pos={c.pos}
 								onpointerdown={(e) => pillPointerDown(e, c.idx)}
@@ -283,31 +267,6 @@
 							</button>
 						</span>
 					{/each}
-					{#if editingIdx !== null}
-						<div class="chord-popover" data-testid="focus-chord-popover">
-							<input
-								bind:this={inputEl}
-								bind:value={chordInput}
-								oninput={() => (chordError = false)}
-								onkeydown={(e) => {
-									if (e.key === 'Enter') {
-										e.preventDefault();
-										commitChord();
-									} else if (e.key === 'Escape') closePopover();
-								}}
-								class:invalid={chordError}
-								placeholder="Accordo"
-								data-testid="focus-chord-input"
-							/>
-							<button class="ok" onclick={commitChord} data-testid="focus-chord-save" title="Conferma">
-								✓
-							</button>
-							<button class="del" onclick={removeChord} data-testid="focus-chord-remove" title="Rimuovi">
-								✕
-							</button>
-							<button class="cancel" onclick={closePopover} title="Annulla">esc</button>
-						</div>
-					{/if}
 				</div>
 
 				{#if editingText}
@@ -328,7 +287,7 @@
 							<button
 								class="char"
 								class:drop={dropPos === i}
-								class:armed={selected !== null}
+								class:armed={selected !== null || editingIdx !== null}
 								data-pos={i}
 								onclick={() => placeAt(i)}
 								title={selected ? `Inserisci ${selected} qui` : undefined}
@@ -339,7 +298,7 @@
 						<button
 							class="char tail"
 							class:drop={dropPos === line.text.length}
-							class:armed={selected !== null}
+							class:armed={selected !== null || editingIdx !== null}
 							data-pos={line.text.length}
 							onclick={() => placeAt(line.text.length)}
 							title={selected ? `Inserisci ${selected} a fine riga` : undefined}
@@ -359,13 +318,29 @@
 			</div>
 
 			<div class="context" data-testid="context-next">{preview(song.lines[lineIdx + 1])}</div>
+
+			{#if editingIdx !== null && line.chords[editingIdx]}
+				<div class="pill-actions" data-testid="pill-actions">
+					<strong>{displayChord(line.chords[editingIdx].chord)}</strong>
+					<span class="pill-hint">
+						tocca un accordo in alto per sostituirlo, una lettera per spostarlo
+					</span>
+					<button class="remove" onclick={removeChord} data-testid="focus-chord-remove">
+						✕ Rimuovi
+					</button>
+					<button class="cancel" onclick={() => (editingIdx = null)} title="Annulla">✓ Fatto</button>
+				</div>
+			{/if}
 		</div>
 
 		<div class="nav">
 			<span class="counter" data-testid="line-counter">{cursor + 1} / {lyricIdxs.length}</span>
 			<button
 				class="nav-btn"
-				onclick={() => (cursor = Math.max(0, cursor - 1))}
+				onclick={() => {
+					editingIdx = null;
+					cursor = Math.max(0, cursor - 1);
+				}}
 				disabled={cursor === 0}
 				title="Riga precedente"
 				data-testid="prev-line"
@@ -374,7 +349,10 @@
 			</button>
 			<button
 				class="nav-btn primary"
-				onclick={() => (cursor = Math.min(lyricIdxs.length - 1, cursor + 1))}
+				onclick={() => {
+					editingIdx = null;
+					cursor = Math.min(lyricIdxs.length - 1, cursor + 1);
+				}}
 				disabled={cursor >= lyricIdxs.length - 1}
 				title="Riga successiva"
 				data-testid="next-line"
@@ -516,46 +494,46 @@
 		user-select: none;
 		-webkit-user-select: none;
 	}
-	.chord-popover {
-		position: absolute;
-		top: -0.2em;
-		left: 0;
+	.chord-pill.editing {
+		outline: 2px solid #b54708;
+		outline-offset: 1px;
+	}
+	.pill-actions {
 		display: flex;
-		gap: 4px;
-		background: #fff;
-		border: 1px solid #2f3e46;
-		border-radius: 6px;
-		padding: 4px;
-		z-index: 5;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-		font-size: 0.8em;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 0.5rem;
+		padding: 0.4rem 0.6rem;
+		background: #f6f3ec;
+		border: 1px solid #e4ddcf;
+		border-radius: 8px;
+		font-size: 0.85rem;
 	}
-	.chord-popover input {
-		width: 7ch;
-		font-family: inherit;
-		font-size: 1em;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 2px 4px;
+	.pill-actions strong {
+		font-family: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+		color: #2f3e46;
 	}
-	.chord-popover input.invalid {
-		border-color: #e5383b;
-		background: #fbeae9;
+	.pill-hint {
+		color: #999;
+		font-size: 0.75rem;
+		flex: 1;
+		min-width: 0;
 	}
-	.chord-popover button {
+	.pill-actions button {
+		flex-shrink: 0;
 		border: none;
-		border-radius: 4px;
+		border-radius: 6px;
 		cursor: pointer;
-		padding: 2px 8px;
+		font-size: 0.85rem;
+		padding: 0.35rem 0.6rem;
 	}
-	.chord-popover .ok {
-		background: #d8f3dc;
-	}
-	.chord-popover .del {
+	.pill-actions .remove {
 		background: #fbeae9;
+		color: #b02a2e;
 	}
-	.chord-popover .cancel {
+	.pill-actions .cancel {
 		background: #eee;
+		color: #444;
 	}
 	.text-row {
 		white-space: nowrap;
