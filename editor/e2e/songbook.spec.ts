@@ -62,9 +62,13 @@ test('global search from the home page finds songs across all categories', async
 test('create a song with the visual editor and verify the generated chordpro file', async ({
 	page
 }) => {
-	// from the category page: the new-song link preselects the category
+	// from the category page: the new-song link opens the simplified page with
+	// the category preselected, the full-editor link keeps it
 	await goto(page, '/c/reparto');
 	await page.getByTestId('new-song').click();
+	await page.locator('body[data-hydrated]').waitFor();
+	await expect(page.getByTestId('simple-category')).toHaveValue('reparto');
+	await page.getByTestId('full-editor').click();
 	await page.locator('body[data-hydrated]').waitFor();
 	await expect(page.getByTestId('meta-category')).toHaveValue('reparto');
 
@@ -130,6 +134,43 @@ con la sua melodia
 	await page.reload();
 	await expect(page.getByTestId('chord-pill')).toHaveCount(3);
 	await expect(page.getByTestId('meta-title')).toHaveValue('Canzone di Prova');
+});
+
+test('create a song from the simplified page and land in the full editor', async ({ page }) => {
+	await goto(page, '/c/varie');
+	await page.getByTestId('new-song').click();
+	await page.locator('body[data-hydrated]').waitFor();
+	await expect(page.getByTestId('simple-category')).toHaveValue('varie');
+
+	// title and text are required, everything else is optional
+	await page.getByTestId('simple-save').click();
+	await expect(page.getByTestId('simple-status')).toHaveText('Il titolo è obbligatorio');
+	await page.getByTestId('simple-title').fill('Canto Semplice');
+	await page.getByTestId('simple-save').click();
+	await expect(page.getByTestId('simple-status')).toHaveText('Il testo è obbligatorio');
+
+	await page.getByTestId('simple-artist').fill('Il Branco');
+	await page
+		.getByTestId('simple-text')
+		.fill('Prima riga del canto\nseconda riga\n\nSeconda strofa qui');
+
+	// save: creates the file and opens the full editor on it
+	await page.getByTestId('simple-save').click();
+	await page.waitForURL('**/edit/varie/canto_semplice.cho');
+	await expect(page.getByTestId('lyric-line')).toHaveCount(3);
+
+	const content = fs.readFileSync(path.join(TMP, 'varie', 'canto_semplice.cho'), 'utf-8');
+	expect(content).toBe(
+		`{title:Canto Semplice}
+{artist:Il Branco}
+{tag:Varie}
+
+Prima riga del canto
+seconda riga
+
+Seconda strofa qui
+`
+	);
 });
 
 test('edit an existing chord and move one by dragging', async ({ page }) => {

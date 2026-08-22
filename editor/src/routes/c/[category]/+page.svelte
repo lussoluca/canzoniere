@@ -57,11 +57,11 @@
 		data-testid="search"
 	/>
 	<a
-		href={`${base}/new?category=${encodeURIComponent(data.category)}`}
+		href={`${base}/new/testo?category=${encodeURIComponent(data.category)}`}
 		class="btn primary"
 		data-testid="new-song"
 	>
-		+ Nuova canzone
+		+ Aggiungi un testo
 	</a>
 </div>
 
