@@ -30,7 +30,7 @@
 
 <div class="head">
 	<h2>Categorie</h2>
-	<a href="{base}/new" class="btn primary" data-testid="new-song">+ Nuova canzone</a>
+	<a href="{base}/new/testo" class="btn primary" data-testid="new-song">+ Aggiungi un testo</a>
 </div>
 
 <input
