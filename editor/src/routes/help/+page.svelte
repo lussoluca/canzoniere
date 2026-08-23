@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { base } from '$app/paths';
+</script>
+
 <svelte:head>
 	<title>Guida · Canzoniere</title>
 </svelte:head>
@@ -11,12 +15,24 @@
 	</p>
 
 	<nav class="toc">
+		<a href="#video">Video</a>
 		<a href="#canzoni">Canzoni</a>
 		<a href="#editor">Editor della canzone</a>
 		<a href="#accordi">Strumenti per gli accordi</a>
 		<a href="#categorie">Categorie</a>
 		<a href="#canzonieri">Canzonieri</a>
 	</nav>
+
+	<section id="video">
+		<h3>Video: aggiungere una canzone</h3>
+		<p>
+			Un minuto di video che mostra come aggiungere una canzone con l'editor semplificato, dal
+			titolo fino all'invio in revisione. Le istruzioni sono scritte e lette a voce.
+		</p>
+		<!-- svelte-ignore a11y_media_has_caption -->
+		<video class="guide-video" controls playsinline preload="metadata" src="{base}/aggiungi-un-testo.mp4"
+		></video>
+	</section>
 
 	<section id="canzoni">
 		<h3>Canzoni</h3>
@@ -232,5 +248,12 @@
 	}
 	.warn {
 		color: #b3261e;
+	}
+	.guide-video {
+		display: block;
+		width: 100%;
+		max-width: 320px;
+		border-radius: 12px;
+		box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
 	}
 </style>
