@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { refreshAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { categoryLabel } from '#lib/categories.js';
 	import { online } from '#lib/online.js';
@@ -28,7 +28,7 @@
 			alert('Errore durante lo spostamento');
 			return;
 		}
-		await invalidateAll();
+		await refreshAll();
 	}
 
 	async function remove(file: string, title: string) {
@@ -40,7 +40,7 @@
 			alert("Errore durante l'eliminazione");
 			return;
 		}
-		await invalidateAll();
+		await refreshAll();
 	}
 </script>
 

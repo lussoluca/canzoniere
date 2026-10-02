@@ -1,0 +1,13 @@
+{
+	"name": "@canzoniere/shared",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"exports": {
+		"./ChordDiagram.svelte": {
+			"svelte": "./ChordDiagram.svelte",
+			"default": "./ChordDiagram.svelte"
+		},
+		"./*": "./*.ts"
+	}
+}

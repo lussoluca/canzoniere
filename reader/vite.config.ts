@@ -14,9 +14,7 @@ export default defineConfig({
 			serviceWorker: { register: false },
 			// BASE_PATH is set by CI when the app is deployed under a sub-path
 			// (e.g. /canzoniere/app on GitHub Pages); empty for local dev.
-			paths: { base: process.env.BASE_PATH ?? '' },
-			// Chord/ChordPro logic is shared with the editor app.
-			alias: { $songlib: '../shared' }
+			paths: { base: process.env.BASE_PATH ?? '' }
 		})
 	],
 	server: {

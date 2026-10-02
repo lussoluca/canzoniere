@@ -3,7 +3,7 @@
 // on the guitar: 6ª = the lowest (thickest), 1ª = the highest (thinnest);
 // ChordPro's frets array goes from the 6th string to the 1st.
 
-import { getChordDefinition } from '$songlib/diagrams';
+import { getChordDefinition } from '@canzoniere/shared/diagrams';
 
 const STRING_SHORT = ['Mi basso', 'La', 'Re', 'Sol', 'Si', 'Mi cantino'];
 

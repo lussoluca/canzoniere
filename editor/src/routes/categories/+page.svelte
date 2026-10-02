@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { invalidateAll } from '$app/navigation';
+	import { refreshAll } from '$app/navigation';
 	import { categoryLabel, isValidCategoryName } from '#lib/categories.js';
 	import { slugify } from '#lib/slug.js';
 
@@ -31,7 +31,7 @@
 			});
 			if (!res.ok) throw new Error((await res.json()).message ?? res.statusText);
 			newName = '';
-			await invalidateAll();
+			await refreshAll();
 		} catch (e) {
 			createError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -69,7 +69,7 @@
 			});
 			if (!res.ok) throw new Error((await res.json()).message ?? res.statusText);
 			cancelEdit();
-			await invalidateAll();
+			await refreshAll();
 		} catch (e) {
 			rowError = e instanceof Error ? e.message : String(e);
 		}
@@ -89,7 +89,7 @@
 			alert("Errore durante il riordino");
 			return;
 		}
-		await invalidateAll();
+		await refreshAll();
 	}
 
 	async function remove(category: string, count: number) {
@@ -126,7 +126,7 @@
 			alert((await res.json()).message ?? "Errore durante l'eliminazione");
 			return;
 		}
-		await invalidateAll();
+		await refreshAll();
 	}
 </script>
 

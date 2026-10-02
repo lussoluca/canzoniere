@@ -21,6 +21,7 @@
 		"vite": "^8.3.2"
 	},
 	"dependencies": {
+		"@canzoniere/shared": "file:../shared",
 		"jsqr": "^1.4.0",
 		"qrcode-generator": "^2.0.4"
 	},

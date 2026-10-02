@@ -2,7 +2,7 @@
 	// Two chords side by side and what the left hand actually does to go from one
 	// to the other: which fingers stay down (the pivot), which slide, which come
 	// off. All of it is derived from the diagrams, so it matches the pictures.
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import {
 		chordVoicing,
 		moveSentence,

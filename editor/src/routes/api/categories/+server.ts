@@ -1,9 +1,9 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { listCategorySummaries, createCategory, setCategoryOrder } from '#lib/server/songs.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-	return json({ categories: await listCategorySummaries() });
+	return Response.json({ categories: await listCategorySummaries() });
 };
 
 // persist the manual category order
@@ -13,7 +13,7 @@ export const PUT: RequestHandler = async ({ request }) => {
 		error(400, 'order must be an array of category names');
 	}
 	await setCategoryOrder(order);
-	return json({ ok: true });
+	return Response.json({ ok: true });
 };
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -24,5 +24,5 @@ export const POST: RequestHandler = async ({ request }) => {
 	} catch (e) {
 		error(409, e instanceof Error ? e.message : 'create failed');
 	}
-	return json({ ok: true, name }, { status: 201 });
+	return Response.json({ ok: true, name }, { status: 201 });
 };

@@ -2,7 +2,7 @@
 // diagram to the pitch classes it should produce. The audio never leaves the
 // device: analysis happens in the browser via an AnalyserNode.
 
-import { getChordDefinition } from '$songlib/diagrams';
+import { getChordDefinition } from '@canzoniere/shared/diagrams';
 
 // standard tuning: MIDI note of each open string, from the 6th to the 1st
 const TUNING = [40, 45, 50, 55, 59, 64];
