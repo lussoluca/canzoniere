@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto, beforeNavigate } from '$app/navigation';
-	import { base } from '$app/paths';
-	import { online } from '$lib/online';
-	import { savePending, removePending } from '$lib/pending.svelte';
-	import { parse, serialize, type Song, type Line } from '$lib/chordpro';
-	import { categoryLabel } from '$lib/categories';
-	import { englishChordToLatin, simplifyChord, transposeChord } from '$lib/chords';
-	import { slugify } from '$lib/slug';
+	import { resolve } from '$app/paths';
+	import { online } from '#lib/online.js';
+	import { savePending, removePending } from '#lib/pending.svelte.js';
+	import { parse, serialize, type Song, type Line } from '#lib/chordpro.js';
+	import { categoryLabel } from '#lib/categories.js';
+	import { englishChordToLatin, simplifyChord, transposeChord } from '#lib/chords.js';
+	import { slugify } from '#lib/slug.js';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
 	import LineByLineEditor from './LineByLineEditor.svelte';
@@ -116,7 +116,9 @@
 		if (canRedo) restoreTo(histIdx + 1);
 	}
 
-	beforeNavigate(({ cancel }) => {
+	beforeNavigate(({ cancel, shallow }) => {
+		if (shallow) return;
+
 		if (dirty && !confirm('Ci sono modifiche non salvate. Vuoi davvero uscire?')) {
 			cancel();
 		}
@@ -140,7 +142,7 @@
 	onMount(() => {
 		const mq = window.matchMedia('(max-width: 950px)');
 		compact = mq.matches;
-		const onMq = () => (compact = mq.matches);
+		const onMq = () => compact = mq.matches;
 		mq.addEventListener('change', onMq);
 		// A new song needs its (required) title typed in, so the form stays open.
 		if (mode === 'edit' && window.matchMedia('(max-width: 900px)').matches) metaOpen = false;
@@ -159,7 +161,7 @@
 			if (k === 'z' && !e.shiftKey) {
 				e.preventDefault();
 				undo();
-			} else if ((k === 'z' && e.shiftKey) || k === 'y') {
+			} else if (k === 'z' && e.shiftKey || k === 'y') {
 				e.preventDefault();
 				redo();
 			}
@@ -239,7 +241,7 @@
 	}
 
 	// a new tab starts as an empty six-string staff
-	const TAB_TEMPLATE = ['e|', 'B|', 'G|', 'D|', 'A|', 'E|'].map((s) => s + '-'.repeat(16) + '|').join('\n');
+	const TAB_TEMPLATE = ['e|', 'B|', 'G|', 'D|', 'A|', 'E|'].map((s) => s + ('-').repeat(16) + '|').join('\n');
 
 	// the kinds of line the add menu can insert
 	const lineTypes: { label: string; testid: string; make: () => Line }[] = [
@@ -281,34 +283,31 @@
 			if (mode === 'edit' && file) {
 				const moved = category !== savedCategory;
 				if (moved) {
-					const res = await fetch(
-						`${base}/api/songs/${encodeURIComponent(savedCategory)}/${encodeURIComponent(file)}`,
-						{
-							method: 'PATCH',
-							headers: { 'content-type': 'application/json' },
-							body: JSON.stringify({ category })
+					const res = await fetch(resolve(`api/songs/${encodeURIComponent(savedCategory)}/${encodeURIComponent(file)}`), {
+						method: 'PATCH',
+						headers: { 'content-type': 'application/json' },
+						body: JSON.stringify({ category })
 						}
 					);
 					if (!res.ok) throw new Error(await res.text());
 					savedCategory = category;
 				}
-				const res = await fetch(
-					`${base}/api/songs/${encodeURIComponent(category)}/${encodeURIComponent(file)}`,
-					{
-						method: 'PUT',
-						headers: { 'content-type': 'application/json' },
-						body: JSON.stringify({ content })
+
+				const res = await fetch(resolve(`api/songs/${encodeURIComponent(category)}/${encodeURIComponent(file)}`), {
+					method: 'PUT',
+					headers: { 'content-type': 'application/json' },
+					body: JSON.stringify({ content })
 					}
 				);
 				if (!res.ok) throw new Error(await res.text());
 				savedContent = content;
 				status = 'Salvato ✓';
 				if (moved) {
-					await goto(`${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`);
+					await goto(resolve(`edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`));
 				}
 			} else {
 				const newFile = slugify(song.meta.title) + '.cho';
-				const res = await fetch(`${base}/api/songs`, {
+				const res = await fetch(resolve(`api/songs`), {
 					method: 'POST',
 					headers: { 'content-type': 'application/json' },
 					body: JSON.stringify({ category, file: newFile, content })
@@ -316,7 +315,7 @@
 				if (!res.ok) throw new Error(await res.text());
 				savedContent = content;
 				status = 'Creato ✓';
-				await goto(`${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(newFile)}`);
+				await goto(resolve(`edit/${encodeURIComponent(category)}/${encodeURIComponent(newFile)}`));
 			}
 		} catch (e) {
 			status = `Errore: ${e instanceof Error ? e.message : e}`;
@@ -352,13 +351,13 @@
 	}
 </script>
 
-<svelte:window onclick={() => (openAddMenu = null)} />
+<svelte:window onclick={() => openAddMenu = null}></svelte:window>
 
 <div class="meta" data-testid="meta-form">
 	<button
 		type="button"
 		class="meta-toggle"
-		onclick={() => (metaOpen = !metaOpen)}
+		onclick={() => metaOpen = !metaOpen}
 		aria-expanded={metaOpen}
 		data-testid="meta-toggle"
 	>
@@ -463,7 +462,7 @@
 		<button
 			class="btn"
 			class:toggled={simplify}
-			onclick={() => (simplify = !simplify)}
+			onclick={() => simplify = !simplify}
 			aria-pressed={simplify}
 			title="Mostra gli accordi semplificati (triadi di base). Non modifica la canzone."
 			data-testid="simplify-toggle"
@@ -499,7 +498,7 @@
 		<button
 			class="btn line-mode-toggle"
 			class:toggled={lineMode}
-			onclick={() => (lineModePref = !lineMode)}
+			onclick={() => lineModePref = !lineMode}
 			aria-pressed={lineMode}
 			title="Inserisci gli accordi una riga alla volta"
 			data-testid="line-mode-toggle"
@@ -510,7 +509,7 @@
 	<button
 		class="btn line-tools-toggle"
 		class:toggled={showLineTools}
-		onclick={() => (showLineTools = !showLineTools)}
+		onclick={() => showLineTools = !showLineTools}
 		aria-pressed={showLineTools}
 		title="Mostra gli strumenti di riga (elimina, aggiungi)"
 		data-testid="line-tools-toggle"
@@ -561,52 +560,58 @@
 {/snippet}
 
 {#if tab === 'visual' && lineMode}
-	<LineByLineEditor bind:song {usedChords} {displayChord} />
+	<LineByLineEditor
+		bind:song
+		usedChords={usedChords}
+		displayChord={displayChord}
+	/>
 {:else if tab === 'visual'}
 	<div class="visual-layout">
 	<div class="sheet" class:show-tools={showLineTools} data-testid="visual-editor">
-		{#if song.lines.length === 0}
+			{#if song.lines.length === 0}
 			<p class="hint">
 				Nessun testo. Aggiungi righe qui sotto oppure incolla il testo nella scheda «ChordPro».
 			</p>
-		{/if}
-		{#each song.lines as line, idx (line)}
-			<div class="line-wrap" class:in-chorus={false}>
+			{/if}
+			{#each song.lines as line, idx (line)}
+				<div class="line-wrap" class:in-chorus={false}>
 				<div class="line-tools" class:open={openAddMenu === idx}>
 					<button onclick={() => deleteLine(idx)} title="Elimina riga" data-testid="delete-line">✕</button>
-					{@render addMenu(idx, idx)}
-				</div>
-				<div class="line-body">
-					{#if line.type === 'lyric'}
-						<LyricLineEditor bind:line={song.lines[idx] as typeof line} {usedChords} {displayChord} />
-					{:else if line.type === 'empty'}
-						<div class="empty-line"></div>
-					{:else if line.type === 'chorus_start'}
-						<div class="marker">▼ ritornello</div>
-					{:else if line.type === 'chorus_end'}
-						<div class="marker">▲ fine ritornello</div>
-					{:else if line.type === 'comment'}
+						{@render addMenu(idx, idx)}
+					</div>
+					<div class="line-body">
+						{#if line.type === 'lyric'}
+							<LyricLineEditor
+								bind:line={song.lines[idx] as typeof line}
+								usedChords={usedChords}
+								displayChord={displayChord}
+							/>
+						{:else if line.type === 'empty'}
+							<div class="empty-line"></div>
+						{:else if line.type === 'chorus_start'}
+							<div class="marker">▼ ritornello</div>
+						{:else if line.type === 'chorus_end'}
+							<div class="marker">▲ fine ritornello</div>
+						{:else if line.type === 'comment'}
 						<input class="comment" bind:value={line.text} placeholder="Commento…" />
-					{:else if line.type === 'tab'}
-						<textarea
-							class="tab"
-							bind:value={line.text}
-							rows={line.text.split('\n').length + 1}
-							spellcheck="false"
-							placeholder="e|-----|"
-							data-testid="tab-editor"
-						></textarea>
-					{:else}
-						<code class="directive">{line.raw}</code>
-					{/if}
+						{:else if line.type === 'tab'}
+							<textarea
+								class="tab"
+								bind:value={line.text}
+								rows={line.text.split('\n').length + 1}
+								spellcheck="false"
+								placeholder="e|-----|"
+								data-testid="tab-editor"
+							></textarea>
+						{:else}
+							<code class="directive">{line.raw}</code>
+						{/if}
+					</div>
 				</div>
-			</div>
-		{/each}
+			{/each}
 
-		<div class="add-bar">
-			{@render addMenu(null, 'end')}
+			<div class="add-bar">{@render addMenu(null, 'end')}</div>
 		</div>
-	</div>
 
 	<aside class="chords-panel" data-testid="chord-diagrams">
 		<h3>Accordi</h3>

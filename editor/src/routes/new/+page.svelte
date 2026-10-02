@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { parse, type Song } from '$lib/chordpro';
-	import { getPending } from '$lib/pending.svelte';
-	import SongEditor from '$lib/components/SongEditor.svelte';
+	import { parse, type Song } from '#lib/chordpro.js';
+	import { getPending } from '#lib/pending.svelte.js';
+	import SongEditor from '#lib/components/SongEditor.svelte';
 
 	let { data } = $props();
 

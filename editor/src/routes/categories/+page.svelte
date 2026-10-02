@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { invalidateAll } from '$app/navigation';
-	import { categoryLabel, isValidCategoryName } from '$lib/categories';
-	import { slugify } from '$lib/slug';
+	import { categoryLabel, isValidCategoryName } from '#lib/categories.js';
+	import { slugify } from '#lib/slug.js';
 
 	let { data } = $props();
 
@@ -24,7 +24,7 @@
 		creating = true;
 		createError = '';
 		try {
-			const res = await fetch(`${base}/api/categories`, {
+			const res = await fetch(resolve(`api/categories`), {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ name })
@@ -62,7 +62,7 @@
 			return;
 		}
 		try {
-			const res = await fetch(`${base}/api/categories/${encodeURIComponent(oldName)}`, {
+			const res = await fetch(resolve(`api/categories/${encodeURIComponent(oldName)}`), {
 				method: 'PATCH',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ name })
@@ -80,7 +80,7 @@
 		const j = index + dir;
 		if (j < 0 || j >= order.length) return;
 		[order[index], order[j]] = [order[j], order[index]];
-		const res = await fetch(`${base}/api/categories`, {
+		const res = await fetch(resolve(`api/categories`), {
 			method: 'PUT',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ order })
@@ -114,9 +114,10 @@
 			alert(`La categoria di destinazione "${dest}" non esiste.`);
 			return;
 		}
-		if (!confirm(`Eliminare la categoria "${category}"${count > 0 ? ` e spostare ${count} canzoni in "${dest}"` : ''}?`))
-			return;
-		const res = await fetch(`${base}/api/categories/${encodeURIComponent(category)}`, {
+
+		if (!confirm(`Eliminare la categoria "${category}"${count > 0 ? ` e spostare ${count} canzoni in "${dest}"` : ''}?`)) return;
+
+		const res = await fetch(resolve(`api/categories/${encodeURIComponent(category)}`), {
 			method: 'DELETE',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ target: dest })
@@ -183,7 +184,9 @@
 					</td>
 				{:else}
 					<td>
-						<a href={`${base}/c/${encodeURIComponent(c.category)}`}>{categoryLabel(c.category)}</a>
+						<a
+							href={resolve(`c/${encodeURIComponent(c.category)}`)}
+						>{categoryLabel(c.category)}</a>
 					</td>
 					<td><code>{c.category}</code></td>
 				{/if}

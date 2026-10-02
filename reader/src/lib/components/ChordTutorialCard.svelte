@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import { chordTutorial } from '$lib/chord-tutorial';
-	import ChordChecker from '$lib/components/ChordChecker.svelte';
+	import { chordTutorial } from '#lib/chord-tutorial.js';
+	import ChordChecker from '#lib/components/ChordChecker.svelte';
 
 	interface Props {
 		chord: string;

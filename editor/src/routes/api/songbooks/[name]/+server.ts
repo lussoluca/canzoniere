@@ -4,7 +4,7 @@ import {
 	writeSongbook,
 	deleteSongbook,
 	songbookExists
-} from '$lib/server/songbooks';
+} from '#lib/server/songbooks.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params }) => {

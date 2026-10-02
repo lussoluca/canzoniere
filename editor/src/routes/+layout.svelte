@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import HeaderMenu from '$lib/components/HeaderMenu.svelte';
+	import { asset, resolve } from '$app/paths';
+	import HeaderMenu from '#lib/components/HeaderMenu.svelte';
 
 	let { children } = $props();
 
@@ -11,13 +11,13 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href="{base}/logo.png" />
+	<link rel="icon" href="{asset('logo.png')}" />
 	<title>Canzoniere Alessandria 2</title>
 </svelte:head>
 
 <header class="topbar">
-	<a href="{base}/" class="brand">
-		<img class="logo" src="{base}/logo.png" alt="" />
+	<a href="{resolve('/')}" class="brand">
+		<img class="logo" src="{asset('logo.png')}" alt="" />
 		Canzoniere Alessandria 2
 	</a>
 	<HeaderMenu />

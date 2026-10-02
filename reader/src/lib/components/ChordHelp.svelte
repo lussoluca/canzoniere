@@ -4,12 +4,12 @@
 	// adds it to "the chords I can play". It is the bridge from any song to the
 	// guitar primer, so it repeats nothing the primer has: it links to it.
 	import { fade, fly } from 'svelte/transition';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import ChordChecker from '$lib/components/ChordChecker.svelte';
-	import { chordTutorial } from '$lib/chord-tutorial';
-	import { audioSupported, playStrum } from '$lib/audio';
-	import { chordVoicing, voicingMidi } from '$lib/harmony';
+	import ChordChecker from '#lib/components/ChordChecker.svelte';
+	import { chordTutorial } from '#lib/chord-tutorial.js';
+	import { audioSupported, playStrum } from '#lib/audio.js';
+	import { chordVoicing, voicingMidi } from '#lib/harmony.js';
 
 	interface Props {
 		chord: string;
@@ -32,7 +32,7 @@
 	}
 </script>
 
-<svelte:window onkeydown={onKeydown} />
+<svelte:window onkeydown={onKeydown}></svelte:window>
 
 <button
 	class="overlay"
@@ -82,15 +82,19 @@
 	</div>
 
 	<div class="actions">
-		<button class="learned" class:on={known} onclick={() => onknown(!known)} aria-pressed={known}>
-			{known ? '✓ Lo so fare' : 'Lo so fare'}
-		</button>
-		<ChordChecker {chord} />
+		<button
+			class="learned"
+			class:on={known}
+			onclick={() => onknown(!known)}
+			aria-pressed={known}
+		>{known ? '✓ Lo so fare' : 'Lo so fare'}</button>
+
+		<ChordChecker chord={chord} />
 	</div>
 
 	<p class="more">
-		<a href="{base}/impara/" onclick={onclose}>🎓 Impara la chitarra</a>
-		<a href="{base}/accordi/" onclick={onclose}>🎸 I miei accordi</a>
+		<a href={resolve(`impara/`)} onclick={onclose}>🎓 Impara la chitarra</a>
+		<a href={resolve(`accordi/`)} onclick={onclose}>🎸 I miei accordi</a>
 	</p>
 </div>
 

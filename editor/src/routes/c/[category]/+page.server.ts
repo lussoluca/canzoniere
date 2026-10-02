@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { listCategories, listSongsByCategory } from '$lib/server/songs';
+import { listCategories, listSongsByCategory } from '#lib/server/songs.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

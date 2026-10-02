@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
-	import { parseLyricLine, serialize, type Line, type Song } from '$lib/chordpro';
-	import { categoryLabel } from '$lib/categories';
-	import { online } from '$lib/online';
-	import { savePending } from '$lib/pending.svelte';
-	import { slugify } from '$lib/slug';
-	import TagInput from '$lib/components/TagInput.svelte';
+	import { resolve } from '$app/paths';
+	import { parseLyricLine, serialize, type Line, type Song } from '#lib/chordpro.js';
+	import { categoryLabel } from '#lib/categories.js';
+	import { online } from '#lib/online.js';
+	import { savePending } from '#lib/pending.svelte.js';
+	import { slugify } from '#lib/slug.js';
+	import TagInput from '#lib/components/TagInput.svelte';
 
 	let { data } = $props();
 
@@ -28,9 +28,7 @@
 		category = requested && data.categories.includes(requested) ? requested : data.categories[0];
 	});
 
-	const fullEditorHref = $derived(
-		`${base}/new${category ? `?category=${encodeURIComponent(category)}` : ''}`
-	);
+	const fullEditorHref = $derived(category ? resolve(`new?category=${encodeURIComponent(category)}`) : resolve('new'));
 
 	// Each pasted line becomes a lyric line, blank lines separate the stanzas.
 	// [Accordi] in square brackets survive for who already writes them.
@@ -77,17 +75,17 @@
 				// full editor from /new?pending=, like any song created on this device.
 				const path = `canzoni/${category}/${file}`;
 				savePending(path, song.meta.title, content, true);
-				await goto(`${base}/new?pending=${encodeURIComponent(path)}`);
+				await goto(resolve(`new?pending=${encodeURIComponent(path)}`));
 				return;
 			}
-			const res = await fetch(`${base}/api/songs`, {
+			const res = await fetch(resolve(`api/songs`), {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ category, file, content })
 			});
 			if (!res.ok) throw new Error(await res.text());
-			await goto(`${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`);
-		} catch (e) {
+			await goto(resolve(`edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`));
+		} catch(e) {
 			status = `Errore: ${e instanceof Error ? e.message : e}`;
 		} finally {
 			saving = false;

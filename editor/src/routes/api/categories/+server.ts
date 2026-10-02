@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { listCategorySummaries, createCategory, setCategoryOrder } from '$lib/server/songs';
+import { listCategorySummaries, createCategory, setCategoryOrder } from '#lib/server/songs.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {

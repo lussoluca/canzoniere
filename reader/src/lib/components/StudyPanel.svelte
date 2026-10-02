@@ -2,11 +2,11 @@
 	// "Study this song": the primer's tools aimed at one song. Three steps, in
 	// the order they are useful: the chords the song needs, the changes it
 	// actually asks for, then playing it along with the copilot.
-	import ChordTutorialCard from '$lib/components/ChordTutorialCard.svelte';
-	import ChordChange from '$lib/components/ChordChange.svelte';
-	import StrumTrainer from '$lib/components/StrumTrainer.svelte';
+	import ChordTutorialCard from '#lib/components/ChordTutorialCard.svelte';
+	import ChordChange from '#lib/components/ChordChange.svelte';
+	import StrumTrainer from '#lib/components/StrumTrainer.svelte';
 	import { onDestroy, tick } from 'svelte';
-	import { loadStudyStep, saveStudyStep, type StudyStep } from '$lib/study';
+	import { loadStudyStep, saveStudyStep, type StudyStep } from '#lib/study.js';
 
 	interface Props {
 		category: string;

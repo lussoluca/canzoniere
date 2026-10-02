@@ -3,8 +3,8 @@
 	// component finds a capo position where that chord becomes an open shape.
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
 	import { transposeChord } from '$songlib/chords';
-	import { chordVoicing, voicingMidi } from '$lib/harmony';
-	import { audioSupported, playStrum } from '$lib/audio';
+	import { chordVoicing, voicingMidi } from '#lib/harmony.js';
+	import { audioSupported, playStrum } from '#lib/audio.js';
 
 	const ROOTS = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
 

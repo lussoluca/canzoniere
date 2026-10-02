@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { normalizeTag } from '$songlib/tags';
-	import { allTags } from '$lib/data';
-	import { parseQuery } from '$lib/search';
+	import { allTags } from '#lib/data.js';
+	import { parseQuery } from '#lib/search.js';
 
 	interface Props {
 		value: string;

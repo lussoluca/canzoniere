@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import { parse } from '$lib/chordpro';
-	import { categoryLabel } from '$lib/categories';
-	import { online } from '$lib/online';
-	import { getPending } from '$lib/pending.svelte';
-	import SongEditor from '$lib/components/SongEditor.svelte';
+	import { resolve } from '$app/paths';
+	import { parse } from '#lib/chordpro.js';
+	import { categoryLabel } from '#lib/categories.js';
+	import { online } from '#lib/online.js';
+	import { getPending } from '#lib/pending.svelte.js';
+	import SongEditor from '#lib/components/SongEditor.svelte';
 
 	let { data } = $props();
 
@@ -23,9 +23,14 @@
 </script>
 
 <nav class="crumbs">
-	<a href="{base}/">Categorie</a> /
-	<a href={`${base}/c/${encodeURIComponent(data.category)}`}>{categoryLabel(data.category)}</a> /
-	{title}
+	<a href="{resolve('/')}">Categorie</a>
+	/ 
+
+	<a
+		href={resolve(`c/${encodeURIComponent(data.category)}`)}
+	>{categoryLabel(data.category)}</a>
+
+	/ {title}
 </nav>
 
 {#if content !== null && resolvedFor === path}

@@ -1,27 +1,27 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
-	import { base } from '$app/paths';
+	import { browser } from '$app/env';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { parse } from '$songlib/chordpro';
 	import { categoryLabel } from '$songlib/categories';
 	import { simplifyChord, transposeChord } from '$songlib/chords';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import { findSongbook } from '$lib/data';
-	import { decodeCollection, type CollectionSong } from '$lib/collection';
-	import { isFavorite, toggleFavorite } from '$lib/favorites';
-	import { loadNote, saveNote } from '$lib/notes';
-	import { loadStudentMode } from '$lib/student';
+	import { findSongbook } from '#lib/data.js';
+	import { decodeCollection, type CollectionSong } from '#lib/collection.js';
+	import { isFavorite, toggleFavorite } from '#lib/favorites.js';
+	import { loadNote, saveNote } from '#lib/notes.js';
+	import { loadStudentMode } from '#lib/student.js';
 	import {
 		baseChord,
 		chordChanges,
 		loadKnownChords,
 		readiness,
 		saveKnownChords
-	} from '$lib/known-chords';
-	import SongSheet from '$lib/components/SongSheet.svelte';
-	import ChordHelp from '$lib/components/ChordHelp.svelte';
-	import StudyPanel from '$lib/components/StudyPanel.svelte';
+	} from '#lib/known-chords.js';
+	import SongSheet from '#lib/components/SongSheet.svelte';
+	import ChordHelp from '#lib/components/ChordHelp.svelte';
+	import StudyPanel from '#lib/components/StudyPanel.svelte';
 	import {
 		loadSongPrefs,
 		saveSongPrefs,
@@ -34,7 +34,7 @@
 		SCROLL_MAX,
 		SCROLL_DEFAULT,
 		type SongPrefs
-	} from '$lib/prefs';
+	} from '#lib/prefs.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -65,7 +65,13 @@
 		const name = params.get('from');
 		if (name) {
 			const b = findSongbook(name);
-			if (b) return { songs: b.songs, backHref: `${base}/k/${b.name}/`, backLabel: b.label, query: `from=${name}` };
+
+			if (b) return {
+				songs: b.songs,
+				backHref: resolve(`k/${b.name}/`),
+				backLabel: b.label,
+				query: `from=${name}`
+			};
 		}
 		const l = params.get('l');
 		if (l) {
@@ -73,7 +79,13 @@
 			if (songs.length > 0) {
 				const t = params.get('t') ?? '';
 				const query = `l=${encodeURIComponent(l)}${t ? `&t=${encodeURIComponent(t)}` : ''}`;
-				return { songs, backHref: `${base}/raccolta/?${query}`, backLabel: t.trim() || 'Scaletta', query };
+
+				return {
+					songs,
+					backHref: resolve(`raccolta/?${query}`),
+					backLabel: t.trim() || 'Scaletta',
+					query
+				};
 			}
 		}
 		return undefined;
@@ -174,7 +186,7 @@
 				return;
 			}
 			if (last !== null) {
-				carry += ((now - last) / 1000) * scrollSpeed * 8;
+				carry += (now - last) / 1000 * scrollSpeed * 8;
 				const px = Math.trunc(carry);
 				if (px > 0) {
 					window.scrollBy(0, px);
@@ -233,7 +245,7 @@
 		let lock: WakeLockSentinel | null = null;
 		const request = async () => {
 			try {
-				lock = (await navigator.wakeLock?.request('screen')) ?? null;
+				lock = await navigator.wakeLock?.request('screen') ?? null;
 			} catch {
 				// unsupported or denied: not essential
 			}
@@ -250,7 +262,7 @@
 	});
 
 	function bumpTranspose(delta: number) {
-		transpose = ((transpose + delta + 18) % 12) - 6; // keep in [-6, +5]
+		transpose = (transpose + delta + 18) % 12 - 6; // keep in [-6, +5]
 	}
 
 	let showDiagrams = $state(false);
@@ -390,10 +402,10 @@
 	// The chord changes of this song, in the reader's key, most frequent first.
 	const changes = $derived(
 		chordChanges(data.song.source, (c) => {
-			let name = c;
-			if (simplify) name = simplifyChord(name);
-			if (transpose !== 0) name = transposeChord(name, transpose);
-			return name;
+		let name = c;
+		if (simplify) name = simplifyChord(name);
+		if (transpose !== 0) name = transposeChord(name, transpose);
+		return name;
 		})
 	);
 
@@ -414,7 +426,7 @@
 	{#if ctx}
 		<a href={ctx.backHref}>← {ctx.backLabel}</a>
 	{:else}
-		<a href="{base}/c/{data.song.category}/">← {categoryLabel(data.song.category)}</a>
+		<a href={resolve(`c/${data.song.category}/`)}>← {categoryLabel(data.song.category)}</a>
 	{/if}
 </nav>
 
@@ -423,7 +435,7 @@
 	<button
 		class="star"
 		class:on={favorite}
-		onclick={() => (favorite = toggleFavorite(data.song.category, data.song.slug))}
+		onclick={() => favorite = toggleFavorite(data.song.category, data.song.slug)}
 		aria-label={favorite ? 'Togli dai preferiti' : 'Aggiungi ai preferiti'}
 		aria-pressed={favorite}
 	>
@@ -443,7 +455,7 @@
 				manca:
 			</span>
 			{#each progress.missing as chord (chord)}
-				<button class="miss" onclick={() => (helpChord = chord)}>{chord}</button>
+				<button class="miss" onclick={() => helpChord = chord}>{chord}</button>
 			{/each}
 			{#if progress.transpose !== null}
 				{@const shift = progress.transpose}
@@ -457,41 +469,67 @@
 
 <div class="controls">
 	<div class="group" aria-label="Trasposizione">
-		<button onclick={() => bumpTranspose(-1)} aria-label="Trasponi un semitono in giù">−</button>
-		<button class="value" class:active={transpose !== 0} onclick={() => (transpose = 0)}
-			title="Azzera trasposizione">{transpose > 0 ? `+${transpose}` : transpose}</button>
-		<button onclick={() => bumpTranspose(1)} aria-label="Trasponi un semitono in su">+</button>
+		<button
+			onclick={() => bumpTranspose(-1)}
+			aria-label="Trasponi un semitono in giù"
+		>−</button>
+
+		<button
+			class="value"
+			class:active={transpose !== 0}
+			onclick={() => transpose = 0}
+			title="Azzera trasposizione"
+		>{transpose > 0 ? `+${transpose}` : transpose}</button>
+
+		<button
+			onclick={() => bumpTranspose(1)}
+			aria-label="Trasponi un semitono in su"
+		>+</button>
 	</div>
 
 	<div class="group" aria-label="Dimensione testo">
-		<button onclick={() => (fontSize = Math.max(FONT_MIN, fontSize - 1))} aria-label="Testo più piccolo">A−</button>
-		<button onclick={() => (fontSize = Math.min(FONT_MAX, fontSize + 1))} aria-label="Testo più grande">A+</button>
+		<button
+			onclick={() => fontSize = Math.max(FONT_MIN, fontSize - 1)}
+			aria-label="Testo più piccolo"
+		>A−</button>
+
+		<button
+			onclick={() => fontSize = Math.min(FONT_MAX, fontSize + 1)}
+			aria-label="Testo più grande"
+		>A+</button>
 	</div>
 
-	<button class="toggle" class:active={simplify} onclick={() => (simplify = !simplify)}>
-		Accordi semplici
-	</button>
+	<button
+		class="toggle"
+		class:active={simplify}
+		onclick={() => simplify = !simplify}
+	>Accordi semplici</button>
 
-	<button class="toggle" class:active={hideChords} onclick={() => (hideChords = !hideChords)}>
-		Solo testo
-	</button>
+	<button
+		class="toggle"
+		class:active={hideChords}
+		onclick={() => hideChords = !hideChords}
+	>Solo testo</button>
 
 	{#if uniqueChords.length > 0}
-		<button class="toggle" class:active={showDiagrams} onclick={() => (showDiagrams = !showDiagrams)}>
-			Diagrammi
-		</button>
+		<button
+			class="toggle"
+			class:active={showDiagrams}
+			onclick={() => showDiagrams = !showDiagrams}
+		>Diagrammi</button>
 	{/if}
 
 	<button class="toggle" class:active={showNote} disabled={scrolling}
 		title={scrolling ? 'Ferma lo scorrimento per aprire le note' : undefined}
-		onclick={() => (showNote = !showNote)}>
-		{hasNote ? '📝 Note' : 'Note'}
-	</button>
+		onclick={() => showNote = !showNote}
+	>{hasNote ? '📝 Note' : 'Note'}</button>
 
 	<div class="group" aria-label="Scorrimento automatico">
-		<button class:active={scrolling} onclick={() => (scrolling = !scrolling)}>
-			{scrolling ? '⏸ Ferma' : '▶ Scorri'}
-		</button>
+		<button
+			class:active={scrolling}
+			onclick={() => scrolling = !scrolling}
+		>{scrolling ? '⏸ Ferma' : '▶ Scorri'}</button>
+
 		{#if scrolling}
 			<button onclick={() => bumpScrollSpeed(-1)} aria-label="Scorri più lentamente">−</button>
 			<button class="value" aria-label="Velocità di scorrimento" disabled>{scrollSpeed}</button>
@@ -500,15 +538,19 @@
 	</div>
 
 	{#if uniqueChords.length > 0 && !hideChords}
-		<button class="toggle" class:active={copilot} onclick={() => (copilot = !copilot)}>
-			🧭 Copilota
-		</button>
+		<button
+			class="toggle"
+			class:active={copilot}
+			onclick={() => copilot = !copilot}
+		>🧭 Copilota</button>
 	{/if}
 
 	{#if student && uniqueChords.length > 0}
-		<button class="toggle" class:active={study} onclick={() => (study = !study)}>
-			🎓 Studia
-		</button>
+		<button
+			class="toggle"
+			class:active={study}
+			onclick={() => study = !study}
+		>🎓 Studia</button>
 	{/if}
 </div>
 
@@ -517,30 +559,33 @@
 		category={data.song.category}
 		slug={data.song.slug}
 		chords={progress.chords}
-		{changes}
-		{known}
+		changes={changes}
+		known={known}
 		onknown={(chord) => learn(chord)}
 		onplay={playAlong}
-		onclose={() => (study = false)}
+		onclose={() => study = false}
 	/>
 {/if}
 
 <SongSheet
-	{song}
-	{transpose}
-	{simplify}
-	{hideChords}
-	{fontSize}
-	onchord={student && !hideChords ? (chord) => (helpChord = chord) : undefined}
+	song={song}
+	transpose={transpose}
+	simplify={simplify}
+	hideChords={hideChords}
+	fontSize={fontSize}
+	onchord={student && !hideChords ? (chord) => helpChord = chord : undefined}
 />
 
 {#if showDiagrams}
 	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
 		<div class="diagrams-head">
 			<span>Accordi del canto</span>
-			<button class="close" onclick={() => (showDiagrams = false)} aria-label="Chiudi i diagrammi">
-				✕
-			</button>
+
+			<button
+				class="close"
+				onclick={() => showDiagrams = false}
+				aria-label="Chiudi i diagrammi"
+			>✕</button>
 		</div>
 		<div class="diagrams-grid">
 			{#each uniqueChords as chord (chord)}
@@ -554,7 +599,12 @@
 	<div class="note-sheet" role="dialog" aria-label="Note sul canto">
 		<div class="note-head">
 			<span>Note sul canto</span>
-			<button class="close" onclick={() => (showNote = false)} aria-label="Chiudi le note">✕</button>
+
+			<button
+				class="close"
+				onclick={() => showNote = false}
+				aria-label="Chiudi le note"
+			>✕</button>
 		</div>
 		<!-- svelte-ignore a11y_autofocus -->
 		<textarea
@@ -591,28 +641,33 @@
 {#if helpChord}
 	{@const chord = helpChord}
 	<ChordHelp
-		{chord}
+		chord={chord}
 		known={known.includes(baseChord(chord))}
 		onknown={(on) => learn(chord, on)}
-		onclose={() => (helpChord = null)}
+		onclose={() => helpChord = null}
 	/>
 {/if}
 
 <p class="feedback">
-	<a href="{base}/suggerimenti/?canto={encodeURIComponent(data.song.title)}">
-		💬 Segnala un errore o proponi una modifica
-	</a>
+	<a
+		href={resolve(`suggerimenti/?canto=${encodeURIComponent(data.song.title)}`)}
+	>💬 Segnala un errore o proponi una modifica</a>
 </p>
 
 {#if ctx}
 	<div class="pager">
 		{#if prev}
-			<a href="{base}/s/{prev.category}/{prev.slug}/?{ctx.query}">← {prev.title}</a>
+			<a
+				href={resolve(`s/${prev.category}/${prev.slug}/?${ctx.query}`)}
+			>← {prev.title}</a>
 		{:else}
 			<span></span>
 		{/if}
 		{#if next}
-			<a class="next" href="{base}/s/{next.category}/{next.slug}/?{ctx.query}">{next.title} →</a>
+			<a
+				class="next"
+				href={resolve(`s/${next.category}/${next.slug}/?${ctx.query}`)}
+			>{next.title} →</a>
 		{/if}
 	</div>
 {/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Song, Line, Chord } from '$lib/chordpro';
-	import { sanitizeChord, isValidChord } from '$lib/chords';
+	import type { Song, Line, Chord } from '#lib/chordpro.js';
+	import { sanitizeChord, isValidChord } from '#lib/chords.js';
 
 	interface Props {
 		song: Song;

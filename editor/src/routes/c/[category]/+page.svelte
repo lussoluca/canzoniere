@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { base } from '$app/paths';
-	import { categoryLabel } from '$lib/categories';
-	import { online } from '$lib/online';
-	import { getPending } from '$lib/pending.svelte';
+	import { resolve } from '$app/paths';
+	import { categoryLabel } from '#lib/categories.js';
+	import { online } from '#lib/online.js';
+	import { getPending } from '#lib/pending.svelte.js';
 
 	let { data } = $props();
 
@@ -11,19 +11,17 @@
 
 	const filtered = $derived(
 		data.songs.filter((s) => {
-			if (!search) return true;
-			const q = search.toLowerCase();
-			return s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q);
+		if (!search) return true;
+		const q = search.toLowerCase();
+		return s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q);
 		})
 	);
 
 	async function move(file: string, newCategory: string) {
-		const res = await fetch(
-			`${base}/api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`,
-			{
-				method: 'PATCH',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ category: newCategory })
+		const res = await fetch(resolve(`api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`), {
+			method: 'PATCH',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ category: newCategory })
 			}
 		);
 		if (!res.ok) {
@@ -35,10 +33,9 @@
 
 	async function remove(file: string, title: string) {
 		if (!confirm(`Eliminare "${title}"?`)) return;
-		const res = await fetch(
-			`${base}/api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`,
-			{ method: 'DELETE' }
-		);
+
+		const res = await fetch(resolve(`api/songs/${encodeURIComponent(data.category)}/${encodeURIComponent(file)}`), { method: 'DELETE' });
+
 		if (!res.ok) {
 			alert("Errore durante l'eliminazione");
 			return;
@@ -47,7 +44,10 @@
 	}
 </script>
 
-<nav class="crumbs"><a href="{base}/">Categorie</a> / {categoryLabel(data.category)}</nav>
+<nav class="crumbs">
+	<a href="{resolve('/')}">Categorie</a>
+	/ {categoryLabel(data.category)}
+</nav>
 
 <div class="toolbar">
 	<input
@@ -57,7 +57,7 @@
 		data-testid="search"
 	/>
 	<a
-		href={`${base}/new/testo?category=${encodeURIComponent(data.category)}`}
+		href={resolve(`new/testo?category=${encodeURIComponent(data.category)}`)}
 		class="btn primary"
 		data-testid="new-song"
 	>
@@ -81,9 +81,9 @@
 		{#each filtered as s (s.file)}
 			<tr data-testid="song-row">
 				<td>
-					<a href={`${base}/edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`}>
-						{s.title}
-					</a>
+					<a
+						href={resolve(`edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`)}
+					>{s.title}</a>
 					{#if online && getPending(`canzoni/${s.category}/${s.file}`)}
 						<span class="edited" title="Modificato su questo dispositivo, in attesa di invio">
 							● modificato
@@ -130,7 +130,7 @@
 		gap: 0.6rem;
 		align-items: center;
 	}
-	.toolbar input[type='search'] {
+	.toolbar input[type="search"] {
 		flex: 1;
 		min-width: 200px;
 		padding: 0.45rem 0.7rem;

@@ -5,8 +5,8 @@
 
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import { PITCH_NAMES, chromaFromSpectrum, evaluateChroma, type ChromaVerdict } from '$lib/chroma';
-	import { chordPitchClasses, micSupported, openMic, type MicSession } from '$lib/chord-listener';
+	import { PITCH_NAMES, chromaFromSpectrum, evaluateChroma, type ChromaVerdict } from '#lib/chroma.js';
+	import { chordPitchClasses, micSupported, openMic, type MicSession } from '#lib/chord-listener.js';
 
 	interface Props {
 		chord: string;

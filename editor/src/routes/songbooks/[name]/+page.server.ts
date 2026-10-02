@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
-import { readSongbook, songbookExists } from '$lib/server/songbooks';
-import { listAllSongs } from '$lib/server/songs';
+import { readSongbook, songbookExists } from '#lib/server/songbooks.js';
+import { listAllSongs } from '#lib/server/songs.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
