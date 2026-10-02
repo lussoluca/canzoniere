@@ -97,7 +97,7 @@ The `.cho` format is a text-based markup for songs with chord annotations. It co
 
 ### Key Parser/Serializer Details
 
-**Parser** (`shared/chordpro.ts`, `parse()` function, lines 50–102; the editor re-exports it from `editor/src/lib/chordpro.ts`, the reader imports it via the `$songlib` alias):
+**Parser** (`shared/chordpro.ts`, `parse()` function, lines 50–102; the editor re-exports it from `editor/src/lib/chordpro.ts`, the reader imports it as `@canzoniere/shared/chordpro`):
 
 - Splits input by newlines and matches directives with regex: `^\{\s*([\w-]+)\s*(?::\s*(.*?)\s*)?\}`.
 - Extracts metadata: `{title}`, `{artist}`, `{tag}`, `{columns}`.
@@ -530,7 +530,7 @@ Uses `gofpdf` library for PDF generation. Manages two-column layout.
 
 ## 6. The `shared/` Library — Common Song Logic
 
-Modules consumed by both web apps: framework-free TypeScript plus one Svelte component. The editor re-exports the TS modules from thin shims in `editor/src/lib/` (`chordpro.ts`, `chords.ts`, `categories.ts`) and imports the rest by relative path; the reader imports everything through the `$songlib` alias (defined in `reader/svelte.config.js`).
+Modules consumed by both web apps: framework-free TypeScript plus one Svelte component. The editor re-exports the TS modules from thin shims in `editor/src/lib/` (`chordpro.ts`, `chords.ts`, `categories.ts`) and imports the rest by relative path; the reader depends on it as the local package `@canzoniere/shared` (`file:../shared`, exports declared in `shared/package.json`) and imports it by name.
 
 | File                            | Lines | Purpose                                                                                                                       |
 | ------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -756,7 +756,7 @@ make build   # Uses Docker + ChordPro
 
 | File                                 | Lines | Purpose                                                                                                         |
 | ------------------------------------ | ----- | --------------------------------------------------------------------------------------------------------------- |
-| `shared/chordpro.ts`                 | 1–149 | Parse/serialize ChordPro format (re-exported by `editor/src/lib/chordpro.ts`, aliased `$songlib` in the reader) |
+| `shared/chordpro.ts`                 | 1–149 | Parse/serialize ChordPro format (re-exported by `editor/src/lib/chordpro.ts`, imported as `@canzoniere/shared/chordpro` by the reader) |
 | `shared/chords.ts`                   | 1–153 | Chord notation, validation, simplification & transposition                                                      |
 | `shared/categories.ts`               | 1–18  | Category labels, sorting & name validation                                                                      |
 | `editor/src/lib/slug.ts`             | 1–10  | Title → filename conversion                                                                                     |

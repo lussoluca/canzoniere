@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto, refreshAll } from '$app/navigation';
 
 	let { data } = $props();
 
@@ -35,7 +35,7 @@
 			alert("Errore durante l'eliminazione");
 			return;
 		}
-		await invalidateAll();
+		await refreshAll();
 	}
 </script>
 

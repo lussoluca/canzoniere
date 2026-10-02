@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { normalizeTag } from '$songlib/tags';
+	import { normalizeTag } from '@canzoniere/shared/tags';
 	import { allTags } from '#lib/data.js';
 	import { parseQuery } from '#lib/search.js';
 

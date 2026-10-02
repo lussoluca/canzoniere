@@ -2,9 +2,9 @@
 // classified against this set (matching on simplified base triads) into
 // "playable now", "one chord away" and "later".
 
-import { simplifyChord, englishChordToLatin, transposeChord } from '$songlib/chords';
+import { simplifyChord, englishChordToLatin, transposeChord } from '@canzoniere/shared/chords';
 import { allSongs, type SongRef } from '#lib/data.js';
-import { parse } from '$songlib/chordpro';
+import { parse } from '@canzoniere/shared/chordpro';
 
 const KEY = 'reader:known-chords';
 

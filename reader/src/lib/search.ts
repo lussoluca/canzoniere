@@ -1,6 +1,6 @@
 // Song search: a query mixes free text and #tag tokens ("#omelia te al").
 
-import { normalizeTag } from '$songlib/tags';
+import { normalizeTag } from '@canzoniere/shared/tags';
 import type { SongRef } from './data';
 
 export interface ParsedQuery {

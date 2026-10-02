@@ -1,9 +1,9 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { listCategorySummaries, writeSong, songExists } from '#lib/server/songs.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-	return json({ categories: await listCategorySummaries() });
+	return Response.json({ categories: await listCategorySummaries() });
 };
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -15,5 +15,5 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(409, `${category}/${file} already exists`);
 	}
 	await writeSong(category, file, content);
-	return json({ ok: true, category, file }, { status: 201 });
+	return Response.json({ ok: true, category, file }, { status: 201 });
 };

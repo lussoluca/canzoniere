@@ -2,8 +2,8 @@
 // every songbook .txt under canzonieri/ is inlined into the app bundle, so the
 // reader needs no backend and works offline.
 
-import { parse } from '$songlib/chordpro';
-import { categoryLabel, sortCategories } from '$songlib/categories';
+import { parse } from '@canzoniere/shared/chordpro';
+import { categoryLabel, sortCategories } from '@canzoniere/shared/categories';
 import categoryOrder from '../../../canzoni/.categories.json';
 
 const rawSongs = import.meta.glob('../../../canzoni/*/*.cho', {

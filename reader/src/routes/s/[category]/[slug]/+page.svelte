@@ -3,10 +3,10 @@
 	import { browser } from '$app/env';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { parse } from '$songlib/chordpro';
-	import { categoryLabel } from '$songlib/categories';
-	import { simplifyChord, transposeChord } from '$songlib/chords';
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import { parse } from '@canzoniere/shared/chordpro';
+	import { categoryLabel } from '@canzoniere/shared/categories';
+	import { simplifyChord, transposeChord } from '@canzoniere/shared/chords';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import { findSongbook } from '#lib/data.js';
 	import { decodeCollection, type CollectionSong } from '#lib/collection.js';
 	import { isFavorite, toggleFavorite } from '#lib/favorites.js';

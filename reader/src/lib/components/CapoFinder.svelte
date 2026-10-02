@@ -1,8 +1,8 @@
 <script lang="ts">
 	// The capo table read backwards: you know the chord you need to hear, the
 	// component finds a capo position where that chord becomes an open shape.
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import { transposeChord } from '$songlib/chords';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
+	import { transposeChord } from '@canzoniere/shared/chords';
 	import { chordVoicing, voicingMidi } from '#lib/harmony.js';
 	import { audioSupported, playStrum } from '#lib/audio.js';
 

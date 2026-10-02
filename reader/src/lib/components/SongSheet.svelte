@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Song, Line, Chord } from '$songlib/chordpro';
-	import { simplifyChord, transposeChord } from '$songlib/chords';
+	import type { Song, Line, Chord } from '@canzoniere/shared/chordpro';
+	import { simplifyChord, transposeChord } from '@canzoniere/shared/chords';
 
 	interface Props {
 		song: Song;

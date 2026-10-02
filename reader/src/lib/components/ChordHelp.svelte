@@ -5,7 +5,7 @@
 	// guitar primer, so it repeats nothing the primer has: it links to it.
 	import { fade, fly } from 'svelte/transition';
 	import { resolve } from '$app/paths';
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import ChordChecker from '#lib/components/ChordChecker.svelte';
 	import { chordTutorial } from '#lib/chord-tutorial.js';
 	import { audioSupported, playStrum } from '#lib/audio.js';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import FretboardMap from '#lib/components/FretboardMap.svelte';
 	import {
 		changeSentence,

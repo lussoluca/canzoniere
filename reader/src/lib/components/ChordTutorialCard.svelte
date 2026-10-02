@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import { chordTutorial } from '#lib/chord-tutorial.js';
 	import ChordChecker from '#lib/components/ChordChecker.svelte';
 

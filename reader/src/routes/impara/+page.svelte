@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import CapoFinder from '#lib/components/CapoFinder.svelte';
 	import ChordBuilder from '#lib/components/ChordBuilder.svelte';
 	import ChordChange from '#lib/components/ChordChange.svelte';
 	import FretboardMap from '#lib/components/FretboardMap.svelte';
 	import StringTuner from '#lib/components/StringTuner.svelte';
 	import StrumTrainer from '#lib/components/StrumTrainer.svelte';
-	import { transposeChord } from '$songlib/chords';
+	import { transposeChord } from '@canzoniere/shared/chords';
 
 	// Movable-capo demo: the shapes stay the same, the sounding chord follows
 	// the capo position one semitone per fret.

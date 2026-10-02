@@ -4,7 +4,7 @@
 // Strings are indexed as in ChordPro's frets array: 0 = 6ª (Mi basso), 5 = 1ª
 // (Mi cantino).
 
-import { getChordDefinition } from '$songlib/diagrams';
+import { getChordDefinition } from '@canzoniere/shared/diagrams';
 
 const SCALE = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
 

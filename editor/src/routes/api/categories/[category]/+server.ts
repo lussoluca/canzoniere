@@ -1,4 +1,4 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { renameCategory, deleteCategory, categoryExists } from '#lib/server/songs.js';
 import type { RequestHandler } from './$types';
 
@@ -12,7 +12,7 @@ export const PATCH: RequestHandler = async ({ params, request }) => {
 	} catch (e) {
 		error(409, e instanceof Error ? e.message : 'rename failed');
 	}
-	return json({ ok: true, name });
+	return Response.json({ ok: true, name });
 };
 
 // delete the category, moving all its songs to `target`
@@ -25,5 +25,5 @@ export const DELETE: RequestHandler = async ({ params, request }) => {
 	} catch (e) {
 		error(409, e instanceof Error ? e.message : 'delete failed');
 	}
-	return json({ ok: true });
+	return Response.json({ ok: true });
 };

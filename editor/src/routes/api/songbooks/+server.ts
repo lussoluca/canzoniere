@@ -1,9 +1,9 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { listSongbooks, songbookExists, writeSongbook } from '#lib/server/songbooks.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-	return json({ songbooks: await listSongbooks() });
+	return Response.json({ songbooks: await listSongbooks() });
 };
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -15,5 +15,5 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(409, `il canzoniere "${name}" esiste già`);
 	}
 	await writeSongbook(name, Array.isArray(entries) ? entries : []);
-	return json({ ok: true, name }, { status: 201 });
+	return Response.json({ ok: true, name }, { status: 201 });
 };

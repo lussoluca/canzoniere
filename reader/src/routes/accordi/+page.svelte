@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { loadKnownChords, saveKnownChords, chordUsage, classify } from '#lib/known-chords.js';
-	import ChordDiagram from '$songlib/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 	import ChordTutorialCard from '#lib/components/ChordTutorialCard.svelte';
 
 	const usage = chordUsage();
