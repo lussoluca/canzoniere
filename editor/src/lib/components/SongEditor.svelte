@@ -4,15 +4,15 @@
 	import { resolve } from '$app/paths';
 	import { online } from '#lib/online.js';
 	import { savePending, removePending } from '#lib/pending.svelte.js';
-	import { parse, serialize, type Song, type Line } from '#lib/chordpro.js';
-	import { categoryLabel } from '#lib/categories.js';
-	import { englishChordToLatin, simplifyChord, transposeChord } from '#lib/chords.js';
+	import { parse, serialize, type Song, type Line } from '@canzoniere/shared/chordpro';
+	import { categoryLabel } from '@canzoniere/shared/categories';
+	import { englishChordToLatin, simplifyChord, transposeChord } from '@canzoniere/shared/chords';
 	import { slugify } from '#lib/slug.js';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
 	import LineByLineEditor from './LineByLineEditor.svelte';
 	import TagInput from './TagInput.svelte';
-	import ChordDiagram from '../../../../shared/ChordDiagram.svelte';
+	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 
 	interface Props {
 		initial: Song;

@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { parseLyricLine, serialize, type Line, type Song } from '#lib/chordpro.js';
-	import { categoryLabel } from '#lib/categories.js';
+	import { parseLyricLine, serialize, type Line, type Song } from '@canzoniere/shared/chordpro';
+	import { categoryLabel } from '@canzoniere/shared/categories';
 	import { online } from '#lib/online.js';
 	import { savePending } from '#lib/pending.svelte.js';
 	import { slugify } from '#lib/slug.js';

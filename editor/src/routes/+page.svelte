@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { categoryLabel } from '#lib/categories.js';
+	import { categoryLabel } from '@canzoniere/shared/categories';
 
 	let { data } = $props();
 

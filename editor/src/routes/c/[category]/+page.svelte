@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { refreshAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { categoryLabel } from '#lib/categories.js';
+	import { categoryLabel } from '@canzoniere/shared/categories';
 	import { online } from '#lib/online.js';
 	import { getPending } from '#lib/pending.svelte.js';
 

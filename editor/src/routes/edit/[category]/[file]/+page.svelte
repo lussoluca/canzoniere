@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { parse } from '#lib/chordpro.js';
-	import { categoryLabel } from '#lib/categories.js';
+	import { parse } from '@canzoniere/shared/chordpro';
+	import { categoryLabel } from '@canzoniere/shared/categories';
 	import { online } from '#lib/online.js';
 	import { getPending } from '#lib/pending.svelte.js';
 	import SongEditor from '#lib/components/SongEditor.svelte';
