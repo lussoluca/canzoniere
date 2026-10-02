@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { parse, serialize } from '#lib/chordpro.js';
-import { categoryLabel, sortCategories, isValidCategoryName } from '#lib/categories.js';
+import { parse, serialize } from '@canzoniere/shared/chordpro';
+import { categoryLabel, sortCategories, isValidCategoryName } from '@canzoniere/shared/categories';
 
 // Songs live in the repo's canzoni/ directory; override with SONGS_DIR (used by tests).
 const SONGS_DIR = path.resolve(process.env.SONGS_DIR ?? path.join(process.cwd(), '..', 'canzoni'));

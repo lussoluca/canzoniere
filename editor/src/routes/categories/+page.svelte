@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { refreshAll } from '$app/navigation';
-	import { categoryLabel, isValidCategoryName } from '#lib/categories.js';
+	import { categoryLabel, isValidCategoryName } from '@canzoniere/shared/categories';
 	import { slugify } from '#lib/slug.js';
 
 	let { data } = $props();

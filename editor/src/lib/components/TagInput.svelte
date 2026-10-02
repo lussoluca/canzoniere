@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { normalizeTag } from '#lib/tags.js';
+	import { normalizeTag } from '@canzoniere/shared/tags';
 
 	interface Props {
 		tags: string[];

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { parse, type Song } from '#lib/chordpro.js';
+	import { parse, type Song } from '@canzoniere/shared/chordpro';
 	import { getPending } from '#lib/pending.svelte.js';
 	import SongEditor from '#lib/components/SongEditor.svelte';
 
