@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import qrcode from 'qrcode-generator';
-	import { allSongs, type SongRef } from '$lib/data';
-	import { parseQuery, matchesQuery } from '$lib/search';
-	import { encodeCollection, decodeCollection, type CollectionSong } from '$lib/collection';
-	import { rememberCollection, newCollectionId } from '$lib/saved-collections';
-	import { loadSavedSongPrefs } from '$lib/prefs';
-	import SearchBox from '$lib/components/SearchBox.svelte';
-	import QrScanner from '$lib/components/QrScanner.svelte';
+	import { allSongs, type SongRef } from '#lib/data.js';
+	import { parseQuery, matchesQuery } from '#lib/search.js';
+	import { encodeCollection, decodeCollection, type CollectionSong } from '#lib/collection.js';
+	import { rememberCollection, newCollectionId } from '#lib/saved-collections.js';
+	import { loadSavedSongPrefs } from '#lib/prefs.js';
+	import SearchBox from '#lib/components/SearchBox.svelte';
+	import QrScanner from '#lib/components/QrScanner.svelte';
 
 	// The chosen songs live in the URL (?l=), so a link is the whole songbook.
 	// With ?l= present the page is in view mode; otherwise it's the builder.
@@ -152,7 +152,7 @@
 		try {
 			await navigator.clipboard.writeText(url);
 			copied = true;
-			setTimeout(() => (copied = false), 2000);
+			setTimeout(() => copied = false, 2000);
 		} catch {
 			// clipboard blocked: nothing else to do
 		}
@@ -163,14 +163,16 @@
 	<title>{viewing ? title.trim() || 'Scaletta' : 'Crea una scaletta'} — Canzoniere Alessandria 2</title>
 </svelte:head>
 
-<nav><a href="{base}/">← Canzoniere</a></nav>
+<nav><a href="{resolve('/')}">← Canzoniere</a></nav>
 
 {#if viewing}
 	<h1>🎵 {title.trim() || 'Scaletta'}</h1>
 	<ol class="songs">
 		{#each selected as song, i (song.category + '/' + song.slug)}
 			<li>
-				<a href="{base}/s/{song.category}/{song.slug}/?{songQuery}">
+				<a
+					href={resolve(`s/${song.category}/${song.slug}/?${songQuery}`)}
+				>
 					<span class="num">{i + 1}.</span>
 					<span class="title">{song.title}</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
@@ -181,7 +183,7 @@
 	<div class="bar">
 		<button class="btn" onclick={share}>{copied ? 'Link copiato ✓' : '📤 Condividi'}</button>
 		<button class="btn" onclick={openQr}>⊞ QR code</button>
-		<button class="btn" onclick={() => (editing = true)}>✏️ Modifica</button>
+		<button class="btn" onclick={() => editing = true}>✏️ Modifica</button>
 	</div>
 {:else}
 	<h1>Crea una scaletta</h1>
@@ -191,7 +193,7 @@
 	</p>
 
 	<div class="bar receive">
-		<button class="btn" onclick={() => (showScanner = true)}>📷 Inquadra un QR</button>
+		<button class="btn" onclick={() => showScanner = true}>📷 Inquadra un QR</button>
 		<span class="receive-hint">Ricevi una scaletta da un altro telefono.</span>
 	</div>
 
@@ -247,14 +249,22 @@
 {/if}
 
 {#if showScanner}
-	<QrScanner onresult={handleScan} onclose={() => (showScanner = false)} />
+	<QrScanner
+		onresult={handleScan}
+		onclose={() => showScanner = false}
+	/>
 {/if}
 
 {#if showQr}
 	<div class="qr-sheet" role="dialog" aria-label="QR code della scaletta">
 		<div class="qr-head">
 			<span>{title.trim() || 'Scaletta'}</span>
-			<button class="close" onclick={() => (showQr = false)} aria-label="Chiudi il QR code">✕</button>
+
+			<button
+				class="close"
+				onclick={() => showQr = false}
+				aria-label="Chiudi il QR code"
+			>✕</button>
 		</div>
 		<div class="qr-box">{@html qrSvg}</div>
 		<p class="qr-hint">

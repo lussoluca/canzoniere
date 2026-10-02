@@ -10,8 +10,8 @@
 		voicingMidi,
 		voicingMoves,
 		type StringMove
-	} from '$lib/harmony';
-	import { audioSupported, now, playStrum } from '$lib/audio';
+	} from '#lib/harmony.js';
+	import { audioSupported, now, playStrum } from '#lib/audio.js';
 
 	interface Props {
 		// Which chords the pickers offer and where they start: the primer shows

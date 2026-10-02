@@ -2,8 +2,8 @@
 	// A reference tone for each open string, synthesized on the fly: it is not a
 	// tuner (it does not listen), it is the note to match by ear.
 	import { onDestroy } from 'svelte';
-	import { audioSupported, playNote } from '$lib/audio';
-	import { STRING_NAMES, midiAt, noteAt } from '$lib/harmony';
+	import { audioSupported, playNote } from '#lib/audio.js';
+	import { STRING_NAMES, midiAt, noteAt } from '#lib/harmony.js';
 
 	// index in the frets array: 0 = 6ª (Mi basso), 5 = 1ª (Mi cantino)
 	const STRINGS = [0, 1, 2, 3, 4, 5];

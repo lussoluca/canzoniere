@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 </script>
 
-<svelte:head>
-	<title>{data.category.label} — Canzoniere Alessandria 2</title>
-</svelte:head>
-
-<nav><a href="{base}/">← Categorie</a></nav>
+<svelte:head><title>{data.category.label} — Canzoniere Alessandria 2</title></svelte:head>
+<nav><a href="{resolve('/')}">← Categorie</a></nav>
 <h1>{data.category.label}</h1>
 
 <ul class="songs">
 	{#each data.songs as song (song.slug)}
 		<li>
-			<a href="{base}/s/{song.category}/{song.slug}/">
+			<a
+				href={resolve(`s/${song.category}/${song.slug}/`)}
+			>
 				<span class="title">{song.title}</span>
 				{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 			</a>

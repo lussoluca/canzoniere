@@ -1,4 +1,4 @@
-import { listSongbooks } from '$lib/server/songbooks';
+import { listSongbooks } from '#lib/server/songbooks.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

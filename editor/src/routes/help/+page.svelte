@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { asset } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -30,7 +30,13 @@
 			titolo fino all'invio in revisione. Le istruzioni sono scritte e lette a voce.
 		</p>
 		<!-- svelte-ignore a11y_media_has_caption -->
-		<video class="guide-video" controls playsinline preload="metadata" src="{base}/aggiungi-un-testo.mp4"
+
+		<video
+			class="guide-video"
+			controls
+			playsinline
+			preload="metadata"
+			src="{asset('aggiungi-un-testo.mp4')}"
 		></video>
 	</section>
 
@@ -67,15 +73,21 @@
 		<h3>Editor della canzone</h3>
 		<p>In alto imposti i dati del brano:</p>
 		<ul>
-			<li><strong>Titolo</strong> — obbligatorio, da' anche il nome al file.</li>
-			<li><strong>Artista</strong> — autore o interprete.</li>
 			<li>
-				<strong>Colonne</strong> — su quante colonne stampare il testo nel PDF (da 1 a 4); lascialo
-				vuoto per il valore predefinito.
+				<strong>Titolo</strong>
+				— obbligatorio, da' anche il nome al file.
 			</li>
+
+			<li><strong>Artista</strong>— autore o interprete.</li>
+
 			<li>
-				<strong>Categoria</strong> — la cartella in cui vive la canzone; viene usata anche per
-				raggruppare i brani nell'indice del PDF.
+				<strong>Colonne</strong>
+				— su quante colonne stampare il testo nel PDF (da 1 a 4); lascialo vuoto per il valore predefinito.
+			</li>
+
+			<li>
+				<strong>Categoria</strong>
+				— la cartella in cui vive la canzone; viene usata anche per raggruppare i brani nell'indice del PDF.
 			</li>
 		</ul>
 		<p>Il corpo della canzone si modifica con due schede:</p>

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
-	import { online, API_BASE } from '$lib/online';
-	import { pendingSongs, removePending, clearPending } from '$lib/pending.svelte';
+	import { resolve } from '$app/paths';
+	import { online, API_BASE } from '#lib/online.js';
+	import { pendingSongs, removePending, clearPending } from '#lib/pending.svelte.js';
 
 	let key = $state('');
 	let note = $state('');
@@ -44,13 +44,13 @@
 			if (!res.ok) {
 				let detail = '';
 				try {
-					detail = ((await res.json()) as { error?: string }).error ?? '';
+					detail = (await res.json() as { error?: string }).error ?? '';
 				} catch {
 					// non-JSON error body: keep the generic message
 				}
 				throw new Error(detail || `Invio non riuscito (HTTP ${res.status}).`);
 			}
-			prUrl = ((await res.json()) as { pullRequestUrl: string }).pullRequestUrl;
+			prUrl = (await res.json() as { pullRequestUrl: string }).pullRequestUrl;
 			localStorage.setItem('editor:key', key.trim());
 			localStorage.setItem('editor:author', author.trim());
 			clearPending();
@@ -73,9 +73,9 @@
 	// Existing songs have a prerendered edit page; songs created on this
 	// device reopen from /new via the local queue.
 	function editHref(s: { path: string; isNew?: boolean }): string {
-		if (s.isNew) return `${base}/new?pending=${encodeURIComponent(s.path)}`;
+		if (s.isNew) return resolve(`new?pending=${encodeURIComponent(s.path)}`);
 		const [, category, file] = s.path.split('/');
-		return `${base}/edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`;
+		return resolve(`edit/${encodeURIComponent(category)}/${encodeURIComponent(file)}`);
 	}
 </script>
 
@@ -99,12 +99,12 @@
 			È stata aperta una richiesta di integrazione: verrà rivista e pubblicata.
 			<a href={prUrl} target="_blank" rel="noopener">Seguila qui</a>.
 		</p>
-		<a class="btn" href="{base}/">Torna alle canzoni</a>
+		<a class="btn" href="{resolve('/')}">Torna alle canzoni</a>
 	</div>
 {:else if pendingSongs().length === 0}
 	<div class="card">
 		<p>Nessuna modifica in attesa. Apri una canzone, modificala e salvala: la ritrovi qui.</p>
-		<a class="btn" href="{base}/">Vai alle canzoni</a>
+		<a class="btn" href="{resolve('/')}">Vai alle canzoni</a>
 	</div>
 {:else}
 	<div class="card">

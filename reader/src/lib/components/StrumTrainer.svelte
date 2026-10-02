@@ -4,8 +4,8 @@
 	// scheduled ahead on the audio clock (setTimeout is far too jittery for a
 	// rhythm), and the highlight follows that clock instead of driving it.
 	import { onDestroy, untrack } from 'svelte';
-	import { audioSupported, now, playClick, playStrum } from '$lib/audio';
-	import { chordVoicing, voicingMidi } from '$lib/harmony';
+	import { audioSupported, now, playClick, playStrum } from '#lib/audio.js';
+	import { chordVoicing, voicingMidi } from '#lib/harmony.js';
 
 	type Stroke = 'down' | 'up' | null;
 

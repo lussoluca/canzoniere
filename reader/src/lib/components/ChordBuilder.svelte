@@ -1,13 +1,13 @@
 <script lang="ts">
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import FretboardMap from '$lib/components/FretboardMap.svelte';
+	import FretboardMap from '#lib/components/FretboardMap.svelte';
 	import {
 		changeSentence,
 		chordNotes,
 		chordVoicing,
 		stringLabel,
 		voicingDiff
-	} from '$lib/harmony';
+	} from '#lib/harmony.js';
 
 	const ROOTS = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
 	const EXTRAS = [

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import { categoryLabel } from '$lib/categories';
+	import { resolve } from '$app/paths';
+	import { categoryLabel } from '#lib/categories.js';
 
 	let { data } = $props();
 
@@ -14,10 +14,10 @@
 
 	const available = $derived(
 		data.allSongs.filter((s) => {
-			const p = `${s.category}/${s.file}`;
-			if (entries.includes(p)) return false;
-			if (!filter) return true;
-			return s.title.toLowerCase().includes(filter.toLowerCase());
+		const p = `${s.category}/${s.file}`;
+		if (entries.includes(p)) return false;
+		if (!filter) return true;
+		return s.title.toLowerCase().includes(filter.toLowerCase());
 		})
 	);
 
@@ -42,7 +42,7 @@
 		saving = true;
 		status = '';
 		try {
-			const res = await fetch(`${base}/api/songbooks/${encodeURIComponent(data.name)}`, {
+			const res = await fetch(resolve(`api/songbooks/${encodeURIComponent(data.name)}`), {
 				method: 'PUT',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({ entries: $state.snapshot(entries) })
@@ -57,7 +57,10 @@
 	}
 </script>
 
-<nav class="crumbs"><a href="{base}/songbooks">Canzonieri</a> / {data.name}</nav>
+<nav class="crumbs">
+	<a href={resolve(`songbooks`)}>Canzonieri</a>
+	/ {data.name}
+</nav>
 
 <div class="head">
 	<h2>{data.name}</h2>
@@ -200,7 +203,7 @@
 		color: #999;
 		border: none;
 	}
-	input[type='search'] {
+	input[type="search"] {
 		width: 100%;
 		padding: 0.45rem 0.7rem;
 		border: 1px solid #ccc;

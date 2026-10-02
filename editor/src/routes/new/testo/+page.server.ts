@@ -1,4 +1,4 @@
-import { listCategories, listAllTags } from '$lib/server/songs';
+import { listCategories, listAllTags } from '#lib/server/songs.js';
 import type { PageServerLoad } from './$types';
 
 // The requested ?category= is read client-side in the page: query params are

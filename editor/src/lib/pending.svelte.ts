@@ -1,7 +1,7 @@
 // The online editor's local queue: songs edited on this device, waiting to be
 // sent to the backend. Persisted in localStorage, exposed as reactive state so
 // the layout badge follows every save.
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 export interface PendingSong {
 	path: string; // canzoni/<category>/<file>.cho
@@ -19,7 +19,7 @@ function readStorage(): PendingSong[] {
 	if (!browser) return [];
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);
-		return raw ? (JSON.parse(raw) as PendingSong[]) : [];
+		return raw ? JSON.parse(raw) as PendingSong[] : [];
 	} catch {
 		return [];
 	}

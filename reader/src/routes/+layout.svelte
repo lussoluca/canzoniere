@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { dev } from '$app/environment';
-	import { base } from '$app/paths';
-	import { loadTheme, saveTheme, applyTheme, type Theme } from '$lib/theme';
-	import HeaderMenu from '$lib/components/HeaderMenu.svelte';
+	import { dev } from '$app/env';
+	import { asset, resolve } from '$app/paths';
+	import { loadTheme, saveTheme, applyTheme, type Theme } from '#lib/theme.js';
+	import HeaderMenu from '#lib/components/HeaderMenu.svelte';
 
 	let { children } = $props();
 
@@ -27,20 +27,18 @@
 			location.reload();
 		});
 
-		navigator.serviceWorker
-			.register(`${base}/service-worker.js`, { updateViaCache: 'none' })
-			.then((r) => {
-				reg = r;
-				if (r.waiting && navigator.serviceWorker.controller) updateReady = true;
-				r.addEventListener('updatefound', () => {
-					const fresh = r.installing;
-					fresh?.addEventListener('statechange', () => {
-						if (fresh.state === 'installed' && navigator.serviceWorker.controller) {
-							updateReady = true;
-						}
-					});
+		navigator.serviceWorker.register(`${resolve('/')}service-worker.js`, { updateViaCache: 'none' }).then((r) => {
+			reg = r;
+			if (r.waiting && navigator.serviceWorker.controller) updateReady = true;
+			r.addEventListener('updatefound', () => {
+				const fresh = r.installing;
+				fresh?.addEventListener('statechange', () => {
+					if (fresh.state === 'installed' && navigator.serviceWorker.controller) {
+						updateReady = true;
+					}
 				});
-				r.update().catch(() => {});
+			});
+			r.update().catch(() => {});
 			})
 			.catch(() => {});
 
@@ -84,11 +82,21 @@
 
 <div class="app">
 	<header>
-		<a class="brand" href="{base}/">
-			<img class="logo" src="{base}/icons/icon-192.png" alt="" />
+		<a class="brand" href="{resolve('/')}">
+			<img
+				class="logo"
+				src="{asset('icons/icon-192.png')}"
+				alt=""
+			/>
+
 			Canzoniere Alessandria 2
 		</a>
-		<HeaderMenu theme={effective} {mounted} ontoggletheme={toggleTheme} />
+
+		<HeaderMenu
+			theme={effective}
+			mounted={mounted}
+			ontoggletheme={toggleTheme}
+		/>
 	</header>
 
 	<main>
@@ -129,7 +137,7 @@
 	/* Dark theme: applied by the system preference (unless light is forced)
 	   or by the explicit toggle. Keep both blocks in sync. */
 	@media (prefers-color-scheme: dark) {
-		:global(:root:not([data-theme='light'])) {
+		:global(:root:not([data-theme="light"])) {
 			--bg: #16181a;
 			--text: #e5e3dc;
 			--muted: #a1a6ad;
@@ -152,7 +160,7 @@
 		}
 	}
 
-	:global(:root[data-theme='dark']) {
+	:global(:root[data-theme="dark"]) {
 		--bg: #16181a;
 		--text: #e5e3dc;
 		--muted: #a1a6ad;

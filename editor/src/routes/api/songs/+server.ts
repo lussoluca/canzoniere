@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { listCategorySummaries, writeSong, songExists } from '$lib/server/songs';
+import { listCategorySummaries, writeSong, songExists } from '#lib/server/songs.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { afterNavigate } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import {
 		loadSavedCollections,
 		forgetCollection,
 		savedCollectionQuery,
 		type SavedCollection
-	} from '$lib/saved-collections';
-	import type { Theme } from '$lib/theme';
+	} from '#lib/saved-collections.js';
+	import type { Theme } from '#lib/theme.js';
 
 	let {
 		theme,
@@ -21,16 +21,36 @@
 	} = $props();
 
 	const items = [
-		{ href: `${base}/impara/`, icon: '🎓', label: 'Impara la chitarra' },
-		{ href: `${base}/accordi/`, icon: '🎸', label: 'Cosa posso suonare' },
-		{ href: `${base}/raccolta/`, icon: '🎵', label: 'Crea una scaletta' },
 		{
-			href: `${base}/suggerimenti/`,
+			href: resolve(`impara/`),
+			icon: '🎓',
+			label: 'Impara la chitarra'
+		},
+
+		{
+			href: resolve(`accordi/`),
+			icon: '🎸',
+			label: 'Cosa posso suonare'
+		},
+
+		{
+			href: resolve(`raccolta/`),
+			icon: '🎵',
+			label: 'Crea una scaletta'
+		},
+
+		{
+			href: resolve(`suggerimenti/`),
 			icon: '💬',
 			label: 'Commenti e suggerimenti'
 		},
-		{ href: `${base}/impostazioni/`, icon: '⚙️', label: 'Impostazioni' },
-		{ href: `${base}/crediti/`, icon: '📜', label: 'Crediti' }
+
+		{
+			href: resolve(`impostazioni/`),
+			icon: '⚙️',
+			label: 'Impostazioni'
+		},
+		{ href: resolve(`crediti/`), icon: '📜', label: 'Crediti' }
 	];
 
 	let open = $state(false);
@@ -43,12 +63,14 @@
 	let shared = $state<SavedCollection[]>([]);
 	let sharedOpen = $state(false);
 
-	afterNavigate(() => {
+	afterNavigate(({ shallow }) => {
+		if (shallow) return;
+
 		shared = loadSavedCollections();
 	});
 
 	function sharedHref(c: SavedCollection): string {
-		return `${base}/raccolta/?${savedCollectionQuery(c)}`;
+		return resolve(`raccolta/?${savedCollectionQuery(c)}`);
 	}
 
 	function forget(c: SavedCollection) {
@@ -75,7 +97,7 @@
 	}
 </script>
 
-<svelte:window onkeydown={onKeydown} />
+<svelte:window onkeydown={onKeydown}></svelte:window>
 
 <nav>
 	<div class="inline">
@@ -90,7 +112,7 @@
 				{#if sharedOpen}
 					<button
 						class="inline-shared-dismiss"
-						onclick={() => (sharedOpen = false)}
+						onclick={() => sharedOpen = false}
 						aria-label="Chiudi le scalette temporanee"
 						tabindex="-1"
 					></button>

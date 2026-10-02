@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { categoryLabel } from '$lib/categories';
+	import { categoryLabel } from '#lib/categories.js';
 
 	let { data } = $props();
 
 	// The search text lives in the URL (?q=), so the header link back to "/"
 	// clears the results and navigation preserves an ongoing search.
-	const search = $derived(browser ? (page.url.searchParams.get('q') ?? '') : '');
+	const search = $derived(browser ? page.url.searchParams.get('q') ?? '' : '');
 
 	function setSearch(value: string) {
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		if (value === '') url.searchParams.delete('q');
 		else url.searchParams.set('q', value);
 		// Replaces the entry so typing doesn't fill up the history.
-		goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+		goto(url, { replace: true, reset: false });
 	}
 
 	const filtered = $derived.by(() => {
@@ -30,7 +30,12 @@
 
 <div class="head">
 	<h2>Categorie</h2>
-	<a href="{base}/new/testo" class="btn primary" data-testid="new-song">+ Aggiungi un testo</a>
+
+	<a
+		href={resolve(`new/testo`)}
+		class="btn primary"
+		data-testid="new-song"
+	>+ Aggiungi un testo</a>
 </div>
 
 <input
@@ -57,15 +62,16 @@
 			{#each filtered as s (s.category + '/' + s.file)}
 				<tr data-testid="song-row">
 					<td>
-						<a href={`${base}/edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`}>
-							{s.title}
-						</a>
+						<a
+							href={resolve(`edit/${encodeURIComponent(s.category)}/${encodeURIComponent(s.file)}`)}
+						>{s.title}</a>
 					</td>
 					<td>{s.artist}</td>
 					<td>
-						<a class="category" href={`${base}/c/${encodeURIComponent(s.category)}`}>
-							{categoryLabel(s.category)}
-						</a>
+						<a
+							class="category"
+							href={resolve(`c/${encodeURIComponent(s.category)}`)}
+						>{categoryLabel(s.category)}</a>
 					</td>
 				</tr>
 			{/each}
@@ -74,7 +80,11 @@
 {:else}
 	<div class="folders">
 		{#each data.categories as c (c.category)}
-			<a href={`${base}/c/${encodeURIComponent(c.category)}`} class="folder" data-testid="folder">
+			<a
+				href={resolve(`c/${encodeURIComponent(c.category)}`)}
+				class="folder"
+				data-testid="folder"
+			>
 				<span class="icon">📁</span>
 				<span class="name">{categoryLabel(c.category)}</span>
 				<span class="count">{c.count} canzoni</span>

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import CapoFinder from '$lib/components/CapoFinder.svelte';
-	import ChordBuilder from '$lib/components/ChordBuilder.svelte';
-	import ChordChange from '$lib/components/ChordChange.svelte';
-	import FretboardMap from '$lib/components/FretboardMap.svelte';
-	import StringTuner from '$lib/components/StringTuner.svelte';
-	import StrumTrainer from '$lib/components/StrumTrainer.svelte';
+	import CapoFinder from '#lib/components/CapoFinder.svelte';
+	import ChordBuilder from '#lib/components/ChordBuilder.svelte';
+	import ChordChange from '#lib/components/ChordChange.svelte';
+	import FretboardMap from '#lib/components/FretboardMap.svelte';
+	import StringTuner from '#lib/components/StringTuner.svelte';
+	import StrumTrainer from '#lib/components/StrumTrainer.svelte';
 	import { transposeChord } from '$songlib/chords';
 
 	// Movable-capo demo: the shapes stay the same, the sounding chord follows
@@ -17,11 +17,8 @@
 	const NOTES = ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
 </script>
 
-<svelte:head>
-	<title>Impara la chitarra — Canzoniere Alessandria 2</title>
-</svelte:head>
-
-<nav><a href="{base}/">← Canzoniere</a></nav>
+<svelte:head><title>Impara la chitarra — Canzoniere Alessandria 2</title></svelte:head>
+<nav><a href="{resolve('/')}">← Canzoniere</a></nav>
 <h1>Impara la chitarra</h1>
 <p class="intro">
 	Tutto quello che serve per iniziare ad accompagnare i canti: com'è fatta la chitarra, come si
@@ -187,13 +184,18 @@
 	</p>
 	<ul>
 		<li>
-			<strong>Accordo maggiore</strong>: fondamentale + 4 semitoni (<em>terza maggiore</em>) + altri
-			3 (<em>quinta</em>). Do = Do&nbsp;Mi&nbsp;Sol. Suona aperto, allegro.
+			<strong>Accordo maggiore</strong>
+			: fondamentale + 4 semitoni (
+			<em>terza maggiore</em>
+			) + altri 3 (
+			<em>quinta</em>
+			). Do = Do Mi Sol. Suona aperto, allegro.
 		</li>
 		<li>
-			<strong>Accordo minore</strong>: fondamentale + 3 semitoni (<em>terza minore</em>) + altri 4.
-			Dom = Do&nbsp;Mi♭&nbsp;Sol, dove Mi♭ è il tasto che nella lista sopra si chiama Re#. Suona più
-			malinconico.
+			<strong>Accordo minore</strong>
+			: fondamentale + 3 semitoni (
+			<em>terza minore</em>
+			) + altri 4. Dom = Do Mi♭ Sol, dove Mi♭ è il tasto che nella lista sopra si chiama Re#. Suona più malinconico.
 		</li>
 	</ul>
 	<p>
@@ -239,10 +241,11 @@
 		</li>
 	</ul>
 	<p>
-		Prendi il <strong>Lam</strong>, cioè La&nbsp;Do&nbsp;Mi. La settima di La è il Sol, e sulla
-		chitarra ce l'hai già sotto le dita: la 3ª corda a vuoto <em>è</em> un Sol. Nel Lam quella corda
-		è premuta al 2º tasto e suona un La, che raddoppia la fondamentale. Nella posizione di Lam7 qui
-		sotto il Sol arriva invece dalla 1ª corda, al 3º tasto.
+		Prendi il 
+		<strong>Lam</strong>
+		, cioè La Do Mi. La settima di La è il Sol, e sulla chitarra ce l'hai già sotto le dita: la 3ª corda a vuoto 
+		<em>è</em>
+		un Sol. Nel Lam quella corda è premuta al 2º tasto e suona un La, che raddoppia la fondamentale. Nella posizione di Lam7 qui sotto il Sol arriva invece dalla 1ª corda, al 3º tasto.
 	</p>
 	<p>
 		Scegli la fondamentale, il tipo di accordo e cosa aggiungere: sotto vedi quale dito si sposta,
@@ -312,9 +315,12 @@
 		<div class="capo-picker">
 			<span>Capo al tasto:</span>
 			{#each [0, 1, 2, 3, 4, 5] as f (f)}
-				<button class="chip" class:on={capo === f} onclick={() => (capo = f)} aria-pressed={capo === f}>
-					{f === 0 ? 'no' : f}
-				</button>
+				<button
+					class="chip"
+					class:on={capo === f}
+					onclick={() => capo = f}
+					aria-pressed={capo === f}
+				>{f === 0 ? 'no' : f}</button>
 			{/each}
 		</div>
 		<div class="capo-table" role="table" aria-label="Effetto del capotasto sugli accordi">
@@ -398,17 +404,12 @@
 			L'accordo è scritto <strong>sopra la sillaba</strong> in cui va cambiato, non a inizio riga: il
 			cambio cade esattamente lì, mentre canti quella sillaba.
 		</li>
+
+		<li>Se un accordo resta lo stesso per due righe, non viene ripetuto: continui a suonare quello di prima.</li>
+		<li>Il ritornello è rientrato e marcato: torna più volte identico, quindi conviene impararlo per primo.</li>
+
 		<li>
-			Se un accordo resta lo stesso per due righe, non viene ripetuto: continui a suonare quello di
-			prima.
-		</li>
-		<li>
-			Il ritornello è rientrato e marcato: torna più volte identico, quindi conviene impararlo per
-			primo.
-		</li>
-		<li>
-			Le sigle sono in notazione latina (Do, Re, Mi) come nel resto d'Italia; su internet trovi le
-			stesse cose in notazione inglese (C, D, E).
+			Le sigle sono in notazione latina (Do, Re, Mi) come nel resto d'Italia; su internet trovi le stesse cose in notazione inglese (C, D, E).
 		</li>
 	</ul>
 	<p>
@@ -432,14 +433,14 @@
 		<li>Scegli un canto con pochi accordi e suonalo tutto, anche piano.</li>
 	</ol>
 	<p>
-		Per i punti 2 e 5 c'è una pagina fatta apposta:
-		<a href="{base}/accordi/">Cosa posso suonare</a> ti dice quali accordi conviene imparare prima,
-		come mettere le dita e quali canti puoi già accompagnare con quelli che sai.
+		Per i punti 2 e 5 c'è una pagina fatta apposta: 
+		<a href={resolve(`accordi/`)}>Cosa posso suonare</a>
+		ti dice quali accordi conviene imparare prima, come mettere le dita e quali canti puoi già accompagnare con quelli che sai.
 	</p>
 	<p>
-		Mentre suoni, la <a href="{base}/impostazioni/">modalità studente</a> porta questa pagina dentro
-		i canti: gli accordi sopra le parole si toccano e si aprono sulla loro scheda, ogni canto dice
-		quanto sei pronto e il pulsante «Studia» lo smonta in accordi, cambi e suonata finale.
+		Mentre suoni, la 
+		<a href={resolve(`impostazioni/`)}>modalità studente</a>
+		porta questa pagina dentro i canti: gli accordi sopra le parole si toccano e si aprono sulla loro scheda, ogni canto dice quanto sei pronto e il pulsante «Studia» lo smonta in accordi, cambi e suonata finale.
 	</p>
 	<p class="hint">
 		Meglio 10 minuti tutti i giorni che un'ora una volta a settimana. E suona con gli altri appena

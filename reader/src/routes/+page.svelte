@@ -1,25 +1,25 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
-	import { browser } from '$app/environment';
+	import { resolve } from '$app/paths';
+	import { browser } from '$app/env';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { allSongs, categories, songbooks, findSong, type SongRef } from '$lib/data';
-	import { parseQuery, matchesQuery } from '$lib/search';
-	import { loadFavorites } from '$lib/favorites';
-	import SearchBox from '$lib/components/SearchBox.svelte';
+	import { allSongs, categories, songbooks, findSong, type SongRef } from '#lib/data.js';
+	import { parseQuery, matchesQuery } from '#lib/search.js';
+	import { loadFavorites } from '#lib/favorites.js';
+	import SearchBox from '#lib/components/SearchBox.svelte';
 
 	// The search text lives in the URL (?q=), so following the header link back
 	// to "/" leaves the results and shows the home page again. The guard keeps
 	// the prerenderer from touching the query string at build time.
-	const query = $derived(browser ? (page.url.searchParams.get('q') ?? '') : '');
+	const query = $derived(browser ? page.url.searchParams.get('q') ?? '' : '');
 
 	function setQuery(value: string) {
-		const url = new URL(page.url);
+		const url = new URL(page.url.href);
 		if (value === '') url.searchParams.delete('q');
 		else url.searchParams.set('q', value);
 		// Replaces the entry so typing doesn't fill up the history.
-		goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+		goto(url, { replace: true, reset: false });
 	}
 
 	// Starred songs, resolved to SongRefs; localStorage only exists client-side.
@@ -51,7 +51,9 @@
 	<ul class="songs">
 		{#each filtered as song (song.category + '/' + song.slug)}
 			<li>
-				<a href="{base}/s/{song.category}/{song.slug}/">
+				<a
+					href={resolve(`s/${song.category}/${song.slug}/`)}
+				>
 					<span class="title">{song.title}</span>
 					{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 				</a>
@@ -66,7 +68,9 @@
 		<ul class="songs">
 			{#each favorites as song (song.category + '/' + song.slug)}
 				<li>
-					<a href="{base}/s/{song.category}/{song.slug}/">
+					<a
+						href={resolve(`s/${song.category}/${song.slug}/`)}
+					>
 						<span class="title">★ {song.title}</span>
 						{#if song.artist}<span class="artist">{song.artist}</span>{/if}
 					</a>
@@ -78,7 +82,7 @@
 	<h2>Categorie</h2>
 	<div class="grid">
 		{#each categories as cat (cat.name)}
-			<a class="card" href="{base}/c/{cat.name}/">
+			<a class="card" href={resolve(`c/${cat.name}/`)}>
 				<span class="label">📁 {cat.label}</span>
 				<span class="count">{cat.count} canti</span>
 			</a>
@@ -89,7 +93,7 @@
 		<h2>Canzonieri per eventi</h2>
 		<div class="grid">
 			{#each songbooks as book (book.name)}
-				<a class="card" href="{base}/k/{book.name}/">
+				<a class="card" href={resolve(`k/${book.name}/`)}>
 					<span class="label">🗓️ {book.label}</span>
 					<span class="count">{book.songs.length} canti</span>
 				</a>

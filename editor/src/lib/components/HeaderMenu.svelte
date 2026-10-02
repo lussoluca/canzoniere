@@ -1,21 +1,26 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import { base } from '$app/paths';
-	import { online } from '$lib/online';
-	import { pendingCount } from '$lib/pending.svelte';
+	import { resolve } from '$app/paths';
+	import { online } from '#lib/online.js';
+	import { pendingCount } from '#lib/pending.svelte.js';
 
 	const items = online
 		? [
-				{ href: `${base}/`, icon: '🎵', label: 'Canzoni' },
-				{ href: `${base}/invia`, icon: '📤', label: 'Invia modifiche', badge: true },
-				{ href: `${base}/help`, icon: '📖', label: 'Guida' }
-			]
+			{ href: resolve('/'), icon: '🎵', label: 'Canzoni' },
+			{
+				href: resolve(`invia`),
+				icon: '📤',
+				label: 'Invia modifiche',
+				badge: true
+			},
+			{ href: resolve(`help`), icon: '📖', label: 'Guida' }
+		]
 		: [
-				{ href: `${base}/`, icon: '🎵', label: 'Canzoni' },
-				{ href: `${base}/songbooks`, icon: '📚', label: 'Canzonieri' },
-				{ href: `${base}/categories`, icon: '📁', label: 'Categorie' },
-				{ href: `${base}/help`, icon: '📖', label: 'Guida' }
-			];
+			{ href: resolve('/'), icon: '🎵', label: 'Canzoni' },
+			{ href: resolve(`songbooks`), icon: '📚', label: 'Canzonieri' },
+			{ href: resolve(`categories`), icon: '📁', label: 'Categorie' },
+			{ href: resolve(`help`), icon: '📖', label: 'Guida' }
+		];
 
 	let open = $state(false);
 
@@ -28,22 +33,22 @@
 	}
 </script>
 
-<svelte:window onkeydown={onKeydown} />
+<svelte:window onkeydown={onKeydown}></svelte:window>
 
 <nav>
 	<div class="inline">
 		{#each items as item (item.href)}
 			<a href={item.href} class:send={item.badge}>
-				{item.label}{#if item.badge && pendingCount() > 0}&nbsp;<span class="badge"
-						>{pendingCount()}</span
-					>{/if}
+				{item.label}{#if item.badge && pendingCount() > 0}
+					<span class="badge">{pendingCount()}</span>
+				{/if}
 			</a>
 		{/each}
 	</div>
 
 	<button
 		class="burger"
-		onclick={() => (open = !open)}
+		onclick={() => open = !open}
 		aria-expanded={open}
 		aria-label={open ? 'Chiudi il menu' : 'Apri il menu'}
 	>

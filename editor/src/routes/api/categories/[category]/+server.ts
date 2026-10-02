@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { renameCategory, deleteCategory, categoryExists } from '$lib/server/songs';
+import { renameCategory, deleteCategory, categoryExists } from '#lib/server/songs.js';
 import type { RequestHandler } from './$types';
 
 // rename the category (and retag every song inside it)

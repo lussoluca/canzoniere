@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { categories, songsByCategory } from '$lib/data';
+import { categories, songsByCategory } from '#lib/data.js';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = ({ params }) => {

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { sendSuggestion } from '$lib/feedback';
+	import { sendSuggestion } from '#lib/feedback.js';
 
 	let song = $state('');
 	let name = $state('');
@@ -41,11 +41,8 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Suggerimenti — Canzoniere Alessandria 2</title>
-</svelte:head>
-
-<nav><a href="{base}/">← Canzoniere</a></nav>
+<svelte:head><title>Suggerimenti — Canzoniere Alessandria 2</title></svelte:head>
+<nav><a href="{resolve('/')}">← Canzoniere</a></nav>
 <h1>Commenti e suggerimenti</h1>
 <p class="intro">
 	Un errore in un testo, un accordo sbagliato, un canto che manca: scrivilo qui e arriva dritto a

@@ -1,14 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
-	import {
-		loadKnownChords,
-		saveKnownChords,
-		chordUsage,
-		classify
-	} from '$lib/known-chords';
+	import { resolve } from '$app/paths';
+	import { loadKnownChords, saveKnownChords, chordUsage, classify } from '#lib/known-chords.js';
 	import ChordDiagram from '$songlib/ChordDiagram.svelte';
-	import ChordTutorialCard from '$lib/components/ChordTutorialCard.svelte';
+	import ChordTutorialCard from '#lib/components/ChordTutorialCard.svelte';
 
 	const usage = chordUsage();
 
@@ -35,11 +30,8 @@
 	const starters = usage.slice(0, 3).map(({ chord, count }) => ({ chord, count }));
 </script>
 
-<svelte:head>
-	<title>Cosa posso suonare — Canzoniere Alessandria 2</title>
-</svelte:head>
-
-<nav><a href="{base}/">← Canzoniere</a></nav>
+<svelte:head><title>Cosa posso suonare — Canzoniere Alessandria 2</title></svelte:head>
+<nav><a href="{resolve('/')}">← Canzoniere</a></nav>
 <h1>Cosa posso suonare</h1>
 <p class="intro">
 	Segna gli accordi che sai fare: il canzoniere ti dice quali canti puoi già accompagnare, quale
@@ -101,7 +93,9 @@
 		<ul class="songs">
 			{#each result.playable as { song, chords } (song.category + '/' + song.slug)}
 				<li>
-					<a href="{base}/s/{song.category}/{song.slug}/">
+					<a
+						href={resolve(`s/${song.category}/${song.slug}/`)}
+					>
 						<span class="title">{song.title}</span>
 						<span class="detail">{chords.join(' ')}</span>
 					</a>
@@ -116,7 +110,9 @@
 	<ul class="songs">
 		{#each result.almost as { entry, missing } (entry.song.category + '/' + entry.song.slug)}
 			<li>
-				<a href="{base}/s/{entry.song.category}/{entry.song.slug}/">
+				<a
+					href={resolve(`s/${entry.song.category}/${entry.song.slug}/`)}
+				>
 					<span class="title">{entry.song.title}</span>
 					<span class="detail">manca <strong class="missing">{missing}</strong></span>
 				</a>

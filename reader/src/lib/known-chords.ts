@@ -3,7 +3,7 @@
 // "playable now", "one chord away" and "later".
 
 import { simplifyChord, englishChordToLatin, transposeChord } from '$songlib/chords';
-import { allSongs, type SongRef } from '$lib/data';
+import { allSongs, type SongRef } from '#lib/data.js';
 import { parse } from '$songlib/chordpro';
 
 const KEY = 'reader:known-chords';

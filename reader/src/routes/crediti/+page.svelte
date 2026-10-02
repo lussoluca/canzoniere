@@ -1,17 +1,14 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import { allSongs, categories } from '$lib/data';
-	import { FEEDBACK_EMAIL, feedbackHref } from '$lib/feedback';
+	import { resolve } from '$app/paths';
+	import { allSongs, categories } from '#lib/data.js';
+	import { FEEDBACK_EMAIL, feedbackHref } from '#lib/feedback.js';
 
 	const songCount = allSongs.length;
 	const categoryCount = categories.length;
 </script>
 
-<svelte:head>
-	<title>Crediti — Canzoniere Alessandria 2</title>
-</svelte:head>
-
-<nav><a href="{base}/">← Canzoniere</a></nav>
+<svelte:head><title>Crediti — Canzoniere Alessandria 2</title></svelte:head>
+<nav><a href="{resolve('/')}">← Canzoniere</a></nav>
 <h1>Crediti</h1>
 <p class="intro">
 	Chi ha scelto i canti, chi ha costruito l'applicazione e a chi appartengono i diritti sui brani.
@@ -33,8 +30,9 @@
 		da <strong>Luca Lusso</strong>.
 	</p>
 	<p class="muted">
-		Segnalazioni, correzioni e richieste di nuovi canti sono benvenute: usa la pagina
-		<a href="{base}/suggerimenti/">Commenti e suggerimenti</a>.
+		Segnalazioni, correzioni e richieste di nuovi canti sono benvenute: usa la pagina 
+		<a href={resolve(`suggerimenti/`)}>Commenti e suggerimenti</a>
+		.
 	</p>
 </div>
 

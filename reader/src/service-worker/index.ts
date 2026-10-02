@@ -6,19 +6,26 @@
 // Precache the whole app (bundle + static assets + prerendered pages) so the
 // reader works fully offline once installed on the home screen.
 
+import { version } from '$app/env';
+import { assets, immutable, prerendered } from '$app/manifest';
+
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-import { build, files, prerendered, version } from '$service-worker';
+// The manifest paths are relative to the base path, which is the scope the
+// worker is registered with; the cache and fetch handler work on absolute ones.
+const absolute = ({ path }: { path: string }) => new URL(path, sw.registration.scope).pathname;
 
 const CACHE = `canzoniere-reader-${version}`;
-const ASSETS = [...build, ...files, ...prerendered];
+const BUILD = immutable.map(absolute);
+const FILES = assets.map(absolute);
+const ASSETS = [...BUILD, ...FILES, ...prerendered.map(absolute)];
 
 // Hashed build output and static files are immutable: their URL changes when
 // their content changes, so they can be served straight from cache forever.
 // Everything else (navigations, prerendered HTML) is served network-first, so
 // after a deploy the page always loads with the asset hashes of the version
 // that is actually live, instead of a stale HTML pointing at evicted files.
-const IMMUTABLE = new Set([...build, ...files]);
+const IMMUTABLE = new Set([...BUILD, ...FILES]);
 
 sw.addEventListener('install', (event) => {
 	// No skipWaiting here: the new worker stays waiting until the page offers

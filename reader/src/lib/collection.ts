@@ -2,8 +2,8 @@
 // optional title) are encoded into query parameters, so a link is all it takes
 // to send a set to the group. No backend, works with the bundled songs.
 
-import { findSong, type SongRef } from '$lib/data';
-import { SCROLL_MIN, SCROLL_MAX, type SongPrefs } from '$lib/prefs';
+import { findSong, type SongRef } from '#lib/data.js';
+import { SCROLL_MIN, SCROLL_MAX, type SongPrefs } from '#lib/prefs.js';
 
 // A shared song can carry the sender's reading prefs, so the whole group sees
 // the set with the same key, simplified chords and scroll speed.

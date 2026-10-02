@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
-	import { loadStudentMode, saveStudentMode } from '$lib/student';
+	import { resolve } from '$app/paths';
+	import { loadStudentMode, saveStudentMode } from '#lib/student.js';
 
 	let student = $state(false);
 	let ready = $state(false);
@@ -17,11 +17,8 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Impostazioni — Canzoniere Alessandria 2</title>
-</svelte:head>
-
-<nav><a href="{base}/">← Canzoniere</a></nav>
+<svelte:head><title>Impostazioni — Canzoniere Alessandria 2</title></svelte:head>
+<nav><a href="{resolve('/')}">← Canzoniere</a></nav>
 <h1>Impostazioni</h1>
 <p class="intro">
 	Le impostazioni restano su questo dispositivo: chi apre il canzoniere da un altro telefono trova
@@ -60,9 +57,11 @@
 		</li>
 	</ul>
 	<p class="hint">
-		Gli accordi che segni come «lo so fare» sono gli stessi di
-		<a href="{base}/accordi/">Cosa posso suonare</a>, e la teoria dietro le schede sta tutta in
-		<a href="{base}/impara/">Impara la chitarra</a>.
+		Gli accordi che segni come «lo so fare» sono gli stessi di 
+		<a href={resolve(`accordi/`)}>Cosa posso suonare</a>
+		, e la teoria dietro le schede sta tutta in 
+		<a href={resolve(`impara/`)}>Impara la chitarra</a>
+		.
 	</p>
 </div>
 

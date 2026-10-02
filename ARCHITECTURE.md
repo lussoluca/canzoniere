@@ -580,7 +580,7 @@ reader/src/
 │   ├── c/[category]/               # Songs in a category
 │   ├── k/[name]/                   # Songbook detail (song list in book order)
 │   └── s/[category]/[slug]/        # Song page (reading view with controls)
-└── service-worker.ts               # Offline precache of the whole app
+└── service-worker/index.ts         # Offline precache of the whole app
 ```
 
 ### Key Behaviors
@@ -601,7 +601,7 @@ reader/src/
 
 - Monospace layout: for each lyric line a chord row is composed by placing each chord at its character position (pushed right on overlap), then rendered above the text. Chorus lines get a left border and italics; directives are hidden.
 
-**Offline** (`reader/src/service-worker.ts`):
+**Offline** (`reader/src/service-worker/index.ts`):
 
 - On install, precaches the entire build (bundle + static assets + prerendered pages) in a versioned cache; on activate, drops old caches. Fetches are cache-first, falling back to the app shell for navigations when offline.
 

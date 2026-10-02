@@ -24,7 +24,7 @@ The `editor/` directory contains a SvelteKit (Svelte 5) app:
 - Chord tools, available in both tabs: convert english chord names to latin (`Am` → `Lam`) and transpose all chords ±1 semitone.
 - Canzonieri section: list/create/delete the event songbooks in `canzonieri/` and edit each one (add/remove/reorder songs, resolved to titles; saving writes the `.txt` in the format consumed by the Go tool).
 
-Online mode (`VITE_ONLINE=1` at build time): the same app builds statically with `adapter-static` — every page is prerendered, the server loads read `../canzoni` at build time — and is deployed by CI to GitHub Pages under `/canzoniere/editor/`. Saving queues the song in localStorage (`$lib/pending.svelte.ts`) instead of calling the local `/api` routes; the "Invia modifiche" page (`/invia`) ships the queue to the backend's `POST /api/songs/batch` with the shared editor password (`X-Editor-Key`) and links the resulting pull request. Reopening a queued song shows the local version. Management operations (categories, songbooks, move/delete) are local-only and hidden online.
+Online mode (`VITE_ONLINE=1` at build time): the same app builds statically with `adapter-static` — every page is prerendered, the server loads read `../canzoni` at build time — and is deployed by CI to GitHub Pages under `/canzoniere/editor/`. Saving queues the song in localStorage (`#lib/pending.svelte.ts`) instead of calling the local `/api` routes; the "Invia modifiche" page (`/invia`) ships the queue to the backend's `POST /api/songs/batch` with the shared editor password (`X-Editor-Key`) and links the resulting pull request. Reopening a queued song shows the local version. Management operations (categories, songbooks, move/delete) are local-only and hidden online.
 
 Commands:
 
@@ -56,7 +56,7 @@ Components (`src/lib/components/`): `HeaderMenu.svelte` (the `items` array is th
 
 Student mode is opt-in from `impostazioni/` and off by default: every part of it is behind `loadStudentMode()`, so the reader looks unchanged until it is switched on. `ChordChange` and `StrumTrainer` take an optional `chords` list, which is how the study panel points the primer's tools at one song's chords instead of the fixed handful.
 
-Conventions for a static page: `<svelte:head><title>… — Canzoniere Alessandria 2</title></svelte:head>`, then `<nav><a href="{base}/">← Canzoniere</a></nav>`, an `<h1>`, a `<p class="intro">` and uppercase `<h2>` section headings; links always built from `base` (`$app/paths`). Styles stay local to the component and take colours from the CSS variables only, never hardcoded, so both themes work. All user-facing text is in Italian.
+Conventions for a static page: `<svelte:head><title>… — Canzoniere Alessandria 2</title></svelte:head>`, then `<nav><a href={resolve('/')}>← Canzoniere</a></nav>`, an `<h1>`, a `<p class="intro">` and uppercase `<h2>` section headings; links always built with `resolve(...)` and static files with `asset(...)` (`$app/paths`). Styles stay local to the component and take colours from the CSS variables only, never hardcoded, so both themes work. All user-facing text is in Italian.
 
 ## Build the final PDF
 
