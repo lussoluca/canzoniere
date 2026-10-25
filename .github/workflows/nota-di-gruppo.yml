@@ -1,0 +1,96 @@
+# Turns an issue labeled "nota-di-gruppo" (opened from the reader's note panel)
+# into a PR that adds {x_note:...} directives to the referenced song. The issue
+# body is untrusted input: the song reference is validated against a strict
+# slug pattern and must resolve to an existing file under canzoni/; the note
+# lines are sanitized before being written.
+
+name: Nota di gruppo
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  crea-pr:
+    if: contains(github.event.issue.labels.*.name, 'nota-di-gruppo')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Estrai e valida la nota
+        id: nota
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = context.payload.issue.body ?? '';
+
+            const fail = async (msg) => {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.payload.issue.number,
+                body: `:robot: Non riesco a elaborare questa proposta: ${msg}\n\nIl formato atteso è quello generato dal pulsante "Proponi al gruppo" del reader.`
+              });
+              core.setFailed(msg);
+            };
+
+            const ref = body.match(/^canto:\s*([a-z0-9_]+)\/([a-z0-9_]+)\s*$/m);
+            if (!ref) return fail('manca il riferimento `canto: categoria/slug`.');
+            const [, category, slug] = ref;
+            const file = `canzoni/${category}/${slug}.cho`;
+            if (!fs.existsSync(file)) return fail(`il canto \`${category}/${slug}\` non esiste.`);
+
+            const fence = body.match(/```nota\r?\n([\s\S]*?)\r?\n```/);
+            if (!fence) return fail('manca il blocco con il testo della nota.');
+
+            // One {x_note} per non-empty line; braces would end the ChordPro
+            // directive early, so they are replaced.
+            const lines = fence[1]
+              .split(/\r?\n/)
+              .map((l) => l.replace(/\{/g, '(').replace(/\}/g, ')').trim())
+              .filter((l) => l !== '')
+              .slice(0, 10)
+              .map((l) => l.slice(0, 200));
+            if (lines.length === 0) return fail('la nota è vuota.');
+
+            const src = fs.readFileSync(file, 'utf8').split('\n');
+            // Head = leading directive-only lines; the new notes go right after,
+            // following any x_note already present.
+            let head = 0;
+            while (head < src.length && /^\{.*\}\s*$/.test(src[head])) head++;
+            const directives = lines.map((l) => `{x_note:${l}}`);
+            src.splice(head, 0, ...directives);
+            fs.writeFileSync(file, src.join('\n'));
+
+            core.setOutput('file', file);
+            core.setOutput('slug', `${category}/${slug}`);
+
+      - name: Apri la pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          FILE: ${{ steps.nota.outputs.file }}
+          SLUG: ${{ steps.nota.outputs.slug }}
+        run: |
+          BRANCH="nota/issue-${ISSUE}"
+          if git ls-remote --exit-code origin "$BRANCH" >/dev/null 2>&1; then
+            echo "La branch $BRANCH esiste già: proposta già elaborata."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$FILE"
+          git commit -m "Aggiunge una nota di gruppo a ${SLUG}" \
+            --trailer "Refs: ${GITHUB_REPOSITORY}#${ISSUE}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "feat(canzoni): nota di gruppo per ${SLUG}" \
+            --body "$(printf 'Nota di gruppo proposta dal reader in #%s.\n\nCloses #%s' "$ISSUE" "$ISSUE")"
