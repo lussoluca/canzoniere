@@ -132,6 +132,30 @@ export function parse(source: string): Song {
 	return { meta, lines };
 }
 
+/**
+ * Moves chord positions so they stay on the same characters after the lyric
+ * text changes: the edit is the span between the common prefix and suffix of
+ * the two texts, chords after it shift by the length difference and chords
+ * inside it are clamped to its end.
+ */
+export function remapChords(oldText: string, newText: string, chords: Chord[]): void {
+	const maxCommon = Math.min(oldText.length, newText.length);
+	let prefix = 0;
+	while (prefix < maxCommon && oldText[prefix] === newText[prefix]) prefix++;
+	let suffix = 0;
+	while (
+		suffix < maxCommon - prefix &&
+		oldText[oldText.length - 1 - suffix] === newText[newText.length - 1 - suffix]
+	)
+		suffix++;
+	const oldEditEnd = oldText.length - suffix;
+	const newEditEnd = newText.length - suffix;
+	for (const c of chords) {
+		if (c.pos <= prefix) continue;
+		c.pos = c.pos >= oldEditEnd ? c.pos - oldEditEnd + newEditEnd : Math.min(c.pos, newEditEnd);
+	}
+}
+
 export function serializeLyricLine(text: string, chords: Chord[]): string {
 	const sorted = [...chords].sort((a, b) => a.pos - b.pos);
 	let out = '';

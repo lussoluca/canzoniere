@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Song, Line, Chord } from '@canzoniere/shared/chordpro';
+	import { remapChords, type Song, type Line, type Chord } from '@canzoniere/shared/chordpro';
 	import { sanitizeChord, isValidChord } from '@canzoniere/shared/chords';
 
 	interface Props {
@@ -162,8 +162,8 @@
 
 	function commitTextEdit() {
 		if (!editingText || !line) return;
+		remapChords(line.text, textDraft, line.chords);
 		line.text = textDraft;
-		for (const c of line.chords) c.pos = Math.min(c.pos, line.text.length);
 		editingText = false;
 	}
 

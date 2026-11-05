@@ -231,6 +231,28 @@ test('lyric line edit: Enter commits, Esc discards', async ({ page }) => {
 	await expect(firstLine.getByTestId('lyric-text')).not.toContainText('scartare');
 });
 
+test('lyric line edit keeps chords on their characters', async ({ page }) => {
+	await goto(page, '/edit/varie/stella_del_mattino.cho');
+	const secondLine = page.getByTestId('lyric-line').nth(1);
+	const pill = secondLine.getByTestId('chord-pill');
+	await expect(pill).toHaveAttribute('data-pos', '4'); // "nel [Sol]cielo"
+
+	// text inserted before the chord moves it along
+	await secondLine.hover();
+	await secondLine.getByTestId('edit-lyric-text').click();
+	const input = page.getByTestId('lyric-text-input');
+	await input.fill('Sotto nel cielo di settembre');
+	await input.press('Enter');
+	await expect(pill).toHaveAttribute('data-pos', '10');
+
+	// a leading character removed moves it back
+	await secondLine.hover();
+	await secondLine.getByTestId('edit-lyric-text').click();
+	await input.fill('otto nel cielo di settembre');
+	await input.press('Enter');
+	await expect(pill).toHaveAttribute('data-pos', '9');
+});
+
 test('convert english chords to latin and transpose', async ({ page }) => {
 	await goto(page, '/new?category=reparto');
 	await page.getByTestId('meta-title').fill('Test Accordi');
