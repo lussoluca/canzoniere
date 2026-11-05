@@ -2,5 +2,5 @@ chiesa/come_un_fiume.cho
 chiesa/alleluia_passeranno_i_cieli.cho
 chiesa/segni_del_tuo_amore.cho
 chiesa/l_unico_maestro.cho
-chiesa/la_stella_polare.cho
+chiesa/te_al_centro_del_mio_cuore.cho
 canti_scout/ah_io_vorrei_tornare.cho
