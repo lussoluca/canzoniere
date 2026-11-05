@@ -25,7 +25,7 @@ const (
 	bodySize   = 9.0
 	titleLineH = 6.0
 	bodyLineH  = 4.5
-	songGap    = 5.0
+	songGap    = 3.0
 )
 
 var chordRe = regexp.MustCompile(`\[[^\]]+\]`)
@@ -33,7 +33,7 @@ var chordRe = regexp.MustCompile(`\[[^\]]+\]`)
 type LineKind int
 
 const (
-	KindTitle     LineKind = iota
+	KindTitle LineKind = iota
 	KindBody
 	KindChorus
 	KindChorusRef // "Rit." placeholder for repeated identical chorus
@@ -43,6 +43,9 @@ const (
 type Line struct {
 	Text string
 	Kind LineKind
+	// ChorusStart marks the first line of a {start_of_chorus} block, so that
+	// adjacent choruses separated only by blank lines stay distinct blocks.
+	ChorusStart bool
 }
 
 type Song struct {
@@ -59,6 +62,7 @@ func parseSong(path string) (*Song, error) {
 
 	song := &Song{}
 	inChorus := false
+	chorusStart := false
 	scanner := bufio.NewScanner(f)
 
 	for scanner.Scan() {
@@ -70,6 +74,7 @@ func parseSong(path string) (*Song, error) {
 
 		case line == "{start_of_chorus}" || line == "{soc}":
 			inChorus = true
+			chorusStart = true
 
 		case line == "{end_of_chorus}" || line == "{eoc}":
 			inChorus = false
@@ -89,11 +94,13 @@ func parseSong(path string) (*Song, error) {
 					song.Lines = append(song.Lines, Line{Kind: KindEmpty})
 				}
 			} else {
-				kind := KindBody
+				l := Line{Text: text, Kind: KindBody}
 				if inChorus {
-					kind = KindChorus
+					l.Kind = KindChorus
+					l.ChorusStart = chorusStart
+					chorusStart = false
 				}
-				song.Lines = append(song.Lines, Line{Text: text, Kind: kind})
+				song.Lines = append(song.Lines, l)
 			}
 		}
 	}
@@ -223,7 +230,8 @@ func chorusText(lines []Line, start, end int) string {
 	return sb.String()
 }
 
-// deduplicateChorus replaces repeated chorus blocks identical to the first with a single "Rit." line.
+// deduplicateChorus replaces repeated chorus blocks identical to the first with
+// a single "Rit." line; consecutive replacements collapse into "Rit. xN".
 func deduplicateChorus(song *Song) {
 	type block struct{ start, end int }
 	var blocks []block
@@ -232,7 +240,8 @@ func deduplicateChorus(song *Song) {
 	for i < len(song.Lines) {
 		if song.Lines[i].Kind == KindChorus {
 			start := i
-			for i < len(song.Lines) && (song.Lines[i].Kind == KindChorus || song.Lines[i].Kind == KindEmpty) {
+			i++
+			for i < len(song.Lines) && (song.Lines[i].Kind == KindChorus || song.Lines[i].Kind == KindEmpty) && !song.Lines[i].ChorusStart {
 				i++
 			}
 			end := i
@@ -262,6 +271,40 @@ func deduplicateChorus(song *Song) {
 			song.Lines = newLines
 		}
 	}
+
+	mergeChorusRefs(song)
+}
+
+// mergeChorusRefs collapses "Rit." lines separated only by blank lines into one "Rit. xN" line.
+func mergeChorusRefs(song *Song) {
+	lines := song.Lines
+	merged := make([]Line, 0, len(lines))
+	for i := 0; i < len(lines); i++ {
+		if lines[i].Kind != KindChorusRef {
+			merged = append(merged, lines[i])
+			continue
+		}
+		n := 1
+		next := i + 1
+		for {
+			k := next
+			for k < len(lines) && lines[k].Kind == KindEmpty {
+				k++
+			}
+			if k == len(lines) || lines[k].Kind != KindChorusRef {
+				break
+			}
+			n++
+			next = k + 1
+		}
+		text := "Rit."
+		if n > 1 {
+			text = fmt.Sprintf("Rit. x%d", n)
+		}
+		merged = append(merged, Line{Text: text, Kind: KindChorusRef})
+		i = next - 1
+	}
+	song.Lines = merged
 }
 
 func main() {
