@@ -79,7 +79,10 @@
 				<li data-testid="songbook-entry">
 					<span class="title">
 						{#if song}
-							{song.title}
+							<a
+								href={resolve(`edit/${encodeURIComponent(song.category)}/${encodeURIComponent(song.file)}`)}
+								data-testid="entry-edit">{song.title}</a
+							>
 							<small class="cat">{categoryLabel(song.category)}</small>
 						{:else}
 							<span class="missing" title="File non trovato">{e} ⚠︎</span>
@@ -174,6 +177,9 @@
 	}
 	ol li .title {
 		flex: 1;
+	}
+	ol li .title a {
+		color: inherit;
 	}
 	.cat {
 		color: #999;
