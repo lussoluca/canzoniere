@@ -1,5 +1,5 @@
 name: Test stack
-description: Type-check and build the web apps, run the editor E2E tests, test the backend, build the printer tool.
+description: Type-check and build the web apps, run the editor and reader E2E tests, test the backend, build the printer tool.
 
 runs:
   using: composite
@@ -45,6 +45,14 @@ runs:
     - name: Check reader
       shell: bash
       run: cd reader && npm run check
+
+    - name: Install reader Playwright browsers
+      shell: bash
+      run: cd reader && npx playwright install --with-deps chromium
+
+    - name: Run reader E2E tests
+      shell: bash
+      run: cd reader && npm test
 
     - name: Build reader
       shell: bash

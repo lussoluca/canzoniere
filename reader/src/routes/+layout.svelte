@@ -78,6 +78,11 @@
 		saveTheme(chosen);
 		applyTheme(chosen);
 	}
+
+	// marker for e2e tests: only interact after hydration
+	$effect(() => {
+		document.body.dataset.hydrated = 'true';
+	});
 </script>
 
 <div class="app">

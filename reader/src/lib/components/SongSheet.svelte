@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Song, Line, Chord } from '@canzoniere/shared/chordpro';
+	import { isTimedLine } from '@canzoniere/shared/pauses';
 	import { simplifyChord, transposeChord } from '@canzoniere/shared/chords';
 
 	interface Props {
@@ -57,11 +58,14 @@
 		return segments.reduce((n, s) => n + s.gap.length + s.chord.length, 0);
 	}
 
-	type DisplayLine = Line & { chorus: boolean; chordRow: ChordSegment[] };
+	// timed: the line's index among the timed lines (see shared/pauses), the
+	// key the autoscroll pauses are attached to; -1 for blank lines.
+	type DisplayLine = Line & { chorus: boolean; chordRow: ChordSegment[]; timed: number };
 
 	const displayLines: DisplayLine[] = $derived.by(() => {
 		const out: DisplayLine[] = [];
 		let chorus = false;
+		let timed = -1;
 		for (const line of song.lines) {
 			if (line.type === 'chorus_start') {
 				chorus = true;
@@ -71,9 +75,10 @@
 				chorus = false;
 				continue;
 			}
-			if (line.type === 'directive') continue;
+			if (line.type === 'directive' || line.type === 'pause') continue;
+			if (isTimedLine(line)) timed++;
 			const row = line.type === 'lyric' && !hideChords ? chordSegments(line.chords) : [];
-			out.push({ ...line, chorus, chordRow: row });
+			out.push({ ...line, chorus, chordRow: row, timed: isTimedLine(line) ? timed : -1 });
 		}
 		return out;
 	});
@@ -108,7 +113,7 @@
 <div class="sheet" style="font-size: {effectiveSize}px" bind:clientWidth={sheetWidth}>
 	{#each displayLines as line}
 		{#if line.type === 'lyric'}
-			<div class="line" class:chorus={line.chorus}>
+			<div class="line" class:chorus={line.chorus} data-line={line.timed}>
 				{#if line.chordRow.length > 0}
 					<pre
 						class="chords">{#each line.chordRow as seg, i (i)}{seg.gap}{#if onchord}<button class="chord" onclick={() => onchord?.(seg.chord)} title="Come si suona {seg.chord}">{seg.chord}</button>{:else}{seg.chord}{/if}{/each}</pre>
@@ -118,9 +123,9 @@
 				{/if}
 			</div>
 		{:else if line.type === 'comment'}
-			<p class="comment">{line.text}</p>
+			<p class="comment" data-line={line.timed}>{line.text}</p>
 		{:else if line.type === 'tab'}
-			<pre class="tab" class:chorus={line.chorus}>{line.text}</pre>
+			<pre class="tab" class:chorus={line.chorus} data-line={line.timed}>{line.text}</pre>
 		{:else if line.type === 'empty'}
 			<div class="gap"></div>
 		{/if}

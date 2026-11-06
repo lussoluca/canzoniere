@@ -11,6 +11,7 @@ export interface SongPrefs {
 export const SCROLL_MIN = 1;
 export const SCROLL_MAX = 10;
 export const SCROLL_DEFAULT = 3;
+export const SCROLL_PX_PER_LEVEL = 8; // autoscroll pixels per second for each speed level
 
 const DEFAULT_PREFS: SongPrefs = {
 	transpose: 0,

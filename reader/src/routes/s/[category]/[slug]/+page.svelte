@@ -33,8 +33,11 @@
 		SCROLL_MIN,
 		SCROLL_MAX,
 		SCROLL_DEFAULT,
+		SCROLL_PX_PER_LEVEL,
 		type SongPrefs
 	} from '#lib/prefs.js';
+	import { songPauses, type Pauses } from '@canzoniere/shared/pauses';
+	import { loadDevicePauses } from '#lib/pauses.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -105,6 +108,29 @@
 	let fontSize = $state(FONT_DEFAULT);
 	let ready = $state(false);
 
+	// Autoscroll pauses: the song's official ones ({x_pause:N}), unless this
+	// device has learned its own. Loaded per song and kept apart from the other
+	// prefs, so a shared set list (which turns those off) does not affect them.
+	const officialPauses = $derived(songPauses(song));
+	let devicePauses = $state<Pauses | null>(null);
+	const activePauses = $derived(devicePauses ?? officialPauses);
+	$effect(() => {
+		devicePauses = loadDevicePauses(data.song.category, data.song.slug, song);
+	});
+
+	// The timed line at the reading point: the last one whose top has reached
+	// the bottom of the sticky controls, i.e. the line being played.
+	function readingLine(): number | null {
+		const controls = document.querySelector('.controls');
+		const y = controls ? controls.getBoundingClientRect().bottom : 0;
+		let found: number | null = null;
+		for (const el of document.querySelectorAll<HTMLElement>('.sheet [data-line]')) {
+			if (el.getBoundingClientRect().top > y + 1) break;
+			found = Number(el.dataset.line);
+		}
+		return found;
+	}
+
 	// Prefs carried by a shared collection link (?l=...): the sender's
 	// transpose, simplified chords and scroll speed for this song.
 	const sharedPrefs = $derived(ctx && ctxIndex >= 0 ? ctx.songs[ctxIndex].prefs : undefined);
@@ -140,7 +166,8 @@
 
 	// Autoscroll: the page scrolls by itself like a teleprompter, so the
 	// guitarist never has to touch the screen mid-song. Each speed level is
-	// worth 8 px/s; the level is saved per song with the other prefs.
+	// worth SCROLL_PX_PER_LEVEL px/s; the level is saved per song with the other
+	// prefs. On a line with a pause the motion holds for its seconds, once per run.
 	// Turning it on first glides the page down to the top of the sheet (only
 	// forward, so resuming mid-song never rewinds), then the steady scroll
 	// begins. A finger on the page only pauses the motion while it is down:
@@ -154,6 +181,9 @@
 		let last: number | null = null;
 		let carry = 0;
 		let touching = false;
+		// pauses: each paused line holds once per run, until holdUntil
+		let holdUntil: number | null = null;
+		const held = new Set<number>();
 
 		// Initial glide: bring the top of the sheet just below the stuck
 		// controls, so the song starts scrolling from its first line.
@@ -185,8 +215,22 @@
 				raf = requestAnimationFrame(step);
 				return;
 			}
+			if (holdUntil !== null && now < holdUntil) {
+				last = now;
+				raf = requestAnimationFrame(step);
+				return;
+			}
+			holdUntil = null;
+			const k = readingLine();
+			if (k !== null && activePauses[k] && !held.has(k)) {
+				held.add(k);
+				holdUntil = now + activePauses[k] * 1000;
+				last = now;
+				raf = requestAnimationFrame(step);
+				return;
+			}
 			if (last !== null) {
-				carry += (now - last) / 1000 * scrollSpeed * 8;
+				carry += (now - last) / 1000 * scrollSpeed * SCROLL_PX_PER_LEVEL;
 				const px = Math.trunc(carry);
 				if (px > 0) {
 					window.scrollBy(0, px);
