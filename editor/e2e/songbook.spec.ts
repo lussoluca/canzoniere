@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import { parse } from '../../shared/chordpro';
+import { linesFingerprint } from '../../shared/pauses';
 
 const TMP = path.resolve('e2e/.tmp-songs');
 
@@ -741,4 +743,42 @@ test('small screens: the toggle switches back to the whole-sheet editor', async 
 
 	await page.getByTestId('line-mode-toggle').click();
 	await expect(page.getByTestId('line-mode')).toBeVisible();
+});
+
+test('pauses: add from the menu, edit the seconds, written as x_pause', async ({ page }) => {
+	await goto(page, '/new?category=reparto');
+	await page.getByTestId('meta-title').fill('Canzone con pausa');
+	await page.getByTestId('add-line-end').click();
+	await page.getByTestId('add-pause').click();
+	await expect(page.getByTestId('pause-seconds')).toHaveValue('4');
+	await page.getByTestId('pause-seconds').fill('7');
+
+	await page.getByTestId('tab-raw').click();
+	expect(await page.getByTestId('raw-editor').inputValue()).toContain('{x_pause:7}');
+	await page.getByTestId('tab-visual').click();
+	await expect(page.getByTestId('pause-seconds')).toHaveValue('7');
+});
+
+test('pauses: a proposal link is applied, a stale or malformed one is not', async ({ page }) => {
+	// a song of its own: earlier tests move and delete the seed
+	const file = path.join(TMP, 'varie', 'pausa_proposta.cho');
+	const before = '{title:Pausa proposta}\n{tag:Varie}\n\n[Do]Stella del mattino brilla\nnel [Sol]cielo di settembre\n';
+	fs.writeFileSync(file, before, 'utf-8');
+	const fp = linesFingerprint(parse(before));
+
+	await goto(page, `/edit/varie/pausa_proposta.cho?pauses=1:6&fp=${fp}`);
+	await expect(page.getByTestId('pause-import')).toBeVisible();
+	await expect(page.getByTestId('pause-line')).toHaveCount(1);
+	await expect(page.getByTestId('pause-seconds')).toHaveValue('6');
+	await page.getByTestId('tab-raw').click();
+	expect(await page.getByTestId('raw-editor').inputValue()).toMatch(/settembre\n\{x_pause:6\}/);
+	expect(fs.readFileSync(file, 'utf-8')).toBe(before); // nothing written until save
+
+	await goto(page, '/edit/varie/pausa_proposta.cho?pauses=1:6&fp=deadbeef');
+	await expect(page.getByTestId('pause-import-error')).toBeVisible();
+	await expect(page.getByTestId('pause-line')).toHaveCount(0);
+
+	await goto(page, `/edit/varie/pausa_proposta.cho?pauses=abc&fp=${fp}`);
+	await expect(page.getByTestId('pause-line')).toHaveCount(0);
+	fs.rmSync(file);
 });

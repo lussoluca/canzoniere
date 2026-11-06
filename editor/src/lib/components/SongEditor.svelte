@@ -6,6 +6,7 @@
 	import { savePending, removePending } from '#lib/pending.svelte.js';
 	import { parse, serialize, type Song, type Line } from '@canzoniere/shared/chordpro';
 	import { categoryLabel } from '@canzoniere/shared/categories';
+	import { PAUSE_MAX } from '@canzoniere/shared/pauses';
 	import { englishChordToLatin, simplifyChord, transposeChord } from '@canzoniere/shared/chords';
 	import { slugify } from '#lib/slug.js';
 	import ChordProEditor from './ChordProEditor.svelte';
@@ -250,11 +251,18 @@
 		{ label: 'commento', testid: 'add-comment', make: () => ({ type: 'comment', text: '' }) },
 		{ label: 'tablatura', testid: 'add-tab', make: () => ({ type: 'tab', text: TAB_TEMPLATE }) },
 		{ label: 'inizio ritornello', testid: 'add-chorus-start', make: () => ({ type: 'chorus_start' }) },
-		{ label: 'fine ritornello', testid: 'add-chorus-end', make: () => ({ type: 'chorus_end' }) }
+		{ label: 'fine ritornello', testid: 'add-chorus-end', make: () => ({ type: 'chorus_end' }) },
+		{ label: 'pausa scorrimento', testid: 'add-pause', make: () => ({ type: 'pause', seconds: 4 }) }
 	];
 
 	// which add menu is open: a line index (insert below that line) or 'end' (append)
 	let openAddMenu: number | 'end' | null = $state(null);
+
+	// a pause holds whole seconds, 1..PAUSE_MAX, whatever is typed in the field
+	function clampPause(line: Line) {
+		if (line.type !== 'pause') return;
+		line.seconds = Math.min(PAUSE_MAX, Math.max(1, Math.round(line.seconds) || 1));
+	}
 
 	function deleteLine(idx: number) {
 		flushCapture();
@@ -603,6 +611,19 @@
 								placeholder="e|-----|"
 								data-testid="tab-editor"
 							></textarea>
+						{:else if line.type === 'pause'}
+							<label class="pause" data-testid="pause-line" title="Lo scorrimento del reader si ferma su questa riga">
+								⏸
+								<input
+									type="number"
+									min="1"
+									max={PAUSE_MAX}
+									bind:value={line.seconds}
+									onchange={() => clampPause(line)}
+									data-testid="pause-seconds"
+								/>
+								s
+							</label>
 						{:else if line.type === 'directive'}
 							<code class="directive">{line.raw}</code>
 						{/if}
@@ -904,6 +925,20 @@
 	.directive {
 		color: #999;
 		font-size: 0.85rem;
+	}
+	.pause {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		padding: 0.1rem 0.6rem;
+		border-radius: 999px;
+		background: #eef3f5;
+		color: #2f3e46;
+		font-size: 0.85rem;
+	}
+	.pause input {
+		width: 3.2rem;
+		font: inherit;
 	}
 	.tab {
 		width: 100%;

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { parse } from '@canzoniere/shared/chordpro';
+	import { page } from '$app/state';
+	import { parse, serialize } from '@canzoniere/shared/chordpro';
+	import { decodePauses, linesFingerprint, withPauses } from '@canzoniere/shared/pauses';
 	import { categoryLabel } from '@canzoniere/shared/categories';
 	import { online } from '#lib/online.js';
 	import { getPending } from '#lib/pending.svelte.js';
@@ -14,8 +16,25 @@
 	const path = $derived(`canzoni/${data.category}/${data.file}`);
 	let content = $state<string | null>(null);
 	let resolvedFor = $state<string | null>(null);
+	// Pauses proposed from the reader (?pauses=…&fp=…): applied to the version
+	// about to be edited only if its lines are the ones the reader learned on;
+	// nothing is queued until the user saves.
+	let pauseImport = $state<'applied' | 'stale' | null>(null);
 	$effect(() => {
-		content = (online ? getPending(path)?.content : undefined) ?? data.content;
+		let next = (online ? getPending(path)?.content : undefined) ?? data.content;
+		const params = page.url.searchParams;
+		const proposed = params.get('pauses');
+		pauseImport = null;
+		if (proposed !== null) {
+			const song = parse(next);
+			if (params.get('fp') === linesFingerprint(song)) {
+				next = serialize(withPauses(song, decodePauses(proposed)));
+				pauseImport = 'applied';
+			} else {
+				pauseImport = 'stale';
+			}
+		}
+		content = next;
 		resolvedFor = path;
 	});
 
@@ -33,6 +52,17 @@
 	/ {title}
 </nav>
 
+{#if pauseImport === 'applied'}
+	<p class="notice" data-testid="pause-import">
+		Tempi proposti dal reader: controlla le pause e salva.
+	</p>
+{:else if pauseImport === 'stale'}
+	<p class="notice error" data-testid="pause-import-error">
+		La canzone è cambiata da quando i tempi sono stati imparati: imparali di nuovo sul reader
+		aggiornato.
+	</p>
+{/if}
+
 {#if content !== null && resolvedFor === path}
 	{#key data.category + '/' + data.file}
 		<SongEditor
@@ -47,6 +77,16 @@
 {/if}
 
 <style>
+	.notice {
+		padding: 0.5rem 0.8rem;
+		border-radius: 6px;
+		background: #eef3f5;
+		color: #2f3e46;
+	}
+	.notice.error {
+		background: #fdecea;
+		color: #8a1c1c;
+	}
 	.crumbs {
 		font-size: 0.9rem;
 		color: #777;
