@@ -9,6 +9,8 @@
 		simplify?: boolean;
 		hideChords?: boolean;
 		fontSize?: number;
+		// The size actually rendered after fit to width (bindable, read-only).
+		appliedSize?: number;
 		// Student mode: given a handler, every chord above the lyrics becomes a
 		// button that opens its lesson.
 		onchord?: (chord: string) => void;
@@ -20,6 +22,7 @@
 		simplify = false,
 		hideChords = false,
 		fontSize = 16,
+		appliedSize = $bindable(0),
 		onchord
 	}: Props = $props();
 
@@ -107,6 +110,10 @@
 		if (sheetWidth === 0 || maxChars === 0) return fontSize;
 		const fit = Math.floor(sheetWidth / (maxChars * CHAR_RATIO));
 		return Math.max(FIT_FLOOR, Math.min(fontSize, fit));
+	});
+
+	$effect(() => {
+		appliedSize = effectiveSize;
 	});
 </script>
 

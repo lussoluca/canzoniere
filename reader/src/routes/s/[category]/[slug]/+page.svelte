@@ -117,6 +117,10 @@
 	let hideChords = $state(false);
 	let scrollSpeed = $state(SCROLL_DEFAULT);
 	let fontSize = $state(FONT_DEFAULT);
+	// Size the sheet really renders: smaller than fontSize when the song is
+	// shrunk to fit the screen width, so A+ seems to do nothing.
+	let appliedSize = $state(FONT_DEFAULT);
+	const fitted = $derived(appliedSize < fontSize);
 	let ready = $state(false);
 
 	// Autoscroll pauses: the song's official ones ({x_pause:N}), unless this
@@ -686,15 +690,32 @@
 			<div class="group" aria-label="Dimensione testo">
 				<button
 					onclick={() => fontSize = Math.max(FONT_MIN, fontSize - 1)}
+					disabled={fontSize <= FONT_MIN}
 					aria-label="Testo più piccolo"
 				>A−</button>
 
 				<button
+					class="value"
+					class:active={fontSize !== FONT_DEFAULT}
+					onclick={() => fontSize = FONT_DEFAULT}
+					title="Ripristina la dimensione predefinita"
+					aria-label="Dimensione del testo {fontSize}, tocca per ripristinare"
+				>{fontSize}</button>
+
+				<button
 					onclick={() => fontSize = Math.min(FONT_MAX, fontSize + 1)}
+					disabled={fontSize >= FONT_MAX}
 					aria-label="Testo più grande"
 				>A+</button>
 			</div>
 		</div>
+
+		{#if fitted}
+			<p class="notice" role="status">
+				<span aria-hidden="true">↔</span>
+				Testo ridotto a {appliedSize} per stare nella larghezza dello schermo: più grande non ci sta.
+			</p>
+		{/if}
 
 		{#if uniqueChords.length > 0}
 			<div class="row">
@@ -768,6 +789,7 @@
 	simplify={simplify}
 	hideChords={hideChords}
 	fontSize={fontSize}
+	bind:appliedSize
 	onchord={student && !hideChords ? (chord) => helpChord = chord : undefined}
 />
 
@@ -1082,6 +1104,25 @@
 	.value {
 		min-width: 40px;
 		font-variant-numeric: tabular-nums;
+	}
+
+	/* A−/A+ at their limit; the speed readout is disabled too but stays legible */
+	button:disabled:not(.value) {
+		color: var(--faint);
+		cursor: default;
+	}
+
+	.notice {
+		display: flex;
+		gap: 8px;
+		margin: 0;
+		padding: 10px 12px;
+		border: 1px solid var(--notice-border);
+		border-radius: 8px;
+		background: var(--notice-bg);
+		color: var(--notice-text);
+		font-size: 14px;
+		line-height: 1.35;
 	}
 
 	/* The row being read gets a soft highlight while the copilot is on. */

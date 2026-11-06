@@ -137,6 +137,9 @@
 		--diagram-ink: #1f2937;
 		--diagram-surface: #ffffff;
 		--diagram-muted: #999999;
+		--notice-bg: #fdf3d7;
+		--notice-border: #e8c46a;
+		--notice-text: #6b4a06;
 	}
 
 	/* Dark theme: applied by the system preference (unless light is forced)
@@ -162,6 +165,9 @@
 			--diagram-ink: #e5e3dc;
 			--diagram-surface: #23262a;
 			--diagram-muted: #7d838b;
+			--notice-bg: #3a3120;
+			--notice-border: #8a7238;
+			--notice-text: #f3d891;
 		}
 	}
 
@@ -185,6 +191,9 @@
 		--diagram-ink: #e5e3dc;
 		--diagram-surface: #23262a;
 		--diagram-muted: #7d838b;
+		--notice-bg: #3a3120;
+		--notice-border: #8a7238;
+		--notice-text: #f3d891;
 	}
 
 	:global(body) {

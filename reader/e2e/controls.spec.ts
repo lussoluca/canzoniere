@@ -62,3 +62,19 @@ test('student mode: the "⋯" menu says how many chords are left to learn', asyn
 	await page.getByRole('button', { name: 'Altre azioni' }).click();
 	await expect(page.getByRole('button', { name: /🎓 Studia · \d+ accord[oi] da imparare/ })).toBeVisible();
 });
+
+test('the Aa panel shows the text size and says when the width holds it back', async ({ page }) => {
+	await page.getByRole('button', { name: 'Aspetto' }).click();
+	const panel = page.getByRole('dialog', { name: 'Aspetto' });
+	const bigger = panel.getByRole('button', { name: 'Testo più grande' });
+	const notice = panel.getByRole('status');
+	// the song's longest row does not fit a phone at the default size
+	await expect(notice).toContainText('larghezza dello schermo');
+	while (await bigger.isEnabled()) await bigger.click();
+	await expect(panel.getByRole('button', { name: /Dimensione del testo 26/ })).toBeVisible();
+	await panel.getByRole('button', { name: /Dimensione del testo/ }).click();
+	await expect(panel.getByRole('button', { name: /Dimensione del testo 16/ })).toBeVisible();
+	await expect(bigger).toBeEnabled();
+	await page.setViewportSize({ width: 1200, height: 800 });
+	await expect(notice).toHaveCount(0);
+});
