@@ -391,18 +391,25 @@
 	const hasNote = $derived(note.trim() !== '');
 
 	// Copilot for beginners: a fixed panel with the chords of the row being
-	// read ("Ora") and of the next one ("Poi", with its first diagram), synced
+	// read ("Ora", with their diagrams) and of the next one ("Poi"), synced
 	// with the scroll position so it works while scrolling by hand or with the
 	// autoscroll. Rows are read from the rendered sheet, so they already
 	// reflect transpose and simplified chords.
 	let copilot = $state(false);
 	let nowChords = $state<string[]>([]);
 	let nextChords = $state<string[]>([]);
-	// A chord row can repeat a chord; one diagram each is enough (also keeps the
-	// {#each} key unique).
-	const nextDiagrams = $derived([...new Set(nextChords)]);
+	// Diagrams follow "Ora"; before the first chord row they show that row, so
+	// the first chords can be prepared. A chord row can repeat a chord; one
+	// diagram each is enough (also keeps the {#each} key unique).
+	const diagramChords = $derived([...new Set(nowChords.length > 0 ? nowChords : nextChords)]);
 
 	const READ_Y = 170; // viewport offset of the "reading line", below the sticky controls
+
+	// Room below the sheet so the last row can reach the reading line and is
+	// never hidden behind the panel.
+	let viewportHeight = $state(0);
+	let copilotHeight = $state(0);
+	const copilotTail = $derived(Math.max(copilotHeight, viewportHeight - READ_Y));
 
 	$effect(() => {
 		if (!copilot) return;
@@ -560,7 +567,7 @@
 	);
 </script>
 
-<svelte:window onkeydown={(e) => { if (e.key === 'Escape') menu = null; }} />
+<svelte:window bind:innerHeight={viewportHeight} onkeydown={(e) => { if (e.key === 'Escape') menu = null; }} />
 
 <svelte:head>
 	<title>{data.song.title} — Canzoniere Alessandria 2</title>
@@ -764,6 +771,10 @@
 	onchord={student && !hideChords ? (chord) => helpChord = chord : undefined}
 />
 
+{#if copilot}
+	<div aria-hidden="true" style:height="{copilotTail}px"></div>
+{/if}
+
 {#if showDiagrams}
 	<div class="diagrams" role="dialog" aria-label="Diagrammi degli accordi">
 		<div class="diagrams-head">
@@ -805,7 +816,12 @@
 {/if}
 
 {#if copilot}
-	<div class="copilot" aria-live="polite" aria-label="Copilota degli accordi">
+	<div
+		class="copilot"
+		aria-live="polite"
+		aria-label="Copilota degli accordi"
+		bind:offsetHeight={copilotHeight}
+	>
 		<div class="copilot-rows">
 			<div class="copilot-row">
 				<span class="copilot-lbl">Ora</span>
@@ -816,9 +832,9 @@
 				<span class="copilot-next-chords">{nextChords.join('  ') || 'fine del canto'}</span>
 			</div>
 		</div>
-		{#if nextChords.length > 0}
+		{#if diagramChords.length > 0}
 			<div class="copilot-diagram">
-				{#each nextDiagrams as chord (chord)}
+				{#each diagramChords as chord (chord)}
 					<ChordDiagram name={chord} scale={1.7} />
 				{/each}
 			</div>
