@@ -90,3 +90,111 @@ test('a pause on the last line never keeps the autoscroll from ending', async ({
 		await page.evaluate(() => window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 1)
 	).toBe(true);
 });
+
+// A correction as the guitarist makes it: finger down, page moved by dy
+// (negative = back), optionally held still, finger up. Returns the reading
+// line right after the finger lifts, where the correction is attributed.
+async function correct(page: Page, dy: number, holdMs = 0): Promise<number | null> {
+	await page.evaluate((dy) => {
+		window.dispatchEvent(new TouchEvent('touchstart'));
+		window.scrollBy(0, dy);
+	}, dy);
+	if (holdMs) await page.waitForTimeout(holdMs);
+	// read in the same tick as the touchend, before the autoscroll moves on
+	return page.evaluate(() => {
+		window.dispatchEvent(new TouchEvent('touchend'));
+		const y = document.querySelector('.controls')!.getBoundingClientRect().bottom;
+		let found: number | null = null;
+		for (const el of document.querySelectorAll<HTMLElement>('[data-line]')) {
+			if (el.getBoundingClientRect().top <= y + 1) found = Number(el.dataset.line);
+		}
+		return found;
+	});
+}
+
+const stored = (page: Page) =>
+	page.evaluate((key) => {
+		const raw = localStorage.getItem(key);
+		return raw ? (JSON.parse(raw).pauses as Record<string, number>) : null;
+	}, STORAGE_KEY);
+
+const learnToggle = (page: Page) => page.getByRole('button', { name: '⏱ Impara i tempi' });
+
+// Scrolls until the reading point is a few lines into the song, so a
+// correction back still lands on a real line.
+async function scrollInto(page: Page, line = 6) {
+	await expect
+		.poll(() => readingLineIn(page), { timeout: 30_000 })
+		.toBeGreaterThanOrEqual(line);
+}
+
+test('learn off: corrections write nothing', async ({ page }) => {
+	await open(page);
+	await startScroll(page, 10);
+	await scrollInto(page);
+	await correct(page, -200);
+	await correct(page, 0, 1500);
+	expect(await stored(page)).toBeNull();
+});
+
+test('learn on: dragging back creates a pause on the reading line', async ({ page }) => {
+	await open(page);
+	await learnToggle(page).click();
+	await startScroll(page, 10);
+	await scrollInto(page);
+	await page.getByRole('button', { name: 'Scorri più lentamente' }).click({ clickCount: 7 });
+	const k = await correct(page, -96); // 96 px at speed 3 (24 px/s) = 4 s
+	expect(await stored(page)).toEqual({ [String(k)]: 4 });
+});
+
+test('learn on: holding still creates a pause', async ({ page }) => {
+	await open(page);
+	await learnToggle(page).click();
+	await startScroll(page, 10);
+	await scrollInto(page);
+	const k = await correct(page, 0, 2000);
+	expect(await stored(page)).toEqual({ [String(k)]: 2 });
+});
+
+test('learn on: dragging forward reduces the previous pause', async ({ page }) => {
+	await seedDevicePauses(page, { 2: 6 });
+	await open(page);
+	await learnToggle(page).click();
+	await startScroll(page, 10);
+	await scrollInto(page, 3);
+	await page.getByRole('button', { name: 'Scorri più lentamente' }).click({ clickCount: 7 });
+	await correct(page, 48); // 48 px at 24 px/s = 2 s less
+	expect(await stored(page)).toEqual({ '2': 4 });
+});
+
+test('Proponi links to the editor, Azzera tempi drops the device pauses', async ({ page }) => {
+	await seedDevicePauses(page, { 3: 5 });
+	await open(page);
+	const propose = page.getByRole('link', { name: 'Proponi questi tempi' });
+	await expect(propose).toHaveAttribute(
+		'href',
+		/\/edit\/chiesa\/danza_la_vita\.cho\?pauses=3:5&fp=[0-9a-f]+$/
+	);
+	await page.getByRole('button', { name: 'Azzera tempi' }).click();
+	expect(await stored(page)).toBeNull();
+	await expect(propose).toHaveCount(0);
+	await expect(page.getByRole('button', { name: 'Azzera tempi' })).toHaveCount(0);
+});
+
+test('learn mode turns off on another song', async ({ page }) => {
+	await open(page, `${SONG_URL}?l=chiesa/tu_sei,chiesa/danza_la_vita`);
+	await learnToggle(page).click();
+	await expect(learnToggle(page)).toHaveAttribute('aria-pressed', 'true');
+	await page.getByRole('link', { name: /^← Tu sei/ }).click();
+	await expect(page).toHaveURL(/\/s\/chiesa\/tu_sei\//);
+	await expect(learnToggle(page)).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('set list link: learning is still saved', async ({ page }) => {
+	await open(page, `${SONG_URL}?l=chiesa/danza_la_vita~t2`);
+	await learnToggle(page).click();
+	await startScroll(page, 10);
+	await scrollInto(page);
+	const k = await correct(page, -160); // 160 px at speed 10 (80 px/s) = 2 s
+	expect(await stored(page)).toEqual({ [String(k)]: 2 });
+});

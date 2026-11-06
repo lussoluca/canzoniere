@@ -42,7 +42,7 @@ Routes (`src/routes/`, every page prerendered, `trailingSlash: 'always'` from `+
 - `+layout.svelte` — header with the brand, `HeaderMenu`, the service-worker registration and update banner, and the theme CSS variables (`--bg`, `--text`, `--muted`, `--surface`, `--border`, `--control-border`, `--brand`, `--link`, `--active-bg`, `--active-text`, `--shadow`, …). Light is the default; dark is defined twice, once under `prefers-color-scheme` and once under `[data-theme='dark']` for the explicit toggle, and the two blocks must stay in sync.
 - `+page.svelte` — home: search box and the category list.
 - `c/[category]/` — songs of one category.
-- `s/[category]/[slug]/` — the song sheet (transpose, chord display, per-song prefs). With student mode on it also shows the readiness line, the tappable chords (`SongSheet`'s `onchord`) and the "Studia" panel.
+- `s/[category]/[slug]/` — the song sheet (transpose, chord display, per-song prefs). With student mode on it also shows the readiness line, the tappable chords (`SongSheet`'s `onchord`) and the "Studia" panel. The autoscroll holds on the song's pauses (`{x_pause:N}`, or the ones learned on the device); "⏱ Impara i tempi" turns the corrections made while it scrolls (dragging back or forward, holding the page) into pauses on the line at the reading point (just below the sticky controls), "Azzera tempi" drops them and "Proponi questi tempi" opens the song in the online editor with them (`VITE_EDITOR_BASE`, default `/canzoniere/editor`).
 - `k/[name]/` — an event songbook from `canzonieri/`.
 - `raccolta/` — build a set list ("scaletta") in the browser and share it by link or QR.
 - `accordi/` — "Cosa posso suonare": pick the chords you know, get the playable songs.

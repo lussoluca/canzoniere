@@ -36,8 +36,19 @@
 		SCROLL_PX_PER_LEVEL,
 		type SongPrefs
 	} from '#lib/prefs.js';
-	import { songPauses, type Pauses } from '@canzoniere/shared/pauses';
-	import { loadDevicePauses } from '#lib/pauses.js';
+	import {
+		adjustPause,
+		pausedLineAtOrBefore,
+		samePauses,
+		songPauses,
+		type Pauses
+	} from '@canzoniere/shared/pauses';
+	import {
+		clearDevicePauses,
+		loadDevicePauses,
+		proposalHref,
+		saveDevicePauses
+	} from '#lib/pauses.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -116,7 +127,25 @@
 	const activePauses = $derived(devicePauses ?? officialPauses);
 	$effect(() => {
 		devicePauses = loadDevicePauses(data.song.category, data.song.slug, song);
+		learning = false;
 	});
+
+	// "Impara i tempi": while on, the corrections made during the autoscroll
+	// become pauses on the line being played. A rehearsal tool, so it turns off
+	// whenever the song changes.
+	let learning = $state(false);
+
+	function learnPause(line: number | null, deltaSeconds: number) {
+		if (line === null) return;
+		const next = adjustPause(activePauses, line, deltaSeconds);
+		devicePauses = next;
+		saveDevicePauses(data.song.category, data.song.slug, song, next);
+	}
+
+	function resetPauses() {
+		clearDevicePauses(data.song.category, data.song.slug);
+		devicePauses = null;
+	}
 
 	// The timed line at the reading point: the last one whose top has reached
 	// the bottom of the sticky controls, i.e. the line being played.
@@ -248,12 +277,32 @@
 
 		// A touch pauses the motion until the finger lifts; touch or wheel also
 		// cancels the initial glide, since the user has taken over the position.
+		// In learn mode a correction becomes a pause: dragging the page back by
+		// some pixels, or holding it still, means the music was behind by that
+		// much time; dragging it forward shortens the last pause passed. Small
+		// bumps of the finger (under a second's worth) are ignored.
+		let touchY = 0;
+		let touchAt = 0;
 		const onTouchStart = () => {
 			touching = true;
 			glide = null;
+			touchY = window.scrollY;
+			touchAt = performance.now();
 		};
 		const onTouchEnd = () => {
 			touching = false;
+			if (!learning) return;
+			const pxs = scrollSpeed * SCROLL_PX_PER_LEVEL;
+			const back = touchY - window.scrollY;
+			const k = readingLine();
+			if (Math.abs(back) < 10) {
+				const heldSeconds = (performance.now() - touchAt) / 1000;
+				if (heldSeconds >= 1) learnPause(k, heldSeconds);
+			} else if (back / pxs >= 1) {
+				learnPause(k, back / pxs);
+			} else if (-back / pxs >= 1 && k !== null) {
+				learnPause(pausedLineAtOrBefore(activePauses, k), back / pxs);
+			}
 		};
 		const onWheel = () => {
 			glide = null;
@@ -581,6 +630,23 @@
 		{/if}
 	</div>
 
+	<button
+		class="toggle"
+		class:active={learning}
+		aria-pressed={learning}
+		onclick={() => learning = !learning}
+		title="Mentre scorre, torna indietro o tieni fermo il testo dove la musica si ferma: il canto lo ricorda"
+	>⏱ Impara i tempi</button>
+
+	{#if devicePauses}
+		<button class="toggle" onclick={resetPauses} title="Torna ai tempi del canzoniere">Azzera tempi</button>
+		{#if !samePauses(devicePauses, officialPauses)}
+			<a class="toggle propose" data-sveltekit-reload href={proposalHref(data.song.category, data.song.slug, song, devicePauses)}>
+				Proponi questi tempi
+			</a>
+		{/if}
+	{/if}
+
 	{#if uniqueChords.length > 0 && !hideChords}
 		<button
 			class="toggle"
@@ -805,6 +871,21 @@
 		color: inherit;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
+	}
+
+	/* the link to the editor looks like the buttons around it */
+	a.propose {
+		display: inline-flex;
+		align-items: center;
+		font-size: 14px;
+		height: 38px;
+		box-sizing: border-box;
+		padding: 0 12px;
+		border: 1px solid var(--control-border);
+		border-radius: 8px;
+		background: var(--surface);
+		color: var(--link);
+		text-decoration: none;
 	}
 
 	.toggle:disabled {
