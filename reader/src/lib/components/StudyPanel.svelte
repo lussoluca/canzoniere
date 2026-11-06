@@ -14,12 +14,26 @@
 		chords: string[]; // the song's chords, as the reader sees them
 		changes: { from: string; to: string; count: number }[];
 		known: string[];
+		// the key shift that leaves no chord to learn, if any
+		transpose: number | null;
+		ontranspose: (shift: number) => void;
 		onknown: (chord: string) => void;
 		onplay: () => void;
 		onclose: () => void;
 	}
 
-	let { category, slug, chords, changes, known, onknown, onplay, onclose }: Props = $props();
+	let {
+		category,
+		slug,
+		chords,
+		changes,
+		known,
+		transpose,
+		ontranspose,
+		onknown,
+		onplay,
+		onclose
+	}: Props = $props();
 
 	const STEPS: { id: StudyStep; label: string }[] = [
 		{ id: 'chords', label: '1. Accordi' },
@@ -140,6 +154,15 @@
 				uno per uno: dentro c'è dove vanno le dita e la prova col microfono.
 			{/if}
 		</p>
+		{#if missing.length > 0 && transpose !== null}
+			{@const shift = transpose}
+			<p class="lead">
+				Oppure cambia tonalità:
+				<button class="fix" onclick={() => ontranspose(shift)}>
+					con {shift > 0 ? `+${shift}` : shift} li sai tutti
+				</button>
+			</p>
+		{/if}
 		<div class="cards">
 			{#each chords as chord, i (chord)}
 				<ChordTutorialCard
@@ -268,6 +291,17 @@
 
 	.lead {
 		margin: 10px 0;
+	}
+
+	.fix {
+		font: inherit;
+		font-size: 13px;
+		padding: 4px 10px;
+		border: 1px dashed var(--control-border);
+		border-radius: 999px;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
 	}
 
 	.cards {

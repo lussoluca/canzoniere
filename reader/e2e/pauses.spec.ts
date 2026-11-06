@@ -118,7 +118,7 @@ const stored = (page: Page) =>
 		return raw ? (JSON.parse(raw).pauses as Record<string, number>) : null;
 	}, STORAGE_KEY);
 
-const learnToggle = (page: Page) => page.getByRole('button', { name: '⏱ Impara i tempi' });
+const learnToggle = (page: Page) => page.getByRole('button', { name: 'Impara i tempi', exact: true });
 
 // Scrolls until the reading point is a few lines into the song, so a
 // correction back still lands on a real line.
@@ -170,6 +170,7 @@ test('learn on: dragging forward reduces the previous pause', async ({ page }) =
 test('Proponi links to the editor, Azzera tempi drops the device pauses', async ({ page }) => {
 	await seedDevicePauses(page, { 3: 5 });
 	await open(page);
+	await page.getByRole('button', { name: 'Altre azioni' }).click();
 	const propose = page.getByRole('link', { name: 'Proponi questi tempi' });
 	await expect(propose).toHaveAttribute(
 		'href',

@@ -1,5 +1,5 @@
 // Student mode: an opt-in flag, kept on the device, that turns every song into
-// an entry point to the guitar primer (tappable chords, a readiness line and
+// an entry point to the guitar primer (tappable chords, a readiness hint and
 // the "study this song" panel). With it off the reader looks exactly as it did.
 
 const KEY = 'reader:student';

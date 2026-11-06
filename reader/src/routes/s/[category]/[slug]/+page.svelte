@@ -471,7 +471,7 @@
 	});
 
 	// Student mode: the song doubles as a lesson. The chords above the lyrics
-	// become buttons, a readiness line says what is still missing and the study
+	// become buttons, the "⋯" menu says what is still missing and the study
 	// panel walks through the song with the tools of the guitar primer. All of it
 	// is off, and invisible, unless the mode is on.
 	let student = $state(false);
@@ -518,7 +518,49 @@
 		copilot = true;
 		scrolling = true;
 	}
+
+	// The two menus of the bar: "Aa" for how the song looks, "⋯" for the
+	// occasional actions. One bottom panel at a time, never over the other
+	// bottom sheets, and none while scrolling (their buttons are not there).
+	let menu = $state<'view' | 'more' | null>(null);
+
+	function openMenu(which: 'view' | 'more') {
+		showNote = false;
+		showDiagrams = false;
+		menu = menu === which ? null : which;
+	}
+
+	$effect(() => {
+		if (scrolling) menu = null;
+	});
+
+	$effect(() => {
+		void data.song;
+		menu = null;
+	});
+
+	// Simplified chords and lyrics only are one choice with three answers.
+	type ChordMode = 'full' | 'simple' | 'none';
+	const CHORD_MODES: [ChordMode, string][] = [
+		['full', 'Completi'],
+		['simple', 'Semplici'],
+		['none', 'Nessuno']
+	];
+	const chordMode = $derived<ChordMode>(hideChords ? 'none' : simplify ? 'simple' : 'full');
+
+	function setChordMode(mode: ChordMode) {
+		simplify = mode === 'simple';
+		hideChords = mode === 'none';
+	}
+
+	// A dot on "⋯" when it holds something of this song: a note, or learned
+	// pauses not yet in the songbook.
+	const moreBadge = $derived(
+		hasNote || (devicePauses !== null && !samePauses(devicePauses, officialPauses))
+	);
 </script>
+
+<svelte:window onkeydown={(e) => { if (e.key === 'Escape') menu = null; }} />
 
 <svelte:head>
 	<title>{data.song.title} — Canzoniere Alessandria 2</title>
@@ -546,135 +588,157 @@
 </h1>
 {#if data.song.artist}<p class="artist">{data.song.artist}</p>{/if}
 
-{#if student && progress.chords.length > 0}
-	<div class="readiness">
-		{#if progress.missing.length === 0}
-			<span class="ok">✓ Gli accordi di questo canto li sai tutti</span>
-		{:else}
-			<span>
-				Sai {progress.known.length}
-				{progress.chords.length === 1 ? 'accordo' : 'accordi'} su {progress.chords.length}. Ti
-				manca:
-			</span>
-			{#each progress.missing as chord (chord)}
-				<button class="miss" onclick={() => helpChord = chord}>{chord}</button>
-			{/each}
-			{#if progress.transpose !== null}
-				{@const shift = progress.transpose}
-				<button class="fix" onclick={() => bumpTranspose(shift)}>
-					con {shift > 0 ? `+${shift}` : shift} li sai tutti
-				</button>
-			{/if}
-		{/if}
-	</div>
-{/if}
-
+<!-- A single row of fixed height in both states: a bar that grows or shrinks
+     while scrolling makes the lyrics jump. Stopped, it holds the key and the
+     two menus; scrolling, only what is needed mid-song. -->
 <div class="controls">
-	<div class="group" aria-label="Trasposizione">
-		<button
-			onclick={() => bumpTranspose(-1)}
-			aria-label="Trasponi un semitono in giù"
-		>−</button>
+	{#if scrolling}
+		<button class="active" onclick={() => scrolling = false}>⏸ Ferma</button>
 
-		<button
-			class="value"
-			class:active={transpose !== 0}
-			onclick={() => transpose = 0}
-			title="Azzera trasposizione"
-		>{transpose > 0 ? `+${transpose}` : transpose}</button>
-
-		<button
-			onclick={() => bumpTranspose(1)}
-			aria-label="Trasponi un semitono in su"
-		>+</button>
-	</div>
-
-	<div class="group" aria-label="Dimensione testo">
-		<button
-			onclick={() => fontSize = Math.max(FONT_MIN, fontSize - 1)}
-			aria-label="Testo più piccolo"
-		>A−</button>
-
-		<button
-			onclick={() => fontSize = Math.min(FONT_MAX, fontSize + 1)}
-			aria-label="Testo più grande"
-		>A+</button>
-	</div>
-
-	<button
-		class="toggle"
-		class:active={simplify}
-		onclick={() => simplify = !simplify}
-	>Accordi semplici</button>
-
-	<button
-		class="toggle"
-		class:active={hideChords}
-		onclick={() => hideChords = !hideChords}
-	>Solo testo</button>
-
-	{#if uniqueChords.length > 0}
-		<button
-			class="toggle"
-			class:active={showDiagrams}
-			onclick={() => showDiagrams = !showDiagrams}
-		>Diagrammi</button>
-	{/if}
-
-	<button class="toggle" class:active={showNote} disabled={scrolling}
-		title={scrolling ? 'Ferma lo scorrimento per aprire le note' : undefined}
-		onclick={() => showNote = !showNote}
-	>{hasNote ? '📝 Note' : 'Note'}</button>
-
-	<div class="group" aria-label="Scorrimento automatico">
-		<button
-			class:active={scrolling}
-			onclick={() => scrolling = !scrolling}
-		>{scrolling ? '⏸ Ferma' : '▶ Scorri'}</button>
-
-		{#if scrolling}
+		<div class="group" aria-label="Velocità di scorrimento">
 			<button onclick={() => bumpScrollSpeed(-1)} aria-label="Scorri più lentamente">−</button>
 			<button class="value" aria-label="Velocità di scorrimento" disabled>{scrollSpeed}</button>
 			<button onclick={() => bumpScrollSpeed(1)} aria-label="Scorri più velocemente">+</button>
-		{/if}
-	</div>
+		</div>
 
-	<!-- The pause controls never change the sticky bar mid-song: a bar that
-	     grows or shrinks while scrolling makes the lyrics jump. Learning only
-	     happens while scrolling; reset and proposal only when stopped. -->
-	{#if scrolling}
+		{#if transpose !== 0}
+			<span class="key" title="Trasposizione">{transpose > 0 ? `+${transpose}` : transpose}</span>
+		{/if}
+
 		<button
-			class="toggle"
 			class:active={learning}
 			aria-pressed={learning}
+			aria-label="Impara i tempi"
 			onclick={() => learning = !learning}
 			title="Mentre scorre, torna indietro o tieni fermo il testo dove la musica si ferma: il canto lo ricorda"
-		>⏱ Impara i tempi</button>
-	{:else if devicePauses}
-		<button class="toggle" onclick={resetPauses} title="Torna ai tempi del canzoniere">Azzera tempi</button>
-		{#if !samePauses(devicePauses, officialPauses)}
-			<a class="toggle propose" data-sveltekit-reload href={proposalHref(data.song.category, data.song.slug, song, devicePauses)}>
-				Proponi questi tempi
-			</a>
-		{/if}
-	{/if}
+		>⏱ Impara</button>
+	{:else}
+		<div class="group" aria-label="Trasposizione">
+			<button
+				onclick={() => bumpTranspose(-1)}
+				aria-label="Trasponi un semitono in giù"
+			>−</button>
 
-	{#if uniqueChords.length > 0 && !hideChords}
-		<button
-			class="toggle"
-			class:active={copilot}
-			onclick={() => copilot = !copilot}
-		>🧭 Copilota</button>
-	{/if}
+			<button
+				class="value"
+				class:active={transpose !== 0}
+				onclick={() => transpose = 0}
+				title="Azzera trasposizione"
+			>{transpose > 0 ? `+${transpose}` : transpose}</button>
 
-	{#if student && uniqueChords.length > 0}
+			<button
+				onclick={() => bumpTranspose(1)}
+				aria-label="Trasponi un semitono in su"
+			>+</button>
+		</div>
+
+		<button onclick={() => scrolling = true}>▶ Scorri</button>
+
 		<button
-			class="toggle"
-			class:active={study}
-			onclick={() => study = !study}
-		>🎓 Studia</button>
+			class="menu push"
+			class:active={menu === 'view'}
+			aria-label="Aspetto"
+			aria-expanded={menu === 'view'}
+			onclick={() => openMenu('view')}
+		>Aa</button>
+
+		<button
+			class="menu"
+			class:active={menu === 'more'}
+			class:dot={moreBadge}
+			aria-label="Altre azioni"
+			aria-expanded={menu === 'more'}
+			onclick={() => openMenu('more')}
+		>⋯</button>
 	{/if}
 </div>
+
+{#if menu === 'view'}
+	<div class="sheet-panel" role="dialog" aria-label="Aspetto">
+		<div class="panel-head">
+			<span>Aspetto</span>
+			<button class="close" onclick={() => menu = null} aria-label="Chiudi">✕</button>
+		</div>
+
+		<div class="row">
+			<span class="lbl">Accordi</span>
+			<div class="group" role="radiogroup" aria-label="Accordi">
+				{#each CHORD_MODES as [mode, label] (mode)}
+					<button
+						role="radio"
+						aria-checked={chordMode === mode}
+						class:active={chordMode === mode}
+						onclick={() => setChordMode(mode)}
+					>{label}</button>
+				{/each}
+			</div>
+		</div>
+
+		<div class="row">
+			<span class="lbl">Testo</span>
+			<div class="group" aria-label="Dimensione testo">
+				<button
+					onclick={() => fontSize = Math.max(FONT_MIN, fontSize - 1)}
+					aria-label="Testo più piccolo"
+				>A−</button>
+
+				<button
+					onclick={() => fontSize = Math.min(FONT_MAX, fontSize + 1)}
+					aria-label="Testo più grande"
+				>A+</button>
+			</div>
+		</div>
+
+		{#if uniqueChords.length > 0}
+			<div class="row">
+				<button onclick={() => { menu = null; showDiagrams = true; }}>Diagrammi</button>
+				{#if !hideChords}
+					<button
+						class:active={copilot}
+						aria-pressed={copilot}
+						onclick={() => copilot = !copilot}
+					>🧭 Copilota</button>
+				{/if}
+			</div>
+		{/if}
+	</div>
+{:else if menu === 'more'}
+	<div class="sheet-panel" role="dialog" aria-label="Altre azioni">
+		<div class="panel-head">
+			<span>Altre azioni</span>
+			<button class="close" onclick={() => menu = null} aria-label="Chiudi">✕</button>
+		</div>
+
+		<div class="actions">
+			<button onclick={() => { menu = null; showNote = true; }}>
+				📝 {hasNote ? 'Le tue note' : 'Aggiungi una nota'}
+			</button>
+
+			{#if student && uniqueChords.length > 0}
+				<button
+					class:active={study}
+					onclick={() => { menu = null; study = !study; }}
+				>
+					🎓 Studia
+					<span class="hint">
+						{progress.missing.length === 0
+							? '· accordi tutti tuoi'
+							: `· ${progress.missing.length} ${progress.missing.length === 1 ? 'accordo' : 'accordi'} da imparare`}
+					</span>
+				</button>
+			{/if}
+
+			{#if devicePauses}
+				<button onclick={resetPauses} title="Torna ai tempi del canzoniere">⏱ Azzera tempi</button>
+				{#if !samePauses(devicePauses, officialPauses)}
+					<a class="propose" data-sveltekit-reload href={proposalHref(data.song.category, data.song.slug, song, devicePauses)}>
+						⏱ Proponi questi tempi
+					</a>
+				{/if}
+			{/if}
+		</div>
+	</div>
+{/if}
 
 {#if student && study}
 	<StudyPanel
@@ -683,6 +747,8 @@
 		chords={progress.chords}
 		changes={changes}
 		known={known}
+		transpose={progress.transpose}
+		ontranspose={bumpTranspose}
 		onknown={(chord) => learn(chord)}
 		onplay={playAlong}
 		onclose={() => study = false}
@@ -827,41 +893,8 @@
 		color: var(--muted);
 	}
 
-	/* Student mode: how ready the reader is for this song, and the shortcuts out
-	   of it (a missing chord's lesson, or the key that avoids it). */
-	.readiness {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 6px;
-		margin: 8px 0 0;
-		font-size: 14px;
-		color: var(--muted);
-	}
-
-	.ok {
-		color: var(--muted);
-	}
-
-	.readiness button {
-		height: 28px;
-		padding: 0 10px;
-		font-size: 13px;
-		border-radius: 999px;
-	}
-
-	.miss {
-		font-weight: 600;
-		color: var(--chord);
-	}
-
-	.fix {
-		border-style: dashed;
-	}
-
 	.controls {
 		display: flex;
-		flex-wrap: wrap;
 		gap: 6px;
 		margin: 12px 0 16px;
 		position: sticky;
@@ -885,9 +918,110 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
+	.menu {
+		position: relative;
+		min-width: 44px;
+		font-weight: 600;
+	}
+
+	/* the menus sit at the right end of the bar */
+	.push {
+		margin-left: auto;
+	}
+
+	/* "⋯" holds something of this song */
+	.menu.dot::after {
+		content: '';
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--brand);
+	}
+
+	/* Bottom panel of the "Aa" and "⋯" menus, like the note and diagram
+	   sheets: the song stays visible above it. */
+	.sheet-panel {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		background: var(--surface);
+		border-top: 1px solid var(--control-border);
+		box-shadow: 0 -4px 16px var(--shadow);
+		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px)
+			calc(env(safe-area-inset-left) + 16px);
+	}
+
+	.panel-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 10px 0 0;
+		font-weight: 600;
+	}
+
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.lbl {
+		min-width: 64px;
+		font-size: 13px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--muted);
+	}
+
+	.sheet-panel .group button {
+		background: var(--bg);
+	}
+
+	.sheet-panel .group button.active {
+		background: var(--active-bg);
+	}
+
+	.hint {
+		color: var(--muted);
+	}
+
+	button.active .hint {
+		color: inherit;
+	}
+
+	/* the key shift stays in sight while scrolling, where it cannot change */
+	.key {
+		display: inline-flex;
+		align-items: center;
+		padding: 0 6px;
+		font-size: 14px;
+		font-variant-numeric: tabular-nums;
+		color: var(--muted);
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.actions button,
+	.actions a {
+		text-align: left;
+	}
+
 	/* the link to the editor looks like the buttons around it */
 	a.propose {
-		display: inline-flex;
+		display: flex;
 		align-items: center;
 		font-size: 14px;
 		height: 38px;
@@ -898,11 +1032,6 @@
 		background: var(--surface);
 		color: var(--link);
 		text-decoration: none;
-	}
-
-	.toggle:disabled {
-		opacity: 0.45;
-		cursor: default;
 	}
 
 	button.active {
