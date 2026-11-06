@@ -13,6 +13,7 @@ export type Line =
 	| { type: 'chorus_end' }
 	| { type: 'comment'; text: string }
 	| { type: 'tab'; text: string } // {start_of_tab}...{end_of_tab} block, content verbatim (multiline)
+	| { type: 'pause'; seconds: number } // {x_pause:N}: the reader's autoscroll holds N seconds on the preceding line
 	| { type: 'directive'; raw: string }; // preserved verbatim (e.g. {transpose:2}, {chorus})
 
 export interface SongMeta {
@@ -92,6 +93,15 @@ export function parse(source: string): Song {
 				case 'x_scroll':
 					meta.scroll = parseInt(value, 10) || null;
 					continue;
+				case 'x_pause': {
+					const seconds = parseInt(value, 10);
+					if (seconds > 0) {
+						lines.push({ type: 'pause', seconds });
+						continue;
+					}
+					lines.push({ type: 'directive', raw: raw.trim() });
+					continue;
+				}
 				case 'start_of_chorus':
 				case 'soc':
 					lines.push({ type: 'chorus_start' });
@@ -200,6 +210,9 @@ export function serialize(song: Song): string {
 				body.push('{start_of_tab}');
 				if (line.text !== '') body.push(...line.text.split('\n'));
 				body.push('{end_of_tab}');
+				break;
+			case 'pause':
+				body.push(`{x_pause:${line.seconds}}`);
 				break;
 			case 'directive':
 				body.push(line.raw);

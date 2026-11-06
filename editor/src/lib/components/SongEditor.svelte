@@ -603,7 +603,7 @@
 								placeholder="e|-----|"
 								data-testid="tab-editor"
 							></textarea>
-						{:else}
+						{:else if line.type === 'directive'}
 							<code class="directive">{line.raw}</code>
 						{/if}
 					</div>
