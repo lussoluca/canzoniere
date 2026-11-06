@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { page } from '$app/state';
+	import { replaceState } from '$app/navigation';
 	import { parse, serialize } from '@canzoniere/shared/chordpro';
 	import { decodePauses, linesFingerprint, withPauses } from '@canzoniere/shared/pauses';
 	import { categoryLabel } from '@canzoniere/shared/categories';
@@ -17,22 +17,29 @@
 	let content = $state<string | null>(null);
 	let resolvedFor = $state<string | null>(null);
 	// Pauses proposed from the reader (?pauses=…&fp=…): applied to the version
-	// about to be edited only if its lines are the ones the reader learned on;
-	// nothing is queued until the user saves.
+	// about to be edited only if its lines are the ones the reader learned on,
+	// as an unsaved change (baseline = the version without them). The link is
+	// consumed: the query leaves the URL, so a reload or a later save never
+	// applies it again over the user's own edits.
 	let pauseImport = $state<'applied' | 'stale' | null>(null);
+	let baseline = $state<string | undefined>(undefined);
 	$effect(() => {
 		let next = (online ? getPending(path)?.content : undefined) ?? data.content;
-		const params = page.url.searchParams;
-		const proposed = params.get('pauses');
-		pauseImport = null;
+		const url = new URL(window.location.href);
+		const proposed = url.searchParams.get('pauses');
+		baseline = undefined;
 		if (proposed !== null) {
 			const song = parse(next);
-			if (params.get('fp') === linesFingerprint(song)) {
+			if (url.searchParams.get('fp') === linesFingerprint(song)) {
+				baseline = serialize(song);
 				next = serialize(withPauses(song, decodePauses(proposed)));
 				pauseImport = 'applied';
 			} else {
 				pauseImport = 'stale';
 			}
+			url.searchParams.delete('pauses');
+			url.searchParams.delete('fp');
+			replaceState(url, {});
 		}
 		content = next;
 		resolvedFor = path;
@@ -72,6 +79,7 @@
 			mode="edit"
 			category={data.category}
 			file={data.file}
+			{baseline}
 		/>
 	{/key}
 {/if}

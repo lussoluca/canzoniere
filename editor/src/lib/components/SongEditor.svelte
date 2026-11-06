@@ -22,9 +22,20 @@
 		mode: 'new' | 'edit';
 		category: string;
 		file?: string;
+		// the content on disk when `initial` already carries unsaved changes
+		// (e.g. pauses proposed by the reader), so they show as dirty
+		baseline?: string;
 	}
 
-	let { initial, categories, allTags = [], mode, category: initialCategory, file }: Props = $props();
+	let {
+		initial,
+		categories,
+		allTags = [],
+		mode,
+		category: initialCategory,
+		file,
+		baseline
+	}: Props = $props();
 
 	let song: Song = $state(initial);
 	let category = $state(initialCategory);
@@ -35,7 +46,7 @@
 	let saving = $state(false);
 
 	// snapshot of the content as it lives on disk; updated on every successful save
-	let savedContent = $state(serialize(initial));
+	let savedContent = $state(baseline ?? serialize(initial));
 
 	// the song serialized in its current state, regardless of the active tab
 	let currentContent = $derived.by(() => {

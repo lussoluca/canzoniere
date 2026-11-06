@@ -295,14 +295,23 @@
 			const pxs = scrollSpeed * SCROLL_PX_PER_LEVEL;
 			const back = touchY - window.scrollY;
 			const k = readingLine();
+			let learned: number | null = null;
 			if (Math.abs(back) < 10) {
-				const heldSeconds = (performance.now() - touchAt) / 1000;
-				if (heldSeconds >= 1) learnPause(k, heldSeconds);
+				// only the time the page stood still because of the finger: the
+				// part overlapping a pause already playing was no correction
+				const heldSeconds = (performance.now() - Math.max(touchAt, holdUntil ?? 0)) / 1000;
+				if (heldSeconds >= 1) learned = k;
+				if (learned !== null) learnPause(learned, heldSeconds);
 			} else if (back / pxs >= 1) {
-				learnPause(k, back / pxs);
+				learned = k;
+				learnPause(learned, back / pxs);
 			} else if (-back / pxs >= 1 && k !== null) {
-				learnPause(pausedLineAtOrBefore(activePauses, k), back / pxs);
+				learned = pausedLineAtOrBefore(activePauses, k);
+				learnPause(learned, back / pxs);
 			}
+			// the correction itself already made up for this run's delay: the
+			// new pause plays from the next run on
+			if (learned !== null) held.add(learned);
 		};
 		const onWheel = () => {
 			glide = null;
@@ -630,15 +639,18 @@
 		{/if}
 	</div>
 
-	<button
-		class="toggle"
-		class:active={learning}
-		aria-pressed={learning}
-		onclick={() => learning = !learning}
-		title="Mentre scorre, torna indietro o tieni fermo il testo dove la musica si ferma: il canto lo ricorda"
-	>⏱ Impara i tempi</button>
-
-	{#if devicePauses}
+	<!-- The pause controls never change the sticky bar mid-song: a bar that
+	     grows or shrinks while scrolling makes the lyrics jump. Learning only
+	     happens while scrolling; reset and proposal only when stopped. -->
+	{#if scrolling}
+		<button
+			class="toggle"
+			class:active={learning}
+			aria-pressed={learning}
+			onclick={() => learning = !learning}
+			title="Mentre scorre, torna indietro o tieni fermo il testo dove la musica si ferma: il canto lo ricorda"
+		>⏱ Impara i tempi</button>
+	{:else if devicePauses}
 		<button class="toggle" onclick={resetPauses} title="Torna ai tempi del canzoniere">Azzera tempi</button>
 		{#if !samePauses(devicePauses, officialPauses)}
 			<a class="toggle propose" data-sveltekit-reload href={proposalHref(data.song.category, data.song.slug, song, devicePauses)}>

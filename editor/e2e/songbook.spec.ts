@@ -774,11 +774,20 @@ test('pauses: a proposal link is applied, a stale or malformed one is not', asyn
 	expect(await page.getByTestId('raw-editor').inputValue()).toMatch(/settembre\n\{x_pause:6\}/);
 	expect(fs.readFileSync(file, 'utf-8')).toBe(before); // nothing written until save
 
+	// the link is consumed: a reload must not apply it again over later edits
+	expect(page.url()).not.toContain('pauses=');
+
 	await goto(page, '/edit/varie/pausa_proposta.cho?pauses=1:6&fp=deadbeef');
 	await expect(page.getByTestId('pause-import-error')).toBeVisible();
 	await expect(page.getByTestId('pause-line')).toHaveCount(0);
 
 	await goto(page, `/edit/varie/pausa_proposta.cho?pauses=abc&fp=${fp}`);
 	await expect(page.getByTestId('pause-line')).toHaveCount(0);
+
+	// the proposal is an unsaved change: saving writes it
+	await goto(page, `/edit/varie/pausa_proposta.cho?pauses=1:6&fp=${fp}`);
+	await page.getByTestId('save').click();
+	await expect(page.getByTestId('save-status')).toHaveText('Salvato ✓');
+	expect(fs.readFileSync(file, 'utf-8')).toMatch(/settembre\n\{x_pause:6\}/);
 	fs.rmSync(file);
 });
