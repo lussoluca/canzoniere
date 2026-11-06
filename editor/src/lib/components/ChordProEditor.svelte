@@ -53,9 +53,9 @@
 	.cpe {
 		position: relative;
 		min-height: 60vh;
-		border: 1px solid #ccc;
-		border-radius: 8px;
-		background: #fff;
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-md);
+		background: var(--surface);
 		overflow: hidden;
 	}
 	pre,
@@ -63,10 +63,10 @@
 		position: absolute;
 		inset: 0;
 		margin: 0;
-		padding: 0.8rem;
+		padding: var(--space-5);
 		border: none;
 		font-family: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
-		font-size: 14px;
+		font-size: var(--text-md);
 		line-height: 1.45;
 		white-space: pre-wrap;
 		word-break: break-word;
@@ -74,34 +74,34 @@
 	}
 	pre {
 		overflow: hidden;
-		color: #2b2b2b;
+		color: var(--text);
 		pointer-events: none;
 	}
 	textarea {
 		background: transparent;
 		color: transparent;
-		caret-color: #2b2b2b;
+		caret-color: var(--text);
 		resize: none;
 		outline: none;
 	}
 	/* highlight classes are injected via {@html}, so they need :global */
 	.cpe :global(.hl-meta) {
-		color: #7b2d8e;
+		color: var(--directive);
 		font-weight: 600;
 	}
 	.cpe :global(.hl-chorus) {
-		color: #b08900;
+		color: var(--success);
 		font-weight: 600;
 	}
 	.cpe :global(.hl-comment) {
-		color: #2d6a4f;
+		color: var(--faint);
 		font-style: italic;
 	}
 	.cpe :global(.hl-directive) {
-		color: #888;
+		color: var(--faint);
 	}
 	.cpe :global(.hl-chord) {
-		color: #0a5ad4;
+		color: var(--chord);
 		font-weight: 700;
 	}
 </style>

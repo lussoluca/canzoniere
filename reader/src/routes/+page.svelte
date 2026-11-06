@@ -104,29 +104,29 @@
 
 <style>
 	h2 {
-		font-size: 15px;
+		font-size: var(--text-lg);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
-		margin: 24px 0 10px;
+		margin: var(--space-9) 0 var(--space-4);
 	}
 
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 10px;
+		gap: var(--space-4);
 	}
 
 	.card {
 		background: var(--surface);
 		border: 1px solid var(--border);
-		border-radius: 10px;
-		padding: 14px;
+		border-radius: var(--radius-lg);
+		padding: var(--space-6);
 		text-decoration: none;
 		color: inherit;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: var(--space-1);
 	}
 
 	.card .label {
@@ -134,13 +134,13 @@
 	}
 
 	.card .count {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
 	.songs {
 		list-style: none;
-		margin: 14px 0 0;
+		margin: var(--space-6) 0 0;
 		padding: 0;
 	}
 
@@ -152,8 +152,8 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
-		gap: 12px;
-		padding: 12px 4px;
+		gap: var(--space-5);
+		padding: var(--space-5) var(--space-1);
 		text-decoration: none;
 		color: inherit;
 	}
@@ -165,13 +165,13 @@
 	}
 
 	.songs .artist {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		text-align: right;
 	}
 
 	.none {
-		padding: 12px 4px;
+		padding: var(--space-5) var(--space-1);
 		color: var(--muted);
 	}
 </style>

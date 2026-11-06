@@ -163,43 +163,43 @@
 
 <style>
 	h2 {
-		margin: 0.4rem 0 1rem;
+		margin: var(--space-3) 0 var(--space-7);
 	}
 	.card {
-		background: #fff;
-		border-radius: 8px;
-		padding: 1rem 1.2rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-		margin-bottom: 0.8rem;
+		background: var(--surface);
+		border-radius: var(--radius-md);
+		padding: var(--space-7) var(--space-8);
+		box-shadow: 0 1px 3px var(--shadow-sm);
+		margin-bottom: var(--space-5);
 	}
 	.card.form {
 		display: flex;
 		flex-direction: column;
-		gap: 0.7rem;
+		gap: var(--space-5);
 		max-width: 480px;
 		margin-inline: auto;
 	}
 	.card.form label {
 		display: flex;
 		flex-direction: column;
-		gap: 0.2rem;
-		font-size: 0.78rem;
-		color: #777;
+		gap: var(--space-1);
+		font-size: var(--text-xs);
+		color: var(--muted);
 	}
 	.card.form input {
-		font-size: 0.95rem;
-		padding: 0.35rem 0.5rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
+		font-size: var(--text-lg);
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
 	}
 	.done {
 		font-weight: 600;
-		margin: 0 0 0.4rem;
+		margin: 0 0 var(--space-3);
 	}
 	.error {
 		margin: 0;
-		color: #b3261e;
-		font-size: 0.9rem;
+		color: var(--danger);
+		font-size: var(--text-lg);
 	}
 	table {
 		width: 100%;
@@ -208,23 +208,23 @@
 	th,
 	td {
 		text-align: left;
-		padding: 0.45rem 0.6rem;
-		border-bottom: 1px solid #eee;
-		font-size: 0.92rem;
+		padding: var(--space-3) var(--space-4);
+		border-bottom: 1px solid var(--border);
+		font-size: var(--text-lg);
 	}
 	th {
-		font-size: 0.78rem;
+		font-size: var(--text-xs);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		color: #888;
+		color: var(--faint);
 	}
 	code {
-		font-size: 0.82rem;
-		color: #777;
+		font-size: var(--text-sm);
+		color: var(--muted);
 		overflow-wrap: anywhere;
 	}
 	.song-link {
-		color: #2f3e46;
+		color: var(--text);
 		font-weight: 600;
 		text-decoration: none;
 	}

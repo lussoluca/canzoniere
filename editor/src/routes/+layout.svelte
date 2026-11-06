@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { asset, resolve } from '$app/paths';
+	import '@canzoniere/shared/tokens.css';
 	import HeaderMenu from '#lib/components/HeaderMenu.svelte';
 
 	let { children } = $props();
@@ -34,83 +35,91 @@
 	:global(body) {
 		margin: 0;
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		background: #f6f5f2;
-		color: #2b2b2b;
+		background: var(--bg);
+		color: var(--text);
 		/* No iOS text inflation in landscape (same as the reader). */
 		-webkit-text-size-adjust: 100%;
 	}
 	/* Same look as the reader header (reader/src/routes/+layout.svelte). */
 	.topbar {
-		background: #2f3e46;
+		background: var(--header-bg);
 		/* Side insets keep the brand clear of the Dynamic Island in landscape. */
-		padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px)
-			10px calc(env(safe-area-inset-left) + 16px);
+		padding: calc(env(safe-area-inset-top) + var(--space-4)) calc(env(safe-area-inset-right) + var(--space-7))
+			var(--space-4) calc(env(safe-area-inset-left) + var(--space-7));
 		position: sticky;
 		top: 0;
 		z-index: 10;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: 1.4rem;
+		gap: var(--space-9);
 	}
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		color: #ffd166;
+		gap: var(--space-3);
+		color: var(--brand);
 		text-decoration: none;
 		font-weight: 700;
-		font-size: 16px;
+		font-size: var(--text-xl);
 		min-width: 0;
 	}
 	.brand .logo {
 		width: 28px;
 		height: 28px;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		flex-shrink: 0;
 	}
 	/* Phones: keep the brand on one line next to the burger. */
 	@media (max-width: 640px) {
 		.brand {
-			font-size: 15px;
+			font-size: var(--text-lg);
 			white-space: nowrap;
 		}
 	}
 	main {
 		max-width: 1100px;
 		margin: 0 auto;
-		padding: 1.2rem;
+		padding: var(--space-8);
 	}
 	:global(button) {
 		font: inherit;
 	}
+	:global(input),
+	:global(textarea),
+	:global(select) {
+		background: var(--surface);
+		color: var(--text);
+		border-color: var(--control-border);
+	}
 	:global(.btn) {
 		display: inline-block;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		background: #fff;
-		padding: 0.35rem 0.8rem;
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		padding: var(--space-2) var(--space-5);
 		cursor: pointer;
 		text-decoration: none;
 		color: inherit;
-		font-size: 0.9rem;
+		font-size: var(--text-lg);
 	}
 	:global(.btn:hover) {
-		background: #eee;
+		background: var(--surface-alt);
 	}
 	:global(.btn.primary) {
-		background: #2f3e46;
-		border-color: #2f3e46;
-		color: #fff;
+		background: var(--active-bg);
+		border-color: var(--active-bg);
+		color: var(--active-text);
 	}
 	:global(.btn.primary:hover) {
-		background: #3d5159;
+		background: var(--active-bg-hover);
+		border-color: var(--active-bg-hover);
 	}
 	:global(.btn.danger) {
-		color: #b3261e;
-		border-color: #d9a5a2;
+		color: var(--danger);
+		border-color: var(--danger-border);
 	}
 	:global(.btn.danger:hover) {
-		background: #fbeae9;
+		background: var(--danger-bg);
 	}
 </style>

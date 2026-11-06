@@ -234,49 +234,49 @@
 <style>
 	.panel {
 		border: 1px solid var(--control-border);
-		border-radius: 12px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
-		padding: 12px 14px 14px;
-		margin: 10px 0 14px;
-		font-size: 14px;
+		padding: var(--space-5) var(--space-6) var(--space-6);
+		margin: var(--space-4) 0 var(--space-6);
+		font-size: var(--text-md);
 	}
 
 	.head {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-4);
 	}
 
 	.head strong {
-		font-size: 16px;
+		font-size: var(--text-xl);
 	}
 
 	.close {
 		margin-left: auto;
 		font: inherit;
-		font-size: 16px;
+		font-size: var(--text-xl);
 		background: none;
 		border: none;
 		color: var(--muted);
-		padding: 2px 6px;
+		padding: 2px var(--space-2);
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
 	.steps {
 		display: flex;
-		gap: 6px;
-		margin: 12px 0;
+		gap: var(--space-2);
+		margin: var(--space-5) 0;
 	}
 
 	.step {
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		font-weight: 500;
 		flex: 1 1 0;
-		padding: 8px 6px;
+		padding: var(--space-3) var(--space-2);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -290,15 +290,15 @@
 	}
 
 	.lead {
-		margin: 10px 0;
+		margin: var(--space-4) 0;
 	}
 
 	.fix {
 		font: inherit;
-		font-size: 13px;
-		padding: 4px 10px;
+		font-size: var(--text-sm);
+		padding: var(--space-1) var(--space-4);
 		border: 1px dashed var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -307,22 +307,22 @@
 	.cards {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-3);
 	}
 
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
-		margin-bottom: 12px;
+		gap: var(--space-2);
+		margin-bottom: var(--space-5);
 	}
 
 	.chip {
 		font: inherit;
-		font-size: 13px;
-		padding: 6px 12px;
+		font-size: var(--text-sm);
+		padding: var(--space-2) var(--space-5);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -337,7 +337,7 @@
 
 	.count {
 		color: var(--muted);
-		font-size: 12px;
+		font-size: var(--text-xs);
 	}
 
 	.chip.on .count {
@@ -345,28 +345,28 @@
 	}
 
 	.tips {
-		margin: 10px 0;
-		padding-left: 20px;
+		margin: var(--space-4) 0;
+		padding-left: var(--space-8);
 	}
 
 	.tips li {
-		margin-bottom: 6px;
+		margin-bottom: var(--space-2);
 	}
 
 	.nav {
 		display: flex;
-		gap: 8px;
-		margin-top: 14px;
+		gap: var(--space-3);
+		margin-top: var(--space-6);
 	}
 
 	.back,
 	.next {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
-		padding: 9px 14px;
+		padding: var(--space-3) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;

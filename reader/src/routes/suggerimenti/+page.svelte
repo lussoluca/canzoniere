@@ -89,52 +89,52 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 4px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-1);
 	}
 
 	.intro {
-		margin: 0 0 12px;
+		margin: 0 0 var(--space-5);
 		color: var(--muted);
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	.card {
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
-		padding: 14px 16px;
+		padding: var(--space-6) var(--space-7);
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-5);
 	}
 
 	label {
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
-		font-size: 13px;
+		gap: var(--space-1);
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
 	input,
 	textarea {
 		font: inherit;
-		font-size: 16px;
+		font-size: var(--text-xl);
 		color: var(--text);
 		background: var(--bg);
 		border: 1px solid var(--control-border);
-		border-radius: 8px;
-		padding: 9px 11px;
+		border-radius: var(--radius-md);
+		padding: var(--space-3) var(--space-4);
 	}
 
 	textarea {
@@ -150,11 +150,11 @@
 
 	button {
 		font: inherit;
-		font-size: 15px;
+		font-size: var(--text-lg);
 		font-weight: 600;
 		border: none;
-		border-radius: 8px;
-		padding: 10px 14px;
+		border-radius: var(--radius-md);
+		padding: var(--space-4) var(--space-6);
 		background: var(--active-bg);
 		color: var(--active-text);
 		cursor: pointer;
@@ -179,13 +179,13 @@
 
 	.what {
 		margin: 0;
-		font-size: 14px;
+		font-size: var(--text-md);
 		color: var(--muted);
 	}
 
 	.error {
 		margin: 0;
-		font-size: 14px;
+		font-size: var(--text-md);
 		color: var(--danger);
 	}
 </style>

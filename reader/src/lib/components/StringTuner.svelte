@@ -66,8 +66,8 @@
 	.strings {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
-		margin-bottom: 8px;
+		gap: var(--space-2);
+		margin-bottom: var(--space-3);
 	}
 
 	.string {
@@ -81,9 +81,9 @@
 		/* the two Mi carry an extra label: the height is fixed so the row stays even */
 		min-height: 62px;
 		justify-content: center;
-		padding: 7px 4px;
+		padding: var(--space-2) var(--space-1);
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -97,7 +97,7 @@
 	}
 
 	.num {
-		font-size: 11px;
+		font-size: var(--text-xs);
 		color: var(--muted);
 	}
 
@@ -107,22 +107,22 @@
 	}
 
 	.note {
-		font-size: 17px;
+		font-size: var(--text-2xl);
 		font-weight: 700;
 	}
 
 	.who {
-		font-size: 11px;
+		font-size: var(--text-xs);
 		color: var(--muted);
 	}
 
 	.all {
 		font: inherit;
-		font-size: 14px;
-		padding: 6px 12px;
-		margin-bottom: 8px;
+		font-size: var(--text-md);
+		padding: var(--space-2) var(--space-5);
+		margin-bottom: var(--space-3);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -131,6 +131,6 @@
 	.hint {
 		margin: 0;
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 </style>

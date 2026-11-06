@@ -664,46 +664,46 @@
 	.meta {
 		display: grid;
 		grid-template-columns: 2.3fr 2.3fr 0.8fr 1fr 1.4fr;
-		gap: 0.6rem;
-		background: #fff;
-		border-radius: 8px;
-		padding: 0.8rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-		margin-bottom: 0.8rem;
+		gap: var(--space-4);
+		background: var(--surface);
+		border-radius: var(--radius-md);
+		padding: var(--space-5);
+		box-shadow: 0 1px 3px var(--shadow-sm);
+		margin-bottom: var(--space-5);
 	}
 	.meta label {
 		display: flex;
 		flex-direction: column;
-		font-size: 0.78rem;
-		color: #777;
-		gap: 0.2rem;
+		font-size: var(--text-xs);
+		color: var(--muted);
+		gap: var(--space-1);
 	}
 	.meta-toggle {
 		grid-column: 1 / -1;
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
+		gap: var(--space-3);
 		border: none;
 		background: none;
 		padding: 0;
 		cursor: pointer;
 		text-align: left;
-		font-size: 0.82rem;
-		color: #777;
+		font-size: var(--text-sm);
+		color: var(--muted);
 		min-height: 1.4rem;
 	}
 	.meta-toggle strong {
-		color: #2b2b2b;
-		font-size: 0.95rem;
+		color: var(--text);
+		font-size: var(--text-lg);
 	}
 	.meta-summary {
-		color: #999;
-		font-size: 0.88rem;
+		color: var(--faint);
+		font-size: var(--text-md);
 	}
 	.chevron {
 		display: inline-block;
 		transition: transform 0.15s;
-		font-size: 0.8rem;
+		font-size: var(--text-sm);
 	}
 	.chevron.open {
 		transform: rotate(90deg);
@@ -713,67 +713,68 @@
 	}
 	.meta input,
 	.meta select {
-		font-size: 0.95rem;
-		padding: 0.35rem 0.5rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		background: #fff;
+		font-size: var(--text-lg);
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		color: var(--text);
 	}
 	.tabs {
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
-		gap: 0.4rem;
-		row-gap: 0.5rem;
-		margin-bottom: 0.6rem;
+		gap: var(--space-3);
+		row-gap: var(--space-3);
+		margin-bottom: var(--space-4);
 	}
 	.tabs > button:not(.btn) {
 		border: none;
 		background: none;
-		padding: 0.4rem 0.8rem;
+		padding: var(--space-3) var(--space-5);
 		cursor: pointer;
 		border-bottom: 2px solid transparent;
-		color: #777;
+		color: var(--muted);
 	}
 	.tabs > button.active {
-		color: #2f3e46;
+		color: var(--active-bg);
 		font-weight: 600;
-		border-bottom-color: #2f3e46;
+		border-bottom-color: var(--active-bg);
 	}
 	.spacer {
 		flex: 1;
 	}
 	.history-tools {
 		display: flex;
-		gap: 0.2rem;
-		margin-left: 0.4rem;
+		gap: var(--space-1);
+		margin-left: var(--space-3);
 	}
 	.history-tools button {
-		font-size: 1rem;
+		font-size: var(--text-xl);
 		line-height: 1;
-		padding: 0.3rem 0.5rem;
+		padding: var(--space-2) var(--space-3);
 	}
 	.chord-tools {
 		display: flex;
 		align-items: center;
-		gap: 0.3rem;
-		font-size: 0.82rem;
-		color: #777;
-		margin-right: 0.6rem;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		color: var(--muted);
+		margin-right: var(--space-4);
 	}
 	.chord-tools .toggled {
-		background: #2f3e46;
-		color: #ffd166;
+		background: var(--active-bg);
+		color: var(--active-text);
 	}
 	.save-tools {
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
+		gap: var(--space-3);
 		margin-left: auto;
 	}
 	.line-mode-toggle.toggled {
-		background: #2f3e46;
-		color: #ffd166;
+		background: var(--active-bg);
+		color: var(--active-text);
 	}
 	/* The «Righe» toggle exists only where hover does not. */
 	.line-tools-toggle {
@@ -784,32 +785,32 @@
 			display: inline-block;
 		}
 		.line-tools-toggle.toggled {
-			background: #2f3e46;
-			color: #ffd166;
+			background: var(--active-bg);
+			color: var(--active-text);
 		}
 	}
 	.status {
-		font-size: 0.85rem;
-		color: #2d6a4f;
+		font-size: var(--text-md);
+		color: var(--success);
 	}
 	.dirty {
-		font-size: 0.82rem;
-		color: #b54708;
+		font-size: var(--text-sm);
+		color: var(--warning);
 		font-weight: 600;
 		white-space: nowrap;
 	}
 	.visual-layout {
 		display: flex;
-		gap: 0.8rem;
+		gap: var(--space-5);
 		align-items: flex-start;
 	}
 	.sheet {
 		flex: 1;
 		min-width: 0;
-		background: #fff;
-		border-radius: 8px;
-		padding: 1rem 1.2rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		background: var(--surface);
+		border-radius: var(--radius-md);
+		padding: var(--space-7) var(--space-8);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 		overflow-x: auto;
 	}
 	.chords-panel {
@@ -819,35 +820,35 @@
 		width: 140px;
 		max-height: calc(100vh - 1rem);
 		overflow-y: auto;
-		background: #fff;
-		border-radius: 8px;
-		padding: 0.8rem 0.6rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		background: var(--surface);
+		border-radius: var(--radius-md);
+		padding: var(--space-5) var(--space-4);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.5rem;
+		gap: var(--space-3);
 	}
 	.chords-panel h3 {
 		margin: 0;
-		font-size: 0.78rem;
-		color: #777;
+		font-size: var(--text-xs);
+		color: var(--muted);
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 	}
 	.no-chords {
-		color: #999;
-		font-size: 0.82rem;
+		color: var(--faint);
+		font-size: var(--text-sm);
 		margin: 0;
 	}
 	.hint {
-		color: #999;
+		color: var(--faint);
 	}
 	.line-wrap {
 		display: flex;
 		align-items: flex-end;
-		gap: 0.3rem;
+		gap: var(--space-2);
 	}
 	.line-tools {
 		display: flex;
@@ -864,17 +865,17 @@
 	.line-tools > button,
 	.add-menu > button {
 		border: none;
-		background: #eee;
-		border-radius: 4px;
+		background: var(--border);
+		border-radius: var(--radius-xs);
 		cursor: pointer;
-		font-size: 1.05rem;
+		font-size: var(--text-xl);
 		line-height: 1;
-		padding: 3px 7px;
-		color: #666;
+		padding: 3px var(--space-2);
+		color: var(--muted);
 	}
 	.line-tools > button:hover,
 	.add-menu > button:hover {
-		background: #ddd;
+		background: var(--control-border);
 	}
 	.add-menu {
 		position: relative;
@@ -889,25 +890,25 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 9.5rem;
-		padding: 0.2rem;
-		background: #fff;
-		border: 1px solid #ddd;
-		border-radius: 6px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		padding: var(--space-1);
+		background: var(--surface);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		box-shadow: 0 2px 8px var(--shadow);
 	}
 	.menu button {
 		border: none;
 		background: none;
-		border-radius: 4px;
+		border-radius: var(--radius-xs);
 		cursor: pointer;
 		text-align: left;
 		white-space: nowrap;
-		padding: 0.35rem 0.6rem;
-		font-size: 0.85rem;
-		color: #333;
+		padding: var(--space-2) var(--space-4);
+		font-size: var(--text-md);
+		color: var(--text);
 	}
 	.menu button:hover {
-		background: #f0f0f0;
+		background: var(--surface-alt);
 	}
 	.line-body {
 		flex: 1;
@@ -917,57 +918,61 @@
 		height: 1.2em;
 	}
 	.marker {
-		color: #b08900;
-		font-size: 0.78rem;
+		color: var(--success);
+		font-size: var(--text-xs);
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		padding: 0.2rem 0;
+		padding: var(--space-1) 0;
 	}
 	.comment {
 		font-style: italic;
-		color: #666;
-		border: 1px dashed #ccc;
-		border-radius: 4px;
-		padding: 0.15rem 0.4rem;
+		color: var(--muted);
+		background: var(--surface);
+		border: 1px dashed var(--control-border);
+		border-radius: var(--radius-xs);
+		padding: 0.15rem var(--space-3);
 		width: 100%;
-		font-size: 0.9rem;
+		font-size: var(--text-lg);
 	}
 	.directive {
-		color: #999;
-		font-size: 0.85rem;
+		color: var(--faint);
+		font-size: var(--text-md);
 	}
 	.pause {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.3rem;
-		padding: 0.1rem 0.6rem;
-		border-radius: 999px;
-		background: #eef3f5;
-		color: #2f3e46;
-		font-size: 0.85rem;
+		gap: var(--space-2);
+		padding: 0.1rem var(--space-4);
+		border-radius: var(--radius-pill);
+		background: var(--accent-bg);
+		color: var(--text);
+		font-size: var(--text-md);
 	}
 	.pause input {
 		width: 3.2rem;
 		font: inherit;
+		background: var(--surface);
+		color: var(--text);
 	}
 	.tab {
 		width: 100%;
 		font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-		font-size: 0.85rem;
+		font-size: var(--text-md);
 		line-height: 1.35;
-		color: #444;
-		border: 1px dashed #ccc;
-		border-radius: 4px;
-		padding: 0.3rem 0.4rem;
+		color: var(--text);
+		background: var(--surface);
+		border: 1px dashed var(--control-border);
+		border-radius: var(--radius-xs);
+		padding: var(--space-2) var(--space-3);
 		resize: vertical;
 		white-space: pre;
 		overflow-x: auto;
 	}
 	.add-bar {
-		margin-top: 1rem;
-		padding-top: 0.8rem;
-		border-top: 1px solid #eee;
+		margin-top: var(--space-7);
+		padding-top: var(--space-5);
+		border-top: 1px solid var(--border);
 		display: flex;
 		align-items: center;
 	}

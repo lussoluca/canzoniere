@@ -220,65 +220,65 @@
 
 <style>
 	h2 {
-		margin: 0.4rem 0 0.6rem;
+		margin: var(--space-3) 0 var(--space-4);
 	}
 	.intro {
-		color: #555;
+		color: var(--muted);
 		line-height: 1.6;
-		margin: 0 0 1rem;
+		margin: 0 0 var(--space-7);
 	}
 	.create {
 		display: flex;
-		gap: 0.6rem;
+		gap: var(--space-4);
 		align-items: center;
-		margin-bottom: 1rem;
+		margin-bottom: var(--space-7);
 	}
 	.create input {
 		flex: 1;
 		min-width: 220px;
-		padding: 0.45rem 0.7rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
+		padding: var(--space-3) var(--space-5);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
 	}
 	.edit {
 		display: flex;
-		gap: 0.5rem;
+		gap: var(--space-3);
 		align-items: center;
 	}
 	.edit input {
-		padding: 0.35rem 0.6rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
+		padding: var(--space-2) var(--space-4);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
 		min-width: 180px;
 	}
 	.error {
-		color: #b3261e;
-		font-size: 0.85rem;
+		color: var(--danger);
+		font-size: var(--text-md);
 	}
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		background: #fff;
-		border-radius: 8px;
+		background: var(--surface);
+		border-radius: var(--radius-md);
 		overflow: hidden;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 	}
 	th,
 	td {
 		text-align: left;
-		padding: 0.55rem 0.8rem;
-		border-bottom: 1px solid #eee;
-		font-size: 0.92rem;
+		padding: var(--space-4) var(--space-5);
+		border-bottom: 1px solid var(--border);
+		font-size: var(--text-lg);
 	}
 	th {
-		background: #fafafa;
-		font-size: 0.8rem;
+		background: var(--surface-alt);
+		font-size: var(--text-sm);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		color: #888;
+		color: var(--faint);
 	}
 	td a {
-		color: #2f3e46;
+		color: var(--text);
 		font-weight: 600;
 		text-decoration: none;
 	}
@@ -286,9 +286,9 @@
 		text-decoration: underline;
 	}
 	code {
-		background: #f0efec;
-		border-radius: 4px;
-		padding: 0.05rem 0.3rem;
+		background: var(--surface-alt);
+		border-radius: var(--radius-xs);
+		padding: 0.05rem var(--space-2);
 		font-size: 0.88em;
 	}
 	.actions {
@@ -296,7 +296,7 @@
 		white-space: nowrap;
 	}
 	.btn.icon {
-		padding: 0.35rem 0.55rem;
+		padding: var(--space-2) var(--space-4);
 		line-height: 1;
 	}
 	.btn.icon:disabled {
@@ -304,6 +304,6 @@
 		cursor: default;
 	}
 	.empty {
-		color: #999;
+		color: var(--faint);
 	}
 </style>

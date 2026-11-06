@@ -150,11 +150,11 @@
 
 	.listen {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
-		padding: 8px 14px;
+		padding: var(--space-3) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -164,21 +164,21 @@
 	.result {
 		flex: 1 1 100%;
 		margin: 0;
-		font-size: 14px;
+		font-size: var(--text-md);
 		min-height: 1.4em;
 	}
 
 	.meter {
 		flex: 0 0 64px;
 		height: 6px;
-		border-radius: 3px;
+		border-radius: var(--radius-xs);
 		background: var(--control-border);
 		overflow: hidden;
 	}
 
 	.meter-fill {
 		height: 100%;
-		border-radius: 3px;
+		border-radius: var(--radius-xs);
 		background: var(--active-bg);
 		transition: width 90ms linear;
 	}
@@ -188,18 +188,8 @@
 	}
 
 	.ok {
-		color: #2e7d32;
+		color: var(--success);
 		font-weight: 600;
-	}
-
-	@media (prefers-color-scheme: dark) {
-		:global(:root:not([data-theme='light'])) .ok {
-			color: #81c784;
-		}
-	}
-
-	:global(:root[data-theme='dark']) .ok {
-		color: #81c784;
 	}
 
 	.ko {

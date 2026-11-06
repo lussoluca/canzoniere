@@ -127,53 +127,53 @@
 
 <style>
 	.crumbs {
-		font-size: 0.9rem;
-		color: #777;
-		margin-bottom: 0.8rem;
+		font-size: var(--text-lg);
+		color: var(--muted);
+		margin-bottom: var(--space-5);
 	}
 	.crumbs a {
-		color: #2f3e46;
+		color: var(--text);
 	}
 	.head {
 		display: flex;
 		align-items: center;
-		gap: 0.8rem;
-		margin-bottom: 0.8rem;
+		gap: var(--space-5);
+		margin-bottom: var(--space-5);
 	}
 	.head h2 {
 		margin: 0;
 		flex: 1;
 	}
 	.status {
-		font-size: 0.85rem;
-		color: #2d6a4f;
+		font-size: var(--text-md);
+		color: var(--success);
 	}
 	.cols {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
+		gap: var(--space-7);
 		align-items: start;
 	}
 	.panel {
-		background: #fff;
-		border-radius: 8px;
-		padding: 0.9rem 1.1rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		background: var(--surface);
+		border-radius: var(--radius-md);
+		padding: var(--space-6) var(--space-8);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 	}
 	.panel h3 {
-		margin: 0 0 0.6rem;
-		font-size: 0.95rem;
+		margin: 0 0 var(--space-4);
+		font-size: var(--text-lg);
 	}
 	ol {
 		margin: 0;
-		padding-left: 1.4rem;
+		padding-left: var(--space-9);
 	}
 	ol li {
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
-		padding: 0.25rem 0;
-		border-bottom: 1px solid #f2f2f2;
+		gap: var(--space-3);
+		padding: var(--space-1) 0;
+		border-bottom: 1px solid var(--border);
 	}
 	ol li .title {
 		flex: 1;
@@ -182,39 +182,39 @@
 		color: inherit;
 	}
 	.cat {
-		color: #999;
-		margin-left: 0.3rem;
+		color: var(--faint);
+		margin-left: var(--space-2);
 	}
 	.missing {
-		color: #b3261e;
+		color: var(--danger);
 	}
 	.entry-actions button {
 		border: none;
-		background: #eee;
-		border-radius: 4px;
+		background: var(--surface-alt);
+		border-radius: var(--radius-xs);
 		cursor: pointer;
-		padding: 1px 7px;
-		font-size: 0.8rem;
-		color: #555;
+		padding: 1px var(--space-2);
+		font-size: var(--text-sm);
+		color: var(--muted);
 	}
 	.entry-actions button:disabled {
 		opacity: 0.35;
 		cursor: default;
 	}
 	.entry-actions .remove {
-		background: #fbeae9;
-		color: #b3261e;
+		background: var(--danger-bg);
+		color: var(--danger);
 	}
 	.empty {
-		color: #999;
+		color: var(--faint);
 		border: none;
 	}
 	input[type="search"] {
 		width: 100%;
-		padding: 0.45rem 0.7rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		margin-bottom: 0.5rem;
+		padding: var(--space-3) var(--space-5);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		margin-bottom: var(--space-3);
 	}
 	.picker {
 		list-style: none;
@@ -228,12 +228,12 @@
 		text-align: left;
 		border: none;
 		background: none;
-		padding: 0.3rem 0.2rem;
+		padding: var(--space-2) var(--space-1);
 		cursor: pointer;
-		border-radius: 4px;
-		font-size: 0.92rem;
+		border-radius: var(--radius-xs);
+		font-size: var(--text-lg);
 	}
 	.picker .add:hover {
-		background: #eef3f4;
+		background: var(--accent-bg);
 	}
 </style>

@@ -67,63 +67,63 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 4px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-1);
 	}
 
 	.intro {
-		margin: 0 0 12px;
+		margin: 0 0 var(--space-5);
 		color: var(--muted);
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	h2 {
-		font-size: 15px;
+		font-size: var(--text-lg);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
-		margin: 22px 0 10px;
+		margin: var(--space-8) 0 var(--space-4);
 	}
 
 	.card {
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
-		padding: 12px 14px;
-		font-size: 14px;
+		padding: var(--space-5) var(--space-6);
+		font-size: var(--text-md);
 	}
 
 	.row {
 		display: flex;
 		align-items: flex-start;
-		gap: 14px;
+		gap: var(--space-6);
 	}
 
 	.row strong {
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	.what {
-		margin: 4px 0 0;
+		margin: var(--space-1) 0 0;
 	}
 
 	.switch {
 		flex: 0 0 auto;
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
-		padding: 8px 16px;
+		padding: var(--space-3) var(--space-7);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -137,17 +137,17 @@
 	}
 
 	ul {
-		margin: 12px 0 0;
-		padding-left: 20px;
+		margin: var(--space-5) 0 0;
+		padding-left: var(--space-8);
 	}
 
 	li {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	.hint {
-		margin: 10px 0 0;
+		margin: var(--space-4) 0 0;
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 </style>

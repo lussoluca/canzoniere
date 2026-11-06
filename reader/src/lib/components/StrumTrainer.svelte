@@ -210,12 +210,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 6px;
-		margin-bottom: 8px;
+		gap: var(--space-2);
+		margin-bottom: var(--space-3);
 	}
 
 	.picker-label {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		min-width: 68px;
 	}
@@ -223,15 +223,15 @@
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-2);
 	}
 
 	.chip {
 		font: inherit;
-		font-size: 14px;
-		padding: 5px 10px;
+		font-size: var(--text-md);
+		padding: var(--space-1) var(--space-4);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -246,8 +246,8 @@
 
 	.grid {
 		display: flex;
-		gap: 4px;
-		margin: 12px 0 6px;
+		gap: var(--space-1);
+		margin: var(--space-5) 0 var(--space-2);
 	}
 
 	.cell {
@@ -256,9 +256,9 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1px;
-		padding: 6px 0;
+		padding: var(--space-2) 0;
 		border: 1px solid var(--border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 	}
 
@@ -273,7 +273,7 @@
 	}
 
 	.stroke {
-		font-size: 19px;
+		font-size: var(--text-2xl);
 		font-weight: 700;
 		line-height: 1;
 	}
@@ -288,7 +288,7 @@
 	}
 
 	.count {
-		font-size: 10px;
+		font-size: var(--text-xs);
 		color: var(--muted);
 	}
 
@@ -297,8 +297,8 @@
 	}
 
 	.say {
-		margin: 0 0 10px;
-		font-size: 13px;
+		margin: 0 0 var(--space-4);
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
@@ -306,17 +306,17 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 10px 14px;
-		margin-bottom: 10px;
+		gap: var(--space-4) var(--space-6);
+		margin-bottom: var(--space-4);
 	}
 
 	.go {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		min-width: 92px;
-		padding: 7px 14px;
+		padding: var(--space-2) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -336,9 +336,9 @@
 	.speed {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-3);
 		flex: 1 1 180px;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
@@ -355,8 +355,8 @@
 	.click {
 		display: flex;
 		align-items: center;
-		gap: 5px;
-		font-size: 13px;
+		gap: var(--space-1);
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
@@ -367,6 +367,6 @@
 	.hint {
 		margin: 0;
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 </style>

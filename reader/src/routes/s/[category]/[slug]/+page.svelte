@@ -900,22 +900,22 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
+		font-size: var(--text-4xl);
 		margin: 0;
 	}
 
 	.star {
-		font-size: 22px;
-		padding: 0 6px;
+		font-size: var(--text-3xl);
+		padding: 0 var(--space-2);
 		border: none;
 		background: none;
 		color: var(--faint);
@@ -923,7 +923,7 @@
 	}
 
 	.star.on {
-		color: #d99e07;
+		color: var(--favorite);
 	}
 
 	.artist {
@@ -933,23 +933,23 @@
 
 	.controls {
 		display: flex;
-		gap: 6px;
-		margin: 12px 0 16px;
+		gap: var(--space-2);
+		margin: var(--space-5) 0 var(--space-7);
 		position: sticky;
 		top: calc(env(safe-area-inset-top) + 42px);
 		z-index: 5;
 		background: var(--bg);
 		/* Top padding keeps a visible gap below the header while stuck. */
-		padding: 14px 0 6px;
+		padding: var(--space-6) 0 var(--space-2);
 	}
 
 	button {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		height: 38px;
-		padding: 0 12px;
+		padding: 0 var(--space-5);
 		border: 1px solid var(--control-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -989,19 +989,19 @@
 		z-index: 20;
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-5);
 		background: var(--surface);
 		border-top: 1px solid var(--control-border);
 		box-shadow: 0 -4px 16px var(--shadow);
-		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px)
-			calc(env(safe-area-inset-left) + 16px);
+		padding: 0 calc(env(safe-area-inset-right) + var(--space-7)) calc(env(safe-area-inset-bottom) + var(--space-7))
+			calc(env(safe-area-inset-left) + var(--space-7));
 	}
 
 	.panel-head {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 10px 0 0;
+		padding: var(--space-4) 0 0;
 		font-weight: 600;
 	}
 
@@ -1009,12 +1009,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-3);
 	}
 
 	.lbl {
 		min-width: 64px;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
@@ -1040,8 +1040,8 @@
 	.key {
 		display: inline-flex;
 		align-items: center;
-		padding: 0 6px;
-		font-size: 14px;
+		padding: 0 var(--space-2);
+		font-size: var(--text-md);
 		font-variant-numeric: tabular-nums;
 		color: var(--muted);
 	}
@@ -1049,7 +1049,7 @@
 	.actions {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--space-3);
 	}
 
 	.actions button,
@@ -1061,12 +1061,12 @@
 	a.propose {
 		display: flex;
 		align-items: center;
-		font-size: 14px;
+		font-size: var(--text-md);
 		height: 38px;
 		box-sizing: border-box;
-		padding: 0 12px;
+		padding: 0 var(--space-5);
 		border: 1px solid var(--control-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		color: var(--link);
 		text-decoration: none;
@@ -1091,14 +1091,14 @@
 	}
 
 	.group button:first-child {
-		border-top-left-radius: 8px;
-		border-bottom-left-radius: 8px;
+		border-top-left-radius: var(--radius-md);
+		border-bottom-left-radius: var(--radius-md);
 		margin-left: 0;
 	}
 
 	.group button:last-child {
-		border-top-right-radius: 8px;
-		border-bottom-right-radius: 8px;
+		border-top-right-radius: var(--radius-md);
+		border-bottom-right-radius: var(--radius-md);
 	}
 
 	.value {
@@ -1114,21 +1114,21 @@
 
 	.notice {
 		display: flex;
-		gap: 8px;
+		gap: var(--space-3);
 		margin: 0;
-		padding: 10px 12px;
+		padding: var(--space-4) var(--space-5);
 		border: 1px solid var(--notice-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--notice-bg);
 		color: var(--notice-text);
-		font-size: 14px;
+		font-size: var(--text-md);
 		line-height: 1.35;
 	}
 
 	/* The row being read gets a soft highlight while the copilot is on. */
 	:global(.sheet .line.copilot-now) {
-		background: rgba(255, 209, 102, 0.22);
-		border-radius: 4px;
+		background: var(--highlight);
+		border-radius: var(--radius-xs);
 	}
 
 	.copilot {
@@ -1140,19 +1140,19 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 18px;
+		gap: var(--space-7);
 		background: var(--surface);
 		border-top: 1px solid var(--control-border);
 		box-shadow: 0 -4px 16px var(--shadow);
-		padding: 8px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 8px)
-			calc(env(safe-area-inset-left) + 16px);
+		padding: var(--space-3) calc(env(safe-area-inset-right) + var(--space-7)) calc(env(safe-area-inset-bottom) + var(--space-3))
+			calc(env(safe-area-inset-left) + var(--space-7));
 	}
 
 	.copilot-diagram {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-end;
-		gap: 2px 10px;
+		gap: 2px var(--space-4);
 		max-width: 60%;
 		overflow-x: auto;
 	}
@@ -1167,12 +1167,12 @@
 	.copilot-row {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
+		gap: var(--space-4);
 	}
 
 	.copilot-lbl {
 		font-family: inherit;
-		font-size: 11px;
+		font-size: var(--text-xs);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
@@ -1180,13 +1180,13 @@
 	}
 
 	.copilot-now-chords {
-		font-size: 24px;
+		font-size: var(--text-4xl);
 		font-weight: 700;
 		color: var(--chord);
 	}
 
 	.copilot-next-chords {
-		font-size: 17px;
+		font-size: var(--text-2xl);
 		color: var(--muted);
 	}
 
@@ -1200,14 +1200,14 @@
 		background: var(--surface);
 		border-top: 1px solid var(--control-border);
 		box-shadow: 0 -4px 16px var(--shadow);
-		padding: 0 16px calc(env(safe-area-inset-bottom) + 12px);
+		padding: 0 var(--space-7) calc(env(safe-area-inset-bottom) + var(--space-5));
 	}
 
 	.note-head {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 10px 0 6px;
+		padding: var(--space-4) 0 var(--space-2);
 		font-weight: 600;
 	}
 
@@ -1215,10 +1215,10 @@
 		width: 100%;
 		box-sizing: border-box;
 		font: inherit;
-		font-size: 15px;
-		padding: 10px 12px;
+		font-size: var(--text-lg);
+		padding: var(--space-4) var(--space-5);
 		border: 1px solid var(--control-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--bg);
 		color: inherit;
 		resize: vertical;
@@ -1235,8 +1235,8 @@
 		box-shadow: 0 -4px 16px var(--shadow);
 		max-height: 45dvh;
 		overflow-y: auto;
-		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
-			calc(env(safe-area-inset-left) + 16px);
+		padding: 0 calc(env(safe-area-inset-right) + var(--space-7)) calc(env(safe-area-inset-bottom) + var(--space-5))
+			calc(env(safe-area-inset-left) + var(--space-7));
 	}
 
 	.diagrams-head {
@@ -1248,24 +1248,24 @@
 		/* above the chord names, whose transform makes them stacking contexts */
 		z-index: 1;
 		background: var(--surface);
-		padding: 10px 0 6px;
+		padding: var(--space-4) 0 var(--space-2);
 		font-weight: 600;
 	}
 
 	.close {
-		padding: 6px 12px;
+		padding: var(--space-2) var(--space-5);
 	}
 
 	.diagrams-grid {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px 18px;
+		gap: var(--space-1) var(--space-7);
 		justify-content: center;
 	}
 
 	.feedback {
-		margin-top: 28px;
-		font-size: 14px;
+		margin-top: var(--space-10);
+		font-size: var(--text-md);
 	}
 
 	.feedback a {
@@ -1276,10 +1276,10 @@
 	.pager {
 		display: flex;
 		justify-content: space-between;
-		gap: 16px;
-		margin-top: 28px;
+		gap: var(--space-7);
+		margin-top: var(--space-10);
 		border-top: 1px solid var(--border);
-		padding-top: 14px;
+		padding-top: var(--space-6);
 	}
 
 	.pager a {
@@ -1296,17 +1296,17 @@
 	   stick to the very top and shrink to give the song every possible line. */
 	@media (orientation: landscape) and (max-height: 500px) {
 		h1 {
-			font-size: 20px;
+			font-size: var(--text-3xl);
 		}
 
 		.controls {
 			top: 0;
-			margin: 8px 0 10px;
+			margin: var(--space-3) 0 var(--space-4);
 		}
 
 		button {
 			height: 32px;
-			padding: 0 10px;
+			padding: 0 var(--space-4);
 		}
 	}
 </style>

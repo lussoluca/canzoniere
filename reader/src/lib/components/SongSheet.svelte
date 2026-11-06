@@ -184,18 +184,18 @@
 
 	.chorus {
 		border-left: 3px solid var(--chorus);
-		padding-left: 10px;
+		padding-left: var(--space-4);
 		font-style: italic;
 	}
 
 	.comment {
-		margin: 6px 0;
+		margin: var(--space-2) 0;
 		color: var(--muted);
 		font-style: italic;
 	}
 
 	.tab {
-		margin: 6px 0;
+		margin: var(--space-2) 0;
 		padding: 1px 0;
 	}
 

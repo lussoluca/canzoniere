@@ -276,47 +276,47 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 4px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-1);
 	}
 
 	.intro {
-		margin: 0 0 12px;
+		margin: 0 0 var(--space-5);
 		color: var(--muted);
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	h2 {
-		font-size: 15px;
+		font-size: var(--text-lg);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
-		margin: 20px 0 10px;
+		margin: var(--space-8) 0 var(--space-4);
 	}
 
 	.titolo {
 		width: 100%;
 		box-sizing: border-box;
-		font-size: 16px;
-		padding: 10px 14px;
+		font-size: var(--text-xl);
+		padding: var(--space-4) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
 		color: inherit;
 	}
 
 	.songs {
 		list-style: none;
-		margin: 10px 0 0;
+		margin: var(--space-4) 0 0;
 		padding: 0;
 	}
 
@@ -328,9 +328,9 @@
 	.pick {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
+		gap: var(--space-4);
 		width: 100%;
-		padding: 11px 4px;
+		padding: var(--space-4) var(--space-1);
 		text-decoration: none;
 		color: inherit;
 		font: inherit;
@@ -353,7 +353,7 @@
 	}
 
 	.artist {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		text-align: right;
 		overflow-wrap: anywhere;
@@ -362,8 +362,8 @@
 	.picked li {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		padding: 9px 4px;
+		gap: var(--space-4);
+		padding: var(--space-3) var(--space-1);
 	}
 
 	.picked .title {
@@ -380,8 +380,8 @@
 		border: 1px solid var(--control-border);
 		background: var(--surface);
 		color: inherit;
-		border-radius: 6px;
-		padding: 4px 9px;
+		border-radius: var(--radius-sm);
+		padding: var(--space-1) var(--space-3);
 		cursor: pointer;
 	}
 
@@ -404,16 +404,16 @@
 	.bar {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
-		margin-top: 14px;
+		gap: var(--space-3);
+		margin-top: var(--space-6);
 	}
 
 	.btn {
 		font: inherit;
-		font-size: 15px;
-		padding: 10px 16px;
+		font-size: var(--text-lg);
+		padding: var(--space-4) var(--space-7);
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -427,23 +427,23 @@
 	}
 
 	.none {
-		padding: 12px 4px;
+		padding: var(--space-5) var(--space-1);
 		color: var(--muted);
 	}
 
 	.receive {
 		align-items: center;
-		margin: 0 0 16px;
+		margin: 0 0 var(--space-7);
 	}
 
 	.receive-hint {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
 	.prefs-hint {
-		margin: 10px 0 0;
-		font-size: 13px;
+		margin: var(--space-4) 0 0;
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
@@ -459,8 +459,8 @@
 		box-shadow: 0 -4px 16px var(--shadow);
 		max-height: 80dvh;
 		overflow-y: auto;
-		padding: 0 calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px)
-			calc(env(safe-area-inset-left) + 16px);
+		padding: 0 calc(env(safe-area-inset-right) + var(--space-7)) calc(env(safe-area-inset-bottom) + var(--space-5))
+			calc(env(safe-area-inset-left) + var(--space-7));
 	}
 
 	.qr-head {
@@ -470,16 +470,16 @@
 		position: sticky;
 		top: 0;
 		background: var(--surface);
-		padding: 10px 0 6px;
+		padding: var(--space-4) 0 var(--space-2);
 		font-weight: 600;
 	}
 
 	.close {
 		font: inherit;
-		font-size: 14px;
-		padding: 6px 12px;
+		font-size: var(--text-md);
+		padding: var(--space-2) var(--space-5);
 		border: 1px solid var(--control-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -488,9 +488,9 @@
 	/* Always on white with quiet-zone padding, so cameras read it in dark mode too. */
 	.qr-box {
 		background: #fff;
-		border-radius: 12px;
-		padding: 16px;
-		margin: 6px auto 0;
+		border-radius: var(--radius-lg);
+		padding: var(--space-7);
+		margin: var(--space-2) auto 0;
 		width: min(70vw, 280px);
 	}
 
@@ -501,8 +501,8 @@
 	}
 
 	.qr-hint {
-		margin: 10px 0 4px;
-		font-size: 13px;
+		margin: var(--space-4) 0 var(--space-1);
+		font-size: var(--text-sm);
 		color: var(--muted);
 		text-align: center;
 	}
