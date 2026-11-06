@@ -1,0 +1,192 @@
+/* Design tokens shared by the reader and the editor: colours (light theme by
+   default, dark theme from the system preference or from data-theme on
+   <html>), type, spacing and radius scales. Components take their values
+   from these variables only, so both apps and both themes stay consistent.
+
+   Scales: sizes and spacings are in rem so they follow the browser's text
+   size (1rem = 16px by default; the px value is noted next to each step).
+   Radii stay in px: they do not need to grow with the text. Hairlines
+   (1–2px borders, offsets) stay literal. */
+
+:root {
+	color-scheme: light;
+
+	/* Surfaces and text */
+	--bg: #f6f4ee;
+	--surface: #ffffff;
+	--surface-alt: #f1efe9; /* hover, subtle fills, list headers */
+	--text: #1f2937;
+	--muted: #6b7280;
+	--faint: #9ca3af;
+	--border: #e5e7eb;
+	--control-border: #d1d5db;
+	--link: #1d4ed8;
+
+	/* Brand */
+	--header-bg: #2f3e46;
+	--header-text: #cdd7da;
+	--header-text-hover: #ffffff;
+	--brand: #ffd166;
+	--active-bg: #2f3e46;
+	--active-bg-hover: #3d5159;
+	--active-text: #ffd166;
+	--accent-bg: #e8eef1; /* tags, selected rows, info boxes */
+	--accent-text: #55707c;
+	--highlight: rgba(255, 209, 102, 0.22); /* the line being read */
+	--favorite: #d99e07; /* the favourites star */
+
+	/* Music */
+	--chord: #a15c07;
+	--chorus: #d9c58a;
+	--directive: #7b2d8e; /* ChordPro {meta} directives */
+	--diagram-ink: #1f2937;
+	--diagram-surface: #ffffff;
+	--diagram-muted: #999999;
+
+	/* Feedback */
+	--danger: #b91c1c;
+	--danger-bg: #fbeae9;
+	--danger-border: #e3a5a1;
+	--success: #2d6a4f;
+	--success-bg: #d8f3dc;
+	--warning: #b54708;
+	--notice-bg: #fdf3d7;
+	--notice-border: #e8c46a;
+	--notice-text: #6b4a06;
+
+	/* Elevation */
+	--shadow-sm: rgba(0, 0, 0, 0.08);
+	--shadow: rgba(0, 0, 0, 0.12);
+	--shadow-lg: rgba(0, 0, 0, 0.3);
+	--overlay: rgba(0, 0, 0, 0.45);
+
+	/* Type scale */
+	--text-xs: 0.75rem; /* 12px */
+	--text-sm: 0.8125rem; /* 13px */
+	--text-md: 0.875rem; /* 14px */
+	--text-lg: 0.9375rem; /* 15px */
+	--text-xl: 1rem; /* 16px */
+	--text-2xl: 1.125rem; /* 18px */
+	--text-3xl: 1.375rem; /* 22px */
+	--text-4xl: 1.5rem; /* 24px */
+
+	/* Spacing scale */
+	--space-1: 0.25rem; /* 4px */
+	--space-2: 0.375rem; /* 6px */
+	--space-3: 0.5rem; /* 8px */
+	--space-4: 0.625rem; /* 10px */
+	--space-5: 0.75rem; /* 12px */
+	--space-6: 0.875rem; /* 14px */
+	--space-7: 1rem; /* 16px */
+	--space-8: 1.25rem; /* 20px */
+	--space-9: 1.5rem; /* 24px */
+	--space-10: 2rem; /* 32px */
+
+	/* Radius scale */
+	--radius-xs: 4px;
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 24px;
+	--radius-pill: 999px;
+}
+
+/* Dark theme: applied by the system preference (unless light is forced)
+   or by the explicit toggle. Keep both blocks in sync. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		color-scheme: dark;
+
+		--bg: #16181a;
+		--surface: #23262a;
+		--surface-alt: #2c3035;
+		--text: #e5e3dc;
+		--muted: #a1a6ad;
+		--faint: #7d838b;
+		--border: #33373c;
+		--control-border: #494f56;
+		--link: #94b8f8;
+
+		--header-bg: #2f3e46;
+		--header-text: #cdd7da;
+		--header-text-hover: #ffffff;
+		--brand: #ffd166;
+		--active-bg: #ffd166;
+		--active-bg-hover: #ffdc8a;
+		--active-text: #23262a;
+		--accent-bg: #2a363c;
+		--accent-text: #a9c0ca;
+		--highlight: rgba(255, 209, 102, 0.22);
+		--favorite: #d99e07;
+
+		--chord: #e3a95c;
+		--chorus: #8a7a45;
+		--directive: #d3a1e3;
+		--diagram-ink: #e5e3dc;
+		--diagram-surface: #23262a;
+		--diagram-muted: #7d838b;
+
+		--danger: #f08a8a;
+		--danger-bg: #3b2224;
+		--danger-border: #7a3b3d;
+		--success: #7cc7a0;
+		--success-bg: #1e3a2c;
+		--warning: #f0a35e;
+		--notice-bg: #3a3120;
+		--notice-border: #8a7238;
+		--notice-text: #f3d891;
+
+		--shadow-sm: rgba(0, 0, 0, 0.35);
+		--shadow: rgba(0, 0, 0, 0.5);
+		--shadow-lg: rgba(0, 0, 0, 0.6);
+		--overlay: rgba(0, 0, 0, 0.6);
+	}
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+
+	--bg: #16181a;
+	--surface: #23262a;
+	--surface-alt: #2c3035;
+	--text: #e5e3dc;
+	--muted: #a1a6ad;
+	--faint: #7d838b;
+	--border: #33373c;
+	--control-border: #494f56;
+	--link: #94b8f8;
+
+	--header-bg: #2f3e46;
+	--header-text: #cdd7da;
+	--header-text-hover: #ffffff;
+	--brand: #ffd166;
+	--active-bg: #ffd166;
+	--active-bg-hover: #ffdc8a;
+	--active-text: #23262a;
+	--accent-bg: #2a363c;
+	--accent-text: #a9c0ca;
+	--highlight: rgba(255, 209, 102, 0.22);
+	--favorite: #d99e07;
+
+	--chord: #e3a95c;
+	--chorus: #8a7a45;
+	--directive: #d3a1e3;
+	--diagram-ink: #e5e3dc;
+	--diagram-surface: #23262a;
+	--diagram-muted: #7d838b;
+
+	--danger: #f08a8a;
+	--danger-bg: #3b2224;
+	--danger-border: #7a3b3d;
+	--success: #7cc7a0;
+	--success-bg: #1e3a2c;
+	--warning: #f0a35e;
+	--notice-bg: #3a3120;
+	--notice-border: #8a7238;
+	--notice-text: #f3d891;
+
+	--shadow-sm: rgba(0, 0, 0, 0.35);
+	--shadow: rgba(0, 0, 0, 0.5);
+	--shadow-lg: rgba(0, 0, 0, 0.6);
+	--overlay: rgba(0, 0, 0, 0.6);
+}

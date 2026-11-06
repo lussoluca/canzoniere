@@ -89,23 +89,23 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.25rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		background: #fff;
-		padding: 0.2rem 0.3rem;
+		gap: var(--space-1);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		padding: var(--space-1) var(--space-2);
 		min-height: 1.9rem;
 		box-sizing: border-box;
 	}
 	.chip {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.25rem;
-		background: #eef3f5;
-		color: #2f3e46;
-		border-radius: 999px;
-		padding: 0.1rem 0.3rem 0.1rem 0.55rem;
-		font-size: 0.85rem;
+		gap: var(--space-1);
+		background: var(--accent-bg);
+		color: var(--text);
+		border-radius: var(--radius-pill);
+		padding: 0.1rem var(--space-2) 0.1rem var(--space-4);
+		font-size: var(--text-md);
 		font-weight: 500;
 		white-space: nowrap;
 	}
@@ -113,13 +113,13 @@
 		border: none;
 		background: none;
 		cursor: pointer;
-		color: #6b7f88;
-		font-size: 0.75rem;
+		color: var(--accent-text);
+		font-size: var(--text-xs);
 		line-height: 1;
 		padding: 0.15rem;
 	}
 	.chip button:hover {
-		color: #2f3e46;
+		color: var(--text);
 	}
 	.entry {
 		position: relative;
@@ -130,40 +130,41 @@
 		width: 100%;
 		border: none;
 		outline: none;
-		font-size: 0.95rem;
-		padding: 0.2rem;
+		font-size: var(--text-lg);
+		padding: var(--space-1);
 		background: transparent;
+		color: var(--text);
 		box-sizing: border-box;
 	}
 	.suggestions {
 		position: absolute;
 		top: 100%;
 		left: 0;
-		margin-top: 4px;
+		margin-top: var(--space-1);
 		z-index: 20;
 		display: flex;
 		flex-direction: column;
 		min-width: 10rem;
 		max-height: 14rem;
 		overflow-y: auto;
-		padding: 0.2rem;
-		background: #fff;
-		border: 1px solid #ddd;
-		border-radius: 6px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		padding: var(--space-1);
+		background: var(--surface);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		box-shadow: 0 2px 8px var(--shadow);
 	}
 	.suggestions button {
 		border: none;
 		background: none;
-		border-radius: 4px;
+		border-radius: var(--radius-xs);
 		cursor: pointer;
 		text-align: left;
 		white-space: nowrap;
-		padding: 0.35rem 0.6rem;
-		font-size: 0.85rem;
-		color: #333;
+		padding: var(--space-2) var(--space-4);
+		font-size: var(--text-md);
+		color: var(--text);
 	}
 	.suggestions button:hover {
-		background: #f0f0f0;
+		background: var(--surface-alt);
 	}
 </style>

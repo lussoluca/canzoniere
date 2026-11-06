@@ -66,43 +66,43 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 4px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-1);
 	}
 
 	.intro {
-		margin: 0 0 12px;
+		margin: 0 0 var(--space-5);
 		color: var(--muted);
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	h2 {
-		font-size: 15px;
+		font-size: var(--text-lg);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
-		margin: 22px 0 10px;
+		margin: var(--space-8) 0 var(--space-4);
 	}
 
 	.card {
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
-		padding: 14px;
+		padding: var(--space-6);
 	}
 
 	.card p {
-		margin: 0 0 10px;
-		font-size: 15px;
+		margin: 0 0 var(--space-4);
+		font-size: var(--text-lg);
 		line-height: 1.5;
 	}
 
@@ -112,6 +112,6 @@
 
 	.card p.muted {
 		color: var(--muted);
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 </style>

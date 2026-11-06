@@ -86,21 +86,21 @@
 
 <style>
 	.notice {
-		padding: 0.5rem 0.8rem;
-		border-radius: 6px;
-		background: #eef3f5;
-		color: #2f3e46;
+		padding: var(--space-3) var(--space-5);
+		border-radius: var(--radius-sm);
+		background: var(--accent-bg);
+		color: var(--text);
 	}
 	.notice.error {
-		background: #fdecea;
-		color: #8a1c1c;
+		background: var(--danger-bg);
+		color: var(--danger);
 	}
 	.crumbs {
-		font-size: 0.9rem;
-		color: #777;
-		margin-bottom: 0.8rem;
+		font-size: var(--text-lg);
+		color: var(--muted);
+		margin-bottom: var(--space-5);
 	}
 	.crumbs a {
-		color: #2f3e46;
+		color: var(--text);
 	}
 </style>

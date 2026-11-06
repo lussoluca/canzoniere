@@ -59,7 +59,7 @@
 <style>
 	.card {
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
 		padding: 0;
 	}
@@ -67,8 +67,8 @@
 	summary {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
-		padding: 12px 14px;
+		gap: var(--space-4);
+		padding: var(--space-5) var(--space-6);
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 		list-style: none;
@@ -90,11 +90,11 @@
 	}
 
 	summary strong {
-		font-size: 18px;
+		font-size: var(--text-2xl);
 	}
 
 	.subtitle {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 
@@ -102,8 +102,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
-		gap: 8px 20px;
-		padding: 0 14px;
+		gap: var(--space-3) var(--space-8);
+		padding: 0 var(--space-6);
 	}
 
 	.figure {
@@ -112,43 +112,43 @@
 
 	.howto {
 		flex: 1 1 220px;
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	.howto ol {
 		margin: 0;
-		padding-left: 20px;
+		padding-left: var(--space-8);
 	}
 
 	.howto li {
-		margin-bottom: 6px;
+		margin-bottom: var(--space-2);
 	}
 
 	.strings {
-		margin: 8px 0 0;
+		margin: var(--space-3) 0 0;
 	}
 
 	.check {
-		margin: 8px 0 0;
+		margin: var(--space-3) 0 0;
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 
 	.actions {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px 12px;
-		margin: 12px 14px 14px;
+		gap: var(--space-3) var(--space-5);
+		margin: var(--space-5) var(--space-6) var(--space-6);
 	}
 
 	.learned {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
-		padding: 8px 14px;
+		padding: var(--space-3) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;

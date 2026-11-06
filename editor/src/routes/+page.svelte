@@ -100,73 +100,73 @@
 		justify-content: space-between;
 	}
 	h2 {
-		margin: 0.4rem 0 1rem;
+		margin: var(--space-3) 0 var(--space-7);
 	}
 	.global-search {
 		width: 100%;
-		padding: 0.45rem 0.7rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		margin-bottom: 1rem;
+		padding: var(--space-3) var(--space-5);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		margin-bottom: var(--space-7);
 	}
 	.folders {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-		gap: 0.8rem;
+		gap: var(--space-5);
 	}
 	.folder {
 		display: flex;
 		flex-direction: column;
-		gap: 0.2rem;
-		background: #fff;
-		border-radius: 10px;
-		padding: 1.1rem 1.2rem;
+		gap: var(--space-1);
+		background: var(--surface);
+		border-radius: var(--radius-lg);
+		padding: var(--space-8) var(--space-8);
 		text-decoration: none;
 		color: inherit;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 		transition: box-shadow 0.15s;
 	}
 	.folder:hover {
-		box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 3px 10px var(--shadow);
 	}
 	.icon {
-		font-size: 1.6rem;
+		font-size: var(--text-4xl);
 	}
 	.name {
 		font-weight: 700;
-		font-size: 1.05rem;
+		font-size: var(--text-xl);
 	}
 	.count {
-		color: #888;
-		font-size: 0.85rem;
+		color: var(--faint);
+		font-size: var(--text-md);
 	}
 	p.count {
-		color: #777;
+		color: var(--muted);
 	}
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		background: #fff;
-		border-radius: 8px;
+		background: var(--surface);
+		border-radius: var(--radius-md);
 		overflow: hidden;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 	}
 	th,
 	td {
 		text-align: left;
-		padding: 0.55rem 0.8rem;
-		border-bottom: 1px solid #eee;
-		font-size: 0.92rem;
+		padding: var(--space-4) var(--space-5);
+		border-bottom: 1px solid var(--border);
+		font-size: var(--text-lg);
 	}
 	th {
-		background: #fafafa;
-		font-size: 0.8rem;
+		background: var(--surface-alt);
+		font-size: var(--text-sm);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		color: #888;
+		color: var(--faint);
 	}
 	td a {
-		color: #2f3e46;
+		color: var(--text);
 		font-weight: 600;
 		text-decoration: none;
 	}
@@ -175,6 +175,6 @@
 	}
 	td a.category {
 		font-weight: 400;
-		color: #777;
+		color: var(--muted);
 	}
 </style>

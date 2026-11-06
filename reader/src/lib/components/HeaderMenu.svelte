@@ -208,22 +208,22 @@
 	.inline {
 		display: flex;
 		align-items: center;
-		gap: 18px;
+		gap: var(--space-7);
 	}
 
 	.inline a {
-		color: #e5e3dc;
+		color: var(--header-text);
 		text-decoration: none;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
 		white-space: nowrap;
 	}
 
 	.theme {
-		font-size: 17px;
+		font-size: var(--text-2xl);
 		background: none;
 		border: none;
-		padding: 2px 4px;
+		padding: 2px var(--space-1);
 		/* Fixed height (same as the logo) so the header height does not depend
 		   on the emoji font's line box, which varies across platforms. */
 		height: 28px;
@@ -238,9 +238,9 @@
 	}
 
 	.inline-shared-toggle {
-		color: #e5e3dc;
+		color: var(--header-text);
 		font-family: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
 		white-space: nowrap;
 		background: none;
@@ -270,9 +270,9 @@
 		background: var(--surface);
 		color: var(--text);
 		border: 1px solid var(--control-border);
-		border-radius: 12px;
+		border-radius: var(--radius-lg);
 		box-shadow: 0 8px 24px var(--shadow);
-		padding: 6px;
+		padding: var(--space-2);
 	}
 
 	.inline-shared-row {
@@ -283,11 +283,11 @@
 	.inline-shared-row a {
 		flex: 1;
 		min-width: 0;
-		padding: 10px 12px;
-		border-radius: 8px;
+		padding: var(--space-4) var(--space-5);
+		border-radius: var(--radius-md);
 		color: inherit;
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -299,12 +299,12 @@
 
 	.forget {
 		font-family: inherit;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		background: none;
 		border: none;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		color: var(--muted);
-		padding: 10px 12px;
+		padding: var(--space-4) var(--space-5);
 		cursor: pointer;
 		flex-shrink: 0;
 		-webkit-tap-highlight-color: transparent;
@@ -316,11 +316,11 @@
 
 	.burger {
 		display: none;
-		font-size: 22px;
+		font-size: var(--text-3xl);
 		background: none;
 		border: none;
 		color: var(--brand);
-		padding: 2px 4px;
+		padding: 2px var(--space-1);
 		height: 28px;
 		align-items: center;
 		cursor: pointer;
@@ -342,7 +342,7 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.45);
+		background: var(--overlay);
 		border: none;
 		padding: 0;
 		z-index: 40;
@@ -360,10 +360,10 @@
 		background: var(--bg);
 		color: var(--text);
 		z-index: 50;
-		border-radius: 0 24px 24px 0;
+		border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
 		box-shadow: 4px 0 32px var(--shadow);
-		padding: calc(env(safe-area-inset-top) + 20px) 14px calc(env(safe-area-inset-bottom) + 20px)
-			calc(env(safe-area-inset-left) + 14px);
+		padding: calc(env(safe-area-inset-top) + var(--space-8)) var(--space-6) calc(env(safe-area-inset-bottom) + var(--space-8))
+			calc(env(safe-area-inset-left) + var(--space-6));
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
@@ -371,21 +371,21 @@
 	}
 
 	.drawer-brand {
-		font-size: 22px;
+		font-size: var(--text-3xl);
 		font-weight: 700;
-		padding: 6px 12px 22px;
+		padding: var(--space-2) var(--space-5) var(--space-8);
 	}
 
 	.drawer a,
 	.drawer-theme {
 		display: flex;
 		align-items: center;
-		gap: 14px;
-		padding: 14px 12px;
+		gap: var(--space-6);
+		padding: var(--space-6) var(--space-5);
 		text-decoration: none;
 		color: inherit;
-		border-radius: 14px;
-		font-size: 17px;
+		border-radius: var(--radius-lg);
+		font-size: var(--text-2xl);
 		text-align: left;
 		background: none;
 		border: none;
@@ -402,16 +402,16 @@
 	.drawer-sep {
 		height: 1px;
 		background: var(--border);
-		margin: 10px 12px;
+		margin: var(--space-4) var(--space-5);
 	}
 
 	.drawer-section {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
-		padding: 18px 12px 6px;
+		padding: var(--space-7) var(--space-5) var(--space-2);
 	}
 
 	.drawer-row {
@@ -431,7 +431,7 @@
 	}
 
 	.icon {
-		font-size: 19px;
+		font-size: var(--text-2xl);
 		width: 26px;
 		text-align: center;
 		flex-shrink: 0;

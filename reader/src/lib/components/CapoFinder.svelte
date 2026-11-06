@@ -112,12 +112,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 6px;
-		margin-bottom: 8px;
+		gap: var(--space-2);
+		margin-bottom: var(--space-3);
 	}
 
 	.picker-label {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		min-width: 84px;
 	}
@@ -125,15 +125,15 @@
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-2);
 	}
 
 	.chip {
 		font: inherit;
-		font-size: 14px;
-		padding: 5px 9px;
+		font-size: var(--text-md);
+		padding: var(--space-1) var(--space-3);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -147,15 +147,15 @@
 	}
 
 	.verdict {
-		margin: 10px 0 8px;
+		margin: var(--space-4) 0 var(--space-3);
 	}
 
 	.shapes {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
-		gap: 8px 22px;
-		margin-bottom: 10px;
+		gap: var(--space-3) var(--space-8);
+		margin-bottom: var(--space-4);
 	}
 
 	.shapes figure {
@@ -165,19 +165,19 @@
 	}
 
 	.shapes figcaption {
-		font-size: 12px;
+		font-size: var(--text-xs);
 		color: var(--muted);
 		margin-top: 2px;
 	}
 
 	.play {
 		font: inherit;
-		font-size: 11px;
+		font-size: var(--text-xs);
 		line-height: 1;
-		padding: 3px 6px;
+		padding: 3px var(--space-2);
 		margin-left: 3px;
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -186,6 +186,6 @@
 	.hint {
 		margin: 0;
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 </style>

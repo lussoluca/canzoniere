@@ -70,10 +70,10 @@
 	.search {
 		width: 100%;
 		box-sizing: border-box;
-		font-size: 17px;
-		padding: 12px 14px;
+		font-size: var(--text-2xl);
+		padding: var(--space-5) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
 		color: inherit;
 	}
@@ -83,7 +83,7 @@
 		top: 100%;
 		left: 0;
 		right: 0;
-		margin-top: 4px;
+		margin-top: var(--space-1);
 		z-index: 30;
 		max-height: 40vh;
 		overflow-y: auto;
@@ -91,24 +91,24 @@
 		flex-direction: column;
 		background: var(--surface);
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
-		box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-		padding: 4px;
+		border-radius: var(--radius-lg);
+		box-shadow: 0 4px 14px var(--shadow);
+		padding: var(--space-1);
 	}
 
 	.suggestions button {
 		border: none;
 		background: none;
 		color: inherit;
-		font-size: 16px;
+		font-size: var(--text-xl);
 		text-align: left;
-		padding: 10px 12px;
-		border-radius: 8px;
+		padding: var(--space-4) var(--space-5);
+		border-radius: var(--radius-md);
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
 	.suggestions button:hover {
-		background: rgba(127, 127, 127, 0.12);
+		background: var(--surface-alt);
 	}
 </style>

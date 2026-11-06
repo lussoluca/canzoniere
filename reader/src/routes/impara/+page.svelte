@@ -450,43 +450,43 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 4px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-1);
 	}
 
 	.intro {
-		margin: 0 0 12px;
+		margin: 0 0 var(--space-5);
 		color: var(--muted);
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	h2 {
-		font-size: 15px;
+		font-size: var(--text-lg);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
-		margin: 22px 0 10px;
+		margin: var(--space-8) 0 var(--space-4);
 	}
 
 	.card {
 		border: 1px solid var(--control-border);
-		border-radius: 10px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
-		padding: 12px 14px;
-		font-size: 14px;
+		padding: var(--space-5) var(--space-6);
+		font-size: var(--text-md);
 	}
 
 	.card p {
-		margin: 0 0 10px;
+		margin: 0 0 var(--space-4);
 	}
 
 	.card p:last-child {
@@ -495,19 +495,19 @@
 
 	.card ul,
 	.card ol {
-		margin: 0 0 10px;
-		padding-left: 20px;
+		margin: 0 0 var(--space-4);
+		padding-left: var(--space-8);
 	}
 
 	.card li {
-		margin-bottom: 6px;
+		margin-bottom: var(--space-2);
 	}
 
 	.row {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
-		gap: 8px 20px;
+		gap: var(--space-3) var(--space-8);
 	}
 
 	.row > ul,
@@ -522,8 +522,8 @@
 
 	.diagrams {
 		justify-content: flex-start;
-		gap: 8px 32px;
-		margin-bottom: 10px;
+		gap: var(--space-3) var(--space-10);
+		margin-bottom: var(--space-4);
 	}
 
 	.diagrams figure {
@@ -532,37 +532,37 @@
 	}
 
 	.diagrams figcaption {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		margin-top: 2px;
 	}
 
 	.tuning {
 		display: flex;
-		gap: 6px;
+		gap: var(--space-2);
 	}
 
 	.tuning span {
 		flex: 0 0 auto;
 		min-width: 40px;
 		text-align: center;
-		padding: 6px 0;
+		padding: var(--space-2) 0;
 		border: 1px solid var(--control-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		font-weight: 600;
 	}
 
 	.notes {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px;
+		gap: var(--space-1);
 	}
 
 	.notes span {
-		padding: 4px 7px;
+		padding: var(--space-1) var(--space-2);
 		border: 1px solid var(--control-border);
-		border-radius: 6px;
-		font-size: 13px;
+		border-radius: var(--radius-sm);
+		font-size: var(--text-sm);
 		font-weight: 600;
 	}
 
@@ -573,7 +573,7 @@
 
 	.hint {
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 
 	.strum {
@@ -586,17 +586,17 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 6px;
-		margin-bottom: 10px;
+		gap: var(--space-2);
+		margin-bottom: var(--space-4);
 	}
 
 	.chip {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		min-width: 40px;
-		padding: 6px 8px;
+		padding: var(--space-2) var(--space-3);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -611,7 +611,7 @@
 
 	.capo-table {
 		max-width: 320px;
-		margin-bottom: 10px;
+		margin-bottom: var(--space-4);
 	}
 
 	.capo-row {
@@ -620,13 +620,13 @@
 
 	.capo-row span {
 		flex: 1;
-		padding: 6px 4px;
+		padding: var(--space-2) var(--space-1);
 		border-bottom: 1px solid var(--border);
 		white-space: nowrap;
 	}
 
 	.capo-row.head span {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		font-weight: 600;
 	}

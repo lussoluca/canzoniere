@@ -3,6 +3,7 @@
 	import { dev } from '$app/env';
 	import { asset, resolve } from '$app/paths';
 	import { loadTheme, saveTheme, applyTheme, type Theme } from '#lib/theme.js';
+	import '@canzoniere/shared/tokens.css';
 	import HeaderMenu from '#lib/components/HeaderMenu.svelte';
 
 	let { children } = $props();
@@ -116,86 +117,6 @@
 </div>
 
 <style>
-	/* Light theme (default). */
-	:global(:root) {
-		--bg: #f6f4ee;
-		--text: #1f2937;
-		--muted: #6b7280;
-		--faint: #9ca3af;
-		--border: #e5e7eb;
-		--control-border: #d1d5db;
-		--surface: #ffffff;
-		--header-bg: #2f3e46;
-		--brand: #ffd166;
-		--link: #1d4ed8;
-		--chord: #a15c07;
-		--chorus: #d9c58a;
-		--danger: #b91c1c;
-		--active-bg: #2f3e46;
-		--active-text: #ffd166;
-		--shadow: rgba(0, 0, 0, 0.12);
-		--diagram-ink: #1f2937;
-		--diagram-surface: #ffffff;
-		--diagram-muted: #999999;
-		--notice-bg: #fdf3d7;
-		--notice-border: #e8c46a;
-		--notice-text: #6b4a06;
-	}
-
-	/* Dark theme: applied by the system preference (unless light is forced)
-	   or by the explicit toggle. Keep both blocks in sync. */
-	@media (prefers-color-scheme: dark) {
-		:global(:root:not([data-theme="light"])) {
-			--bg: #16181a;
-			--text: #e5e3dc;
-			--muted: #a1a6ad;
-			--faint: #7d838b;
-			--border: #33373c;
-			--control-border: #494f56;
-			--surface: #23262a;
-			--header-bg: #2f3e46;
-			--brand: #ffd166;
-			--link: #94b8f8;
-			--chord: #e3a95c;
-			--chorus: #8a7a45;
-			--danger: #f08a8a;
-			--active-bg: #ffd166;
-			--active-text: #23262a;
-			--shadow: rgba(0, 0, 0, 0.5);
-			--diagram-ink: #e5e3dc;
-			--diagram-surface: #23262a;
-			--diagram-muted: #7d838b;
-			--notice-bg: #3a3120;
-			--notice-border: #8a7238;
-			--notice-text: #f3d891;
-		}
-	}
-
-	:global(:root[data-theme="dark"]) {
-		--bg: #16181a;
-		--text: #e5e3dc;
-		--muted: #a1a6ad;
-		--faint: #7d838b;
-		--border: #33373c;
-		--control-border: #494f56;
-		--surface: #23262a;
-		--header-bg: #2f3e46;
-		--brand: #ffd166;
-		--link: #94b8f8;
-		--chord: #e3a95c;
-		--chorus: #8a7a45;
-		--danger: #f08a8a;
-		--active-bg: #ffd166;
-		--active-text: #23262a;
-		--shadow: rgba(0, 0, 0, 0.5);
-		--diagram-ink: #e5e3dc;
-		--diagram-surface: #23262a;
-		--diagram-muted: #7d838b;
-		--notice-bg: #3a3120;
-		--notice-border: #8a7238;
-		--notice-text: #f3d891;
-	}
-
 	:global(body) {
 		margin: 0;
 		background: var(--bg);
@@ -217,8 +138,8 @@
 	header {
 		background: var(--header-bg);
 		/* Side insets keep the brand clear of the Dynamic Island in landscape. */
-		padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px)
-			10px calc(env(safe-area-inset-left) + 16px);
+		padding: calc(env(safe-area-inset-top) + var(--space-4)) calc(env(safe-area-inset-right) + var(--space-7))
+			var(--space-4) calc(env(safe-area-inset-left) + var(--space-7));
 		position: sticky;
 		top: 0;
 		z-index: 10;
@@ -238,10 +159,10 @@
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-3);
 		color: var(--brand);
 		font-weight: 700;
-		font-size: 16px;
+		font-size: var(--text-xl);
 		text-decoration: none;
 		min-width: 0;
 	}
@@ -249,7 +170,7 @@
 	.logo {
 		width: 28px;
 		height: 28px;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		flex-shrink: 0;
 	}
 
@@ -259,8 +180,8 @@
 		max-width: 900px;
 		margin: 0 auto;
 		/* Side insets keep the text clear of the Dynamic Island in landscape. */
-		padding: 16px calc(env(safe-area-inset-right) + 16px)
-			calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 16px);
+		padding: var(--space-7) calc(env(safe-area-inset-right) + var(--space-7))
+			calc(env(safe-area-inset-bottom) + var(--space-9)) calc(env(safe-area-inset-left) + var(--space-7));
 		box-sizing: border-box;
 	}
 
@@ -275,11 +196,11 @@
 		bottom: calc(env(safe-area-inset-bottom) + 16px);
 		z-index: 30;
 		font: inherit;
-		font-size: 15px;
+		font-size: var(--text-lg);
 		font-weight: 600;
-		padding: 12px 18px;
+		padding: var(--space-5) var(--space-7);
 		border: none;
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--header-bg);
 		color: var(--brand);
 		box-shadow: 0 4px 16px var(--shadow);

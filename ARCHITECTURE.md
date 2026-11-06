@@ -261,9 +261,10 @@ let { line = $bindable() }: Props = $props();
 
 **Styling** (lines 207–312):
 
-- Monospace font (`SF Mono`), 15px, 1.25 line-height.
-- Chord pills: dark background (#2f3e46), yellow text (#ffd166), 4px radius.
-- Popover: white background, box shadow, flex layout for input + buttons.
+- Values from the shared design tokens (`shared/tokens.css`), so the light and dark themes both work.
+- Monospace font (`SF Mono`), `--text-lg` (15px), 1.25 line-height.
+- Chord pills: `--active-bg` background, `--active-text` text, `--radius-xs` radius.
+- Popover: `--surface` background, box shadow, flex layout for input + buttons.
 - Text row: `white-space: nowrap`, character buttons are 1ch wide, hover effects.
 
 #### 3.3 `editor/src/lib/components/SongEditor.svelte` — Parent Editor Component

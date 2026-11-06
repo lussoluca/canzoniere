@@ -178,42 +178,42 @@
 
 <style>
 	.intro {
-		color: #555;
+		color: var(--muted);
 		max-width: 60ch;
 	}
 	.form {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 0.8rem 1rem;
-		background: #fff;
-		border-radius: 10px;
-		padding: 1.1rem 1.2rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		gap: var(--space-5) var(--space-7);
+		background: var(--surface);
+		border-radius: var(--radius-lg);
+		padding: var(--space-8) var(--space-8);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 	}
 	label {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
-		font-size: 0.85rem;
+		gap: var(--space-1);
+		font-size: var(--text-md);
 		font-weight: 600;
-		color: #555;
+		color: var(--muted);
 	}
 	.legend {
 		grid-column: 1 / -1;
 		margin: 0;
-		color: #999;
-		font-size: 0.8rem;
+		color: var(--faint);
+		font-size: var(--text-sm);
 	}
 	.req {
-		color: #b3261e;
+		color: var(--danger);
 	}
 	input,
 	select,
 	textarea {
-		padding: 0.4rem 0.6rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		font-size: 0.95rem;
+		padding: var(--space-3) var(--space-4);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		font-size: var(--text-lg);
 		font-weight: 400;
 	}
 	.text-field {
@@ -227,10 +227,10 @@
 		grid-column: 1 / -1;
 		display: flex;
 		align-items: center;
-		gap: 0.8rem;
+		gap: var(--space-5);
 	}
 	.status {
-		color: #b3261e;
-		font-size: 0.9rem;
+		color: var(--danger);
+		font-size: var(--text-lg);
 	}
 </style>

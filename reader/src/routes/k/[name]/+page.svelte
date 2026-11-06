@@ -31,17 +31,17 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 12px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-5);
 	}
 
 	.songs {
@@ -57,8 +57,8 @@
 	.songs a {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
-		padding: 12px 4px;
+		gap: var(--space-4);
+		padding: var(--space-5) var(--space-1);
 		text-decoration: none;
 		color: inherit;
 	}
@@ -74,14 +74,14 @@
 	}
 
 	.artist {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		text-align: right;
 	}
 
 	.missing {
-		margin-top: 16px;
-		font-size: 13px;
+		margin-top: var(--space-7);
+		font-size: var(--text-sm);
 		color: var(--danger);
 	}
 </style>

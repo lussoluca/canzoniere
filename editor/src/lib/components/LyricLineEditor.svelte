@@ -242,7 +242,7 @@
 <style>
 	.lyric-line {
 		font-family: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
-		font-size: 15px;
+		font-size: var(--text-lg);
 		line-height: 1.25;
 		padding: 0 0 2px;
 	}
@@ -257,13 +257,13 @@
 	}
 	.chord-pill {
 		display: inline-block;
-		background: #2f3e46;
-		color: #ffd166;
+		background: var(--active-bg);
+		color: var(--active-text);
 		font-family: inherit;
 		font-size: 0.85em;
 		font-weight: 700;
 		border: none;
-		border-radius: 4px;
+		border-radius: var(--radius-xs);
 		/* padding compensated by the negative margin: the chord text starts exactly on the anchored character */
 		padding: 0 0.35em;
 		margin-left: -0.35em;
@@ -279,13 +279,13 @@
 		top: -0.3em;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		background: #fff;
-		border: 1px solid #2f3e46;
-		border-radius: 6px;
+		gap: var(--space-1);
+		background: var(--surface);
+		border: 1px solid var(--active-bg);
+		border-radius: var(--radius-sm);
 		padding: 3px;
 		z-index: 5;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 2px 8px var(--shadow);
 	}
 	.popover-row {
 		display: flex;
@@ -299,45 +299,49 @@
 	}
 	.suggestion {
 		border: none;
-		border-radius: 4px;
-		background: #e8edf0;
-		color: #2f3e46;
+		border-radius: var(--radius-xs);
+		background: var(--accent-bg);
+		color: var(--text);
 		font-family: inherit;
 		font-size: 0.8em;
 		font-weight: 700;
-		padding: 1px 6px;
+		padding: 1px var(--space-2);
 		cursor: pointer;
 	}
 	.suggestion:hover {
-		background: #ffd166;
+		background: var(--brand);
+		color: var(--header-bg);
 	}
 	.chord-popover input {
 		width: 7ch;
 		font-family: inherit;
 		font-size: 0.9em;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 1px 4px;
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-xs);
+		padding: 1px var(--space-1);
+		background: var(--surface);
+		color: var(--text);
 	}
 	.chord-popover input.invalid {
-		border-color: #e5383b;
-		background: #fbeae9;
+		border-color: var(--danger);
+		background: var(--danger-bg);
 	}
 	.chord-popover button {
 		border: none;
-		border-radius: 4px;
+		border-radius: var(--radius-xs);
 		cursor: pointer;
 		font-size: 0.8em;
-		padding: 1px 6px;
+		padding: 1px var(--space-2);
+		color: var(--text);
 	}
 	.chord-popover .ok {
-		background: #d8f3dc;
+		background: var(--success-bg);
 	}
 	.chord-popover .del {
-		background: #fbeae9;
+		background: var(--danger-bg);
 	}
 	.chord-popover .cancel {
-		background: #eee;
+		background: var(--border);
 	}
 	.text-row {
 		white-space: nowrap;
@@ -353,14 +357,15 @@
 		width: 1ch;
 	}
 	.char:hover {
-		background: #ffd166;
+		background: var(--brand);
+		color: var(--header-bg);
 	}
 	.edit-text {
 		visibility: hidden;
 		border: none;
 		background: none;
 		cursor: pointer;
-		color: #999;
+		color: var(--faint);
 		font-size: 1.3em;
 		padding: 0 0.15em;
 		line-height: 1;
@@ -371,8 +376,10 @@
 	.text-edit {
 		font: inherit;
 		width: 100%;
-		border: 1px solid #2f3e46;
-		border-radius: 4px;
-		padding: 1px 4px;
+		border: 1px solid var(--active-bg);
+		border-radius: var(--radius-xs);
+		padding: 1px var(--space-1);
+		background: var(--surface);
+		color: var(--text);
 	}
 </style>

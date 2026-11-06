@@ -160,19 +160,19 @@
 	.controls {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		margin-bottom: 12px;
+		gap: var(--space-3);
+		margin-bottom: var(--space-5);
 	}
 
 	.picker {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-2);
 	}
 
 	.picker-label {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		min-width: 92px;
 	}
@@ -180,15 +180,15 @@
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-2);
 	}
 
 	.chip {
 		font: inherit;
-		font-size: 14px;
-		padding: 5px 10px;
+		font-size: var(--text-md);
+		padding: var(--space-1) var(--space-4);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -211,8 +211,8 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 4px 18px;
-		margin-bottom: 10px;
+		gap: var(--space-1) var(--space-7);
+		margin-bottom: var(--space-4);
 	}
 
 	.shapes figure {
@@ -222,18 +222,18 @@
 	}
 
 	.shapes figcaption {
-		font-size: 12px;
+		font-size: var(--text-xs);
 		color: var(--muted);
 		margin-top: 2px;
 	}
 
 	.arrow {
-		font-size: 20px;
+		font-size: var(--text-3xl);
 		color: var(--muted);
 	}
 
 	.recipe {
-		margin: 0 0 8px;
+		margin: 0 0 var(--space-3);
 	}
 
 	.note {
@@ -242,28 +242,28 @@
 	}
 
 	.changes {
-		margin: 0 0 10px;
-		padding-left: 20px;
+		margin: 0 0 var(--space-4);
+		padding-left: var(--space-8);
 	}
 
 	.changes li {
-		margin-bottom: 4px;
+		margin-bottom: var(--space-1);
 	}
 
 	.hint {
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 
 	.scroller {
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
-		margin-bottom: 12px;
+		margin-bottom: var(--space-5);
 	}
 
 	table.notes {
 		border-collapse: collapse;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		width: 100%;
 		min-width: 280px;
 		max-width: 520px;
@@ -272,13 +272,13 @@
 	table.notes th,
 	table.notes td {
 		border-bottom: 1px solid var(--border);
-		padding: 5px 6px;
+		padding: var(--space-1) var(--space-2);
 		text-align: left;
 		white-space: nowrap;
 	}
 
 	table.notes thead th {
-		font-size: 11px;
+		font-size: var(--text-xs);
 		letter-spacing: 0.04em;
 		color: var(--muted);
 	}
@@ -295,7 +295,7 @@
 
 	.role {
 		color: var(--faint);
-		font-size: 11px;
+		font-size: var(--text-xs);
 	}
 
 	table.notes tr.diff td:last-child .role {
@@ -303,8 +303,8 @@
 	}
 
 	.caption {
-		margin: 0 0 6px;
-		font-size: 13px;
+		margin: 0 0 var(--space-2);
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 </style>

@@ -118,60 +118,60 @@
 
 <style>
 	.crumbs {
-		font-size: 0.9rem;
-		color: #777;
-		margin-bottom: 0.8rem;
+		font-size: var(--text-lg);
+		color: var(--muted);
+		margin-bottom: var(--space-5);
 	}
 	.crumbs a {
-		color: #2f3e46;
+		color: var(--text);
 	}
 	.toolbar {
 		display: flex;
-		gap: 0.6rem;
+		gap: var(--space-4);
 		align-items: center;
 	}
 	.toolbar input[type="search"] {
 		flex: 1;
 		min-width: 200px;
-		padding: 0.45rem 0.7rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
+		padding: var(--space-3) var(--space-5);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
 	}
 	.count {
-		color: #777;
-		font-size: 0.85rem;
+		color: var(--muted);
+		font-size: var(--text-md);
 	}
 	.edited {
-		color: #b54708;
-		font-size: 0.78rem;
+		color: var(--warning);
+		font-size: var(--text-xs);
 		font-weight: 600;
-		margin-left: 0.4rem;
+		margin-left: var(--space-3);
 		white-space: nowrap;
 	}
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		background: #fff;
-		border-radius: 8px;
+		background: var(--surface);
+		border-radius: var(--radius-md);
 		overflow: hidden;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 	}
 	th,
 	td {
 		text-align: left;
-		padding: 0.55rem 0.8rem;
-		border-bottom: 1px solid #eee;
-		font-size: 0.92rem;
+		padding: var(--space-4) var(--space-5);
+		border-bottom: 1px solid var(--border);
+		font-size: var(--text-lg);
 	}
 	th {
-		background: #fafafa;
-		font-size: 0.8rem;
+		background: var(--surface-alt);
+		font-size: var(--text-sm);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		color: #888;
+		color: var(--faint);
 	}
 	td a {
-		color: #2f3e46;
+		color: var(--text);
 		font-weight: 600;
 		text-decoration: none;
 	}
@@ -183,12 +183,12 @@
 		white-space: nowrap;
 	}
 	.move {
-		padding: 0.3rem 0.4rem;
-		border: 1px solid #ccc;
-		border-radius: 6px;
-		background: #fff;
-		font-size: 0.85rem;
-		margin-right: 0.4rem;
-		color: #555;
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		font-size: var(--text-md);
+		margin-right: var(--space-3);
+		color: var(--muted);
 	}
 </style>

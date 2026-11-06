@@ -175,7 +175,7 @@
 		color: var(--diagram-ink, #000);
 		line-height: 1.2; /* pdf.spacing.diagramchords */
 		text-align: center;
-		margin-top: 0.5rem;
+		margin-top: var(--space-3);
 	}
 	.base {
 		font-family: 'Times New Roman', Times, serif;
@@ -192,9 +192,9 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 0.1rem;
-		padding: 0.4rem 0.6rem;
+		padding: var(--space-3) var(--space-4);
 		border: 1px dashed var(--diagram-muted, #ccc);
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		color: var(--diagram-muted, #999);
 	}
 	.unknown-name {
@@ -203,6 +203,6 @@
 		color: var(--diagram-ink, #555);
 	}
 	.unknown-hint {
-		font-size: 0.68rem;
+		font-size: var(--text-xs);
 	}
 </style>

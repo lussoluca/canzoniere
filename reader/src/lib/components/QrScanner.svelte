@@ -132,17 +132,17 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+		padding: calc(env(safe-area-inset-top) + var(--space-5)) var(--space-7) var(--space-5);
 		color: #fff;
 		font-weight: 600;
 	}
 
 	.close {
 		font: inherit;
-		font-size: 14px;
-		padding: 6px 12px;
+		font-size: var(--text-md);
+		padding: var(--space-2) var(--space-5);
 		border: 1px solid rgba(255, 255, 255, 0.4);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: rgba(255, 255, 255, 0.12);
 		color: #fff;
 		cursor: pointer;
@@ -164,7 +164,7 @@
 		aspect-ratio: 1;
 		transform: translate(-50%, -50%);
 		border: 3px solid rgba(255, 255, 255, 0.85);
-		border-radius: 18px;
+		border-radius: var(--radius-xl);
 		box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.35);
 		pointer-events: none;
 	}
@@ -172,10 +172,10 @@
 	.msg,
 	.hint {
 		margin: 0;
-		padding: 14px 20px calc(env(safe-area-inset-bottom) + 18px);
+		padding: var(--space-6) var(--space-8) calc(env(safe-area-inset-bottom) + var(--space-7));
 		color: #fff;
 		text-align: center;
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	.msg {

@@ -199,40 +199,40 @@
 		max-width: 760px;
 	}
 	h2 {
-		margin: 0.4rem 0 0.8rem;
+		margin: var(--space-3) 0 var(--space-5);
 	}
 	.intro {
-		color: #555;
+		color: var(--muted);
 		line-height: 1.6;
 	}
 	.toc {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.6rem;
-		margin: 1rem 0 1.6rem;
+		gap: var(--space-4);
+		margin: var(--space-7) 0 var(--space-9);
 	}
 	.toc a {
-		font-size: 0.85rem;
+		font-size: var(--text-md);
 		text-decoration: none;
-		color: #2f3e46;
-		background: #fff;
-		border: 1px solid #e2e2e2;
-		border-radius: 999px;
-		padding: 0.25rem 0.7rem;
+		color: var(--text);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-pill);
+		padding: var(--space-1) var(--space-5);
 	}
 	.toc a:hover {
-		background: #eef3f4;
+		background: var(--accent-bg);
 	}
 	section {
-		background: #fff;
-		border-radius: 10px;
-		padding: 1.1rem 1.3rem;
-		margin-bottom: 1rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		background: var(--surface);
+		border-radius: var(--radius-lg);
+		padding: var(--space-8) var(--space-8);
+		margin-bottom: var(--space-7);
+		box-shadow: 0 1px 3px var(--shadow-sm);
 	}
 	section h3 {
-		margin: 0 0 0.6rem;
-		font-size: 1.05rem;
+		margin: 0 0 var(--space-4);
+		font-size: var(--text-xl);
 	}
 	p {
 		line-height: 1.6;
@@ -245,27 +245,27 @@
 	}
 	dt {
 		font-weight: 700;
-		margin-top: 0.7rem;
+		margin-top: var(--space-5);
 	}
 	dd {
 		margin: 0.15rem 0 0;
 		line-height: 1.55;
-		color: #444;
+		color: var(--text);
 	}
 	code {
-		background: #f0efec;
-		border-radius: 4px;
-		padding: 0.05rem 0.3rem;
+		background: var(--surface-alt);
+		border-radius: var(--radius-xs);
+		padding: 0.05rem var(--space-2);
 		font-size: 0.88em;
 	}
 	.warn {
-		color: #b3261e;
+		color: var(--danger);
 	}
 	.guide-video {
 		display: block;
 		width: 100%;
 		max-width: 320px;
-		border-radius: 12px;
-		box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+		border-radius: var(--radius-lg);
+		box-shadow: 0 1px 6px var(--shadow);
 	}
 </style>

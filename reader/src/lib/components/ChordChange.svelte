@@ -159,12 +159,12 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 6px;
-		margin-bottom: 8px;
+		gap: var(--space-2);
+		margin-bottom: var(--space-3);
 	}
 
 	.picker-label {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		min-width: 68px;
 	}
@@ -172,15 +172,15 @@
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 6px;
+		gap: var(--space-2);
 	}
 
 	.chip {
 		font: inherit;
-		font-size: 14px;
-		padding: 5px 10px;
+		font-size: var(--text-md);
+		padding: var(--space-1) var(--space-4);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
@@ -198,8 +198,8 @@
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 4px 18px;
-		margin: 10px 0;
+		gap: var(--space-1) var(--space-7);
+		margin: var(--space-4) 0;
 	}
 
 	.shapes figure {
@@ -209,61 +209,61 @@
 	}
 
 	.shapes figcaption {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		font-weight: 600;
 		margin-top: 2px;
 	}
 
 	.play {
 		font: inherit;
-		font-size: 11px;
+		font-size: var(--text-xs);
 		line-height: 1;
-		padding: 3px 6px;
-		margin-left: 4px;
+		padding: 3px var(--space-2);
+		margin-left: var(--space-1);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
 	}
 
 	.arrow {
-		font-size: 20px;
+		font-size: var(--text-3xl);
 		color: var(--muted);
 	}
 
 	.listen {
-		margin: 0 0 10px;
+		margin: 0 0 var(--space-4);
 		text-align: center;
 	}
 
 	.wide {
 		font: inherit;
-		font-size: 14px;
-		padding: 7px 14px;
+		font-size: var(--text-md);
+		padding: var(--space-2) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: var(--surface);
 		color: inherit;
 		cursor: pointer;
 	}
 
 	.pivot {
-		margin: 0 0 8px;
+		margin: 0 0 var(--space-3);
 	}
 
 	.moves {
 		margin: 0;
-		padding-left: 20px;
+		padding-left: var(--space-8);
 	}
 
 	.moves li {
-		margin-bottom: 4px;
+		margin-bottom: var(--space-1);
 	}
 
 	.hint {
 		margin: 0;
 		color: var(--muted);
-		font-size: 13px;
+		font-size: var(--text-sm);
 	}
 </style>

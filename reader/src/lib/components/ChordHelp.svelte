@@ -102,7 +102,7 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.45);
+		background: var(--overlay);
 		border: none;
 		padding: 0;
 		z-index: 60;
@@ -120,24 +120,24 @@
 		-webkit-overflow-scrolling: touch;
 		background: var(--bg);
 		color: var(--text);
-		border-radius: 24px 24px 0 0;
+		border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 		box-shadow: 0 -4px 32px var(--shadow);
-		padding: 18px 16px calc(env(safe-area-inset-bottom) + 18px);
+		padding: var(--space-7) var(--space-7) calc(env(safe-area-inset-bottom) + var(--space-7));
 		box-sizing: border-box;
 	}
 
 	.head {
 		display: flex;
 		align-items: baseline;
-		gap: 10px;
+		gap: var(--space-4);
 	}
 
 	.head strong {
-		font-size: 22px;
+		font-size: var(--text-3xl);
 	}
 
 	.badge {
-		font-size: 12px;
+		font-size: var(--text-xs);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--muted);
@@ -146,11 +146,11 @@
 	.close {
 		margin-left: auto;
 		font: inherit;
-		font-size: 16px;
+		font-size: var(--text-xl);
 		background: none;
 		border: none;
 		color: var(--muted);
-		padding: 2px 6px;
+		padding: 2px var(--space-2);
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
@@ -159,8 +159,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
-		gap: 10px 20px;
-		margin-top: 12px;
+		gap: var(--space-4) var(--space-8);
+		margin-top: var(--space-5);
 	}
 
 	.figure {
@@ -168,15 +168,15 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-3);
 	}
 
 	.hear {
 		font: inherit;
-		font-size: 14px;
-		padding: 6px 12px;
+		font-size: var(--text-md);
+		padding: var(--space-2) var(--space-5);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -191,37 +191,37 @@
 
 	.howto {
 		flex: 1 1 220px;
-		font-size: 14px;
+		font-size: var(--text-md);
 	}
 
 	.howto ol {
 		margin: 0;
-		padding-left: 20px;
+		padding-left: var(--space-8);
 	}
 
 	.howto li {
-		margin-bottom: 6px;
+		margin-bottom: var(--space-2);
 	}
 
 	.strings {
-		margin: 8px 0 0;
+		margin: var(--space-3) 0 0;
 	}
 
 	.actions {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px 12px;
-		margin-top: 14px;
+		gap: var(--space-3) var(--space-5);
+		margin-top: var(--space-6);
 	}
 
 	.learned {
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--text-md);
 		font-weight: 500;
-		padding: 8px 14px;
+		padding: var(--space-3) var(--space-6);
 		border: 1px solid var(--control-border);
-		border-radius: 999px;
+		border-radius: var(--radius-pill);
 		background: transparent;
 		color: inherit;
 		cursor: pointer;
@@ -236,8 +236,8 @@
 
 	.more {
 		display: flex;
-		gap: 18px;
-		margin: 16px 0 0;
-		font-size: 14px;
+		gap: var(--space-7);
+		margin: var(--space-7) 0 0;
+		font-size: var(--text-md);
 	}
 </style>

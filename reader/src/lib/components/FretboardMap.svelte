@@ -79,12 +79,12 @@
 	.scroller {
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
-		margin-bottom: 12px;
+		margin-bottom: var(--space-5);
 	}
 
 	table {
 		border-collapse: collapse;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		width: 100%;
 		min-width: 300px;
 		max-width: 520px;
@@ -93,13 +93,13 @@
 	th,
 	td {
 		border: 1px solid var(--border);
-		padding: 5px 4px;
+		padding: var(--space-1) var(--space-1);
 		text-align: center;
 		white-space: nowrap;
 	}
 
 	thead th {
-		font-size: 11px;
+		font-size: var(--text-xs);
 		font-weight: 600;
 		color: var(--muted);
 		border: none;
@@ -117,7 +117,7 @@
 	}
 
 	.num {
-		margin-right: 4px;
+		margin-right: var(--space-1);
 	}
 
 	.who {
@@ -137,10 +137,10 @@
 
 	td button {
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--text-sm);
 		display: block;
 		width: 100%;
-		padding: 7px 4px;
+		padding: var(--space-2) var(--space-1);
 		border: none;
 		background: none;
 		color: inherit;
@@ -165,8 +165,8 @@
 	}
 
 	.readout {
-		margin: 0 0 10px;
-		font-size: 13px;
+		margin: 0 0 var(--space-4);
+		font-size: var(--text-sm);
 		color: var(--muted);
 	}
 

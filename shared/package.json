@@ -8,6 +8,7 @@
 			"svelte": "./ChordDiagram.svelte",
 			"default": "./ChordDiagram.svelte"
 		},
+		"./tokens.css": "./tokens.css",
 		"./*": "./*.ts"
 	}
 }

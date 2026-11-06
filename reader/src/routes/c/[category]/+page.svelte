@@ -24,17 +24,17 @@
 
 <style>
 	nav {
-		margin-bottom: 8px;
+		margin-bottom: var(--space-3);
 	}
 
 	nav a {
 		text-decoration: none;
-		font-size: 15px;
+		font-size: var(--text-lg);
 	}
 
 	h1 {
-		font-size: 24px;
-		margin: 0 0 12px;
+		font-size: var(--text-4xl);
+		margin: 0 0 var(--space-5);
 	}
 
 	.songs {
@@ -51,8 +51,8 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
-		gap: 12px;
-		padding: 12px 4px;
+		gap: var(--space-5);
+		padding: var(--space-5) var(--space-1);
 		text-decoration: none;
 		color: inherit;
 	}
@@ -62,7 +62,7 @@
 	}
 
 	.songs .artist {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--muted);
 		text-align: right;
 	}
