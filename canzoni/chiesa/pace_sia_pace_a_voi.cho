@@ -6,6 +6,7 @@
 {x_tag:pace}
 
 [Re]
+{x_pause:5}
 
 {start_of_chorus}
 "Pace [Re]sia, pace a voi": la tua [Sol]pace sarà,
@@ -14,6 +15,7 @@ sulla [Sim]terra come nei [La]cieli.
 gioia [Fa]nei nostri [Do]occhi, nei [Sol]cuor[La]i.
 "Pace [Re]sia, pace a voi": la tua [Sol]pace sarà,
 luce [Sim]limpida nei pensi[La]eri.
+{x_pause:8}
 "Pace [Re]sia, pace a voi": la tua [Sol]pace sarà,
 una [Re]casa per [La]tut[Re]ti. [Sol] [Re]
 {end_of_chorus}
