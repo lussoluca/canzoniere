@@ -791,3 +791,117 @@ test('pauses: a proposal link is applied, a stale or malformed one is not', asyn
 	expect(fs.readFileSync(file, 'utf-8')).toMatch(/settembre\n\{x_pause:6\}/);
 	fs.rmSync(file);
 });
+
+test('chordpro tab: typing { lists the directives, the choice is written ready to fill', async ({
+	page
+}) => {
+	await goto(page, '/new?category=reparto');
+	await page.getByTestId('meta-title').fill('Direttive');
+	await page.getByTestId('tab-raw').click();
+	const raw = page.getByTestId('raw-editor');
+	await raw.fill((await raw.inputValue()).trimEnd() + '\n\nuno\n');
+	const toEnd = () =>
+		raw.evaluate((el: HTMLTextAreaElement) => {
+			el.focus();
+			el.setSelectionRange(el.value.length, el.value.length);
+		});
+	const menu = page.getByTestId('directive-menu');
+	const options = page.getByTestId('directive-option');
+
+	// `{` lists every directive, `{x` only the project's own
+	await toEnd();
+	await page.keyboard.type('{');
+	await expect(menu).toBeVisible();
+	await expect(options.first()).toHaveAttribute('data-name', 'x_pause');
+	await page.keyboard.type('x');
+	await expect(options).toHaveCount(3);
+	await expect(options.nth(0)).toHaveAttribute('aria-selected', 'true');
+	await page.keyboard.press('ArrowDown');
+	await expect(options.nth(1)).toHaveAttribute('aria-selected', 'true');
+	await page.keyboard.press('ArrowUp');
+
+	// Enter writes the pause with its default seconds selected: typing replaces them
+	await page.keyboard.press('Enter');
+	await expect(menu).toHaveCount(0);
+	await page.keyboard.type('7');
+	expect(await raw.inputValue()).toMatch(/uno\n\{x_pause:7\}$/);
+
+	// the name matches without the x_ prefix too; Escape closes the list
+	await toEnd();
+	await page.keyboard.type('\n{pau');
+	await expect(options).toHaveCount(1);
+	await page.keyboard.press('Escape');
+	await expect(menu).toHaveCount(0);
+	await page.keyboard.press('Backspace');
+	await page.keyboard.press('Backspace');
+	await page.keyboard.press('Backspace');
+
+	// a click picks an option; a text directive gets the caret before `}`
+	await page.keyboard.type('ta');
+	await options.filter({ hasText: 'x_tag' }).click();
+	await page.keyboard.type('omelia');
+	expect(await raw.inputValue()).toMatch(/\{x_pause:7\}\n\{x_tag:omelia\}$/);
+	await expect(page.getByTestId('raw-problems')).toHaveCount(0);
+
+	await page.getByTestId('tab-visual').click();
+	await expect(page.getByTestId('pause-seconds')).toHaveValue('7');
+});
+
+test('chordpro tab: wrong directives are marked and listed, a click goes to the line', async ({
+	page
+}) => {
+	await goto(page, '/new?category=reparto');
+	await page.getByTestId('tab-raw').click();
+	const raw = page.getByTestId('raw-editor');
+	const lines = [
+		'{title:Direttive}',
+		'{tag:Reparto}',
+		'{x_pause:3}',
+		'',
+		'uno',
+		'{x_pause:99}',
+		'{x_pausa:3}',
+		'{x_tag}',
+		' {comment:a}',
+		'{comment: Rit.}due',
+		'{x_scroll:5',
+		'{end_of_chorus:x}',
+		'{x_pause:5}',
+		'{start_of_chorus}',
+		'tre',
+		'{end_of_chorus}'
+	];
+	await raw.fill(lines.join('\n'));
+
+	await expect(page.getByTestId('raw-problem')).toHaveText([
+		/^Riga 3\s+Pausa prima della prima riga di testo/,
+		/^Riga 6\s+«x_pause» vuole un numero intero da 1 a 60/,
+		/^Riga 7\s+Direttiva sconosciuta «x_pausa»: forse «x_pause»\?/,
+		/^Riga 8\s+«x_tag» vuole un valore/,
+		/^Riga 9\s+Togli gli spazi prima della «\{»/,
+		/^Riga 10\s+Dopo la «\}» non va scritto altro/,
+		/^Riga 11\s+Manca la «\}» di chiusura/,
+		/^Riga 12\s+«end_of_chorus» non vuole un valore/
+	]);
+	const highlight = page.getByTestId('raw-highlight');
+	await expect(highlight.locator('.hl-error')).toHaveCount(7);
+	await expect(highlight.locator('.hl-warning')).toHaveCount(1);
+	await expect(highlight.locator('.hl-custom')).toHaveCount(4);
+	await expect(highlight.locator('.hl-error')).toHaveText([
+		'99',
+		'x_pausa',
+		'x_tag',
+		' {comment:a}',
+		'{comment: Rit.}due',
+		'{x_scroll:5',
+		'x'
+	]);
+
+	// a click on the line number puts the caret at the start of that line
+	await page.getByTestId('raw-problem').nth(2).getByRole('button').click();
+	const lineStart = lines.slice(0, 6).join('\n').length + 1;
+	expect(await raw.evaluate((el: HTMLTextAreaElement) => el.selectionStart)).toBe(lineStart);
+
+	await raw.fill(['{title:Direttive}', '', 'uno', '{x_pause:5}', '{x_tag:omelia}'].join('\n'));
+	await expect(page.getByTestId('raw-problems')).toHaveCount(0);
+});
