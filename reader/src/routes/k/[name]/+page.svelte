@@ -1,8 +1,24 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { shareLink } from '#lib/share.js';
+	import QrSheet from '#lib/components/QrSheet.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	// The songbook is a prerendered page, so its address is the whole link.
+	function shareUrl(): string {
+		return `${location.origin}${location.pathname}`;
+	}
+
+	let copied = $state(false);
+	let showQr = $state(false);
+
+	async function share() {
+		if ((await shareLink(shareUrl(), data.book.label)) !== 'copied') return;
+		copied = true;
+		setTimeout(() => copied = false, 2000);
+	}
 </script>
 
 <svelte:head><title>{data.book.label} — Canzoniere Alessandria 2</title></svelte:head>
@@ -23,10 +39,25 @@
 	{/each}
 </ol>
 
+<div class="bar">
+	<button class="btn" onclick={share}>{copied ? 'Link copiato ✓' : '📤 Condividi'}</button>
+	<button class="btn" onclick={() => showQr = true}>⊞ QR code</button>
+</div>
+
 {#if data.book.missing.length > 0}
 	<p class="missing">
 		Voci non trovate: {data.book.missing.join(', ')}
 	</p>
+{/if}
+
+{#if showQr}
+	<QrSheet
+		title={data.book.label}
+		url={shareUrl()}
+		label="QR code del canzoniere"
+		hint="Inquadra con la fotocamera di un altro telefono: si apre lo stesso canzoniere."
+		onclose={() => showQr = false}
+	/>
 {/if}
 
 <style>
@@ -77,6 +108,25 @@
 		font-size: var(--text-sm);
 		color: var(--muted);
 		text-align: right;
+	}
+
+	.bar {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-3);
+		margin-top: var(--space-6);
+	}
+
+	.btn {
+		font: inherit;
+		font-size: var(--text-lg);
+		padding: var(--space-4) var(--space-7);
+		border: 1px solid var(--control-border);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		color: inherit;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	.missing {

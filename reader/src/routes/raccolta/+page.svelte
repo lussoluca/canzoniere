@@ -2,14 +2,15 @@
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import qrcode from 'qrcode-generator';
-	import { allSongs, type SongRef } from '#lib/data.js';
+	import { allSongs, findSongbook, type SongRef } from '#lib/data.js';
 	import { parseQuery, matchesQuery } from '#lib/search.js';
 	import { encodeCollection, decodeCollection, type CollectionSong } from '#lib/collection.js';
 	import { rememberCollection, newCollectionId } from '#lib/saved-collections.js';
 	import { loadSavedSongPrefs } from '#lib/prefs.js';
+	import { shareLink } from '#lib/share.js';
 	import SearchBox from '#lib/components/SearchBox.svelte';
 	import QrScanner from '#lib/components/QrScanner.svelte';
+	import QrSheet from '#lib/components/QrSheet.svelte';
 
 	// The chosen songs live in the URL (?l=), so a link is the whole songbook.
 	// With ?l= present the page is in view mode; otherwise it's the builder.
@@ -101,18 +102,7 @@
 		return `${location.origin}${location.pathname}?${songQuery}`;
 	}
 
-	// The QR is generated on the device (no network), so a set can be passed
-	// around by pointing cameras at a phone even where there is no signal.
 	let showQr = $state(false);
-	let qrSvg = $state('');
-
-	function openQr() {
-		const qr = qrcode(0, 'M');
-		qr.addData(shareUrl());
-		qr.make();
-		qrSvg = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
-		showQr = true;
-	}
 
 	// Receiving side of the QR flow: scanning from inside the app keeps the
 	// set in the installed PWA (the system camera would open the browser).
@@ -124,6 +114,13 @@
 			url = new URL(text);
 		} catch {
 			return false;
+		}
+		// The QR of an event songbook is the link to its page.
+		const book = /\/k\/([^/]+)\/?$/.exec(url.pathname);
+		if (book) {
+			if (!findSongbook(book[1])) return false;
+			location.assign(resolve(`k/${book[1]}/`));
+			return true;
 		}
 		const l = url.searchParams.get('l');
 		if (!l || decodeCollection(l).length === 0) return false;
@@ -139,23 +136,9 @@
 	}
 
 	async function share() {
-		const url = shareUrl();
-		const shareTitle = title.trim() || 'Scaletta';
-		if (navigator.share) {
-			try {
-				await navigator.share({ title: shareTitle, url });
-				return;
-			} catch {
-				// user dismissed the share sheet: fall through to copy
-			}
-		}
-		try {
-			await navigator.clipboard.writeText(url);
-			copied = true;
-			setTimeout(() => copied = false, 2000);
-		} catch {
-			// clipboard blocked: nothing else to do
-		}
+		if ((await shareLink(shareUrl(), title.trim() || 'Scaletta')) !== 'copied') return;
+		copied = true;
+		setTimeout(() => copied = false, 2000);
 	}
 </script>
 
@@ -182,7 +165,7 @@
 	</ol>
 	<div class="bar">
 		<button class="btn" onclick={share}>{copied ? 'Link copiato ✓' : '📤 Condividi'}</button>
-		<button class="btn" onclick={openQr}>⊞ QR code</button>
+		<button class="btn" onclick={() => showQr = true}>⊞ QR code</button>
 		<button class="btn" onclick={() => editing = true}>✏️ Modifica</button>
 	</div>
 {:else}
@@ -194,7 +177,7 @@
 
 	<div class="bar receive">
 		<button class="btn" onclick={() => showScanner = true}>📷 Inquadra un QR</button>
-		<span class="receive-hint">Ricevi una scaletta da un altro telefono.</span>
+		<span class="receive-hint">Ricevi una scaletta o un canzoniere da un altro telefono.</span>
 	</div>
 
 	<input class="titolo" placeholder="Titolo (facoltativo)" bind:value={title} />
@@ -216,7 +199,7 @@
 		</ol>
 		<div class="bar">
 			<button class="btn primary" onclick={share}>{copied ? 'Link copiato ✓' : '📤 Condividi il link'}</button>
-			<button class="btn" onclick={openQr}>⊞ QR code</button>
+			<button class="btn" onclick={() => showQr = true}>⊞ QR code</button>
 		</div>
 		<p class="prefs-hint">
 			Il link e il QR includono le tue personalizzazioni dei canti scelti: tonalità, accordi
@@ -256,22 +239,13 @@
 {/if}
 
 {#if showQr}
-	<div class="qr-sheet" role="dialog" aria-label="QR code della scaletta">
-		<div class="qr-head">
-			<span>{title.trim() || 'Scaletta'}</span>
-
-			<button
-				class="close"
-				onclick={() => showQr = false}
-				aria-label="Chiudi il QR code"
-			>✕</button>
-		</div>
-		<div class="qr-box">{@html qrSvg}</div>
-		<p class="qr-hint">
-			Inquadra con la fotocamera di un altro telefono: si apre la stessa scaletta, con le
-			personalizzazioni di chi la condivide.
-		</p>
-	</div>
+	<QrSheet
+		title={title.trim() || 'Scaletta'}
+		url={shareUrl()}
+		label="QR code della scaletta"
+		hint="Inquadra con la fotocamera di un altro telefono: si apre la stessa scaletta, con le personalizzazioni di chi la condivide."
+		onclose={() => showQr = false}
+	/>
 {/if}
 
 <style>
@@ -445,65 +419,5 @@
 		margin: var(--space-4) 0 0;
 		font-size: var(--text-sm);
 		color: var(--muted);
-	}
-
-	/* Bottom sheet, same look as the diagram/note sheets on the song page. */
-	.qr-sheet {
-		position: fixed;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		z-index: 20;
-		background: var(--surface);
-		border-top: 1px solid var(--control-border);
-		box-shadow: 0 -4px 16px var(--shadow);
-		max-height: 80dvh;
-		overflow-y: auto;
-		padding: 0 calc(env(safe-area-inset-right) + var(--space-7)) calc(env(safe-area-inset-bottom) + var(--space-5))
-			calc(env(safe-area-inset-left) + var(--space-7));
-	}
-
-	.qr-head {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		position: sticky;
-		top: 0;
-		background: var(--surface);
-		padding: var(--space-4) 0 var(--space-2);
-		font-weight: 600;
-	}
-
-	.close {
-		font: inherit;
-		font-size: var(--text-md);
-		padding: var(--space-2) var(--space-5);
-		border: 1px solid var(--control-border);
-		border-radius: var(--radius-md);
-		background: var(--surface);
-		color: inherit;
-		cursor: pointer;
-	}
-
-	/* Always on white with quiet-zone padding, so cameras read it in dark mode too. */
-	.qr-box {
-		background: #fff;
-		border-radius: var(--radius-lg);
-		padding: var(--space-7);
-		margin: var(--space-2) auto 0;
-		width: min(70vw, 280px);
-	}
-
-	.qr-box :global(svg) {
-		display: block;
-		width: 100%;
-		height: auto;
-	}
-
-	.qr-hint {
-		margin: var(--space-4) 0 var(--space-1);
-		font-size: var(--text-sm);
-		color: var(--muted);
-		text-align: center;
 	}
 </style>
