@@ -6,13 +6,14 @@
 	import { savePending, removePending } from '#lib/pending.svelte.js';
 	import { parse, serialize, type Song, type Line } from '@canzoniere/shared/chordpro';
 	import { categoryLabel } from '@canzoniere/shared/categories';
-	import { PAUSE_MAX } from '@canzoniere/shared/pauses';
+	import { PAUSE_MAX, isTimedLine } from '@canzoniere/shared/pauses';
 	import { englishChordToLatin, simplifyChord, transposeChord } from '@canzoniere/shared/chords';
 	import { slugify } from '#lib/slug.js';
 	import ChordProEditor from './ChordProEditor.svelte';
 	import LyricLineEditor from './LyricLineEditor.svelte';
 	import LineByLineEditor from './LineByLineEditor.svelte';
 	import TagInput from './TagInput.svelte';
+	import Icon from './Icon.svelte';
 	import ChordDiagram from '@canzoniere/shared/ChordDiagram.svelte';
 
 	interface Props {
@@ -257,23 +258,45 @@
 
 	// the kinds of line the add menu can insert
 	const lineTypes: { label: string; testid: string; make: () => Line }[] = [
-		{ label: 'riga di testo', testid: 'add-lyric', make: () => ({ type: 'lyric', text: '', chords: [] }) },
-		{ label: 'riga vuota', testid: 'add-empty', make: () => ({ type: 'empty' }) },
-		{ label: 'commento', testid: 'add-comment', make: () => ({ type: 'comment', text: '' }) },
-		{ label: 'tablatura', testid: 'add-tab', make: () => ({ type: 'tab', text: TAB_TEMPLATE }) },
-		{ label: 'inizio ritornello', testid: 'add-chorus-start', make: () => ({ type: 'chorus_start' }) },
-		{ label: 'fine ritornello', testid: 'add-chorus-end', make: () => ({ type: 'chorus_end' }) },
-		{ label: 'pausa scorrimento', testid: 'add-pause', make: () => ({ type: 'pause', seconds: 4 }) }
+		{ label: 'Riga di testo', testid: 'add-lyric', make: () => ({ type: 'lyric', text: '', chords: [] }) },
+		{ label: 'Riga vuota', testid: 'add-empty', make: () => ({ type: 'empty' }) },
+		{ label: 'Commento', testid: 'add-comment', make: () => ({ type: 'comment', text: '' }) },
+		{ label: 'Tablatura', testid: 'add-tab', make: () => ({ type: 'tab', text: TAB_TEMPLATE }) },
+		{ label: 'Inizio ritornello', testid: 'add-chorus-start', make: () => ({ type: 'chorus_start' }) },
+		{ label: 'Fine ritornello', testid: 'add-chorus-end', make: () => ({ type: 'chorus_end' }) },
+		{ label: 'Pausa scorrimento', testid: 'add-pause', make: () => ({ type: 'pause', seconds: 4 }) }
 	];
 
-	// which add menu is open: a line index (insert below that line) or 'end' (append)
-	let openAddMenu: number | 'end' | null = $state(null);
+	// which add menu is open: a line index (insert below that line), 'top'
+	// (insert before the first line) or 'end' (append)
+	let openAddMenu: number | 'top' | 'end' | null = $state(null);
 
 	// a pause holds whole seconds, 1..PAUSE_MAX, whatever is typed in the field
 	function clampPause(line: Line) {
 		if (line.type !== 'pause') return;
 		line.seconds = Math.min(PAUSE_MAX, Math.max(1, Math.round(line.seconds) || 1));
 	}
+
+	function stepPause(line: Line, delta: number) {
+		if (line.type !== 'pause') return;
+		line.seconds += delta;
+		clampPause(line);
+	}
+
+	// the lines between a chorus start and its end (both included) sit on the
+	// chorus rail, as the reader draws them
+	let inChorus = $derived.by(() => {
+		let open = false;
+		return song.lines.map((l) => {
+			if (l.type === 'chorus_start') open = true;
+			const inside = open;
+			if (l.type === 'chorus_end') open = false;
+			return inside;
+		});
+	});
+
+	// the lyric line editors, so the line tools can open their text field
+	const lyricEditors: (LyricLineEditor | undefined)[] = [];
 
 	function deleteLine(idx: number) {
 		flushCapture();
@@ -548,20 +571,49 @@
 	</span>
 </div>
 
-{#snippet addMenu(afterIdx: number | null, key: number | 'end')}
+{#snippet addMenu(afterIdx: number | null, key: number | 'top' | 'end')}
 	<span class="add-menu">
-		<button
-			onclick={(e) => {
-				e.stopPropagation();
-				openAddMenu = openAddMenu === key ? null : key;
-			}}
-			title="Aggiungi riga"
-			data-testid={key === 'end' ? 'add-line-end' : 'add-line-below'}
-		>
-			＋
-		</button>
+		{#if key === 'top'}
+			<button
+				class="add-top-btn"
+				onclick={(e) => {
+					e.stopPropagation();
+					openAddMenu = openAddMenu === key ? null : key;
+				}}
+				aria-expanded={openAddMenu === key}
+				data-testid="add-line-top"
+			>
+				<Icon name="plus" /> Aggiungi in cima
+			</button>
+		{:else if key === 'end'}
+			<button
+				class="btn add-end"
+				onclick={(e) => {
+					e.stopPropagation();
+					openAddMenu = openAddMenu === key ? null : key;
+				}}
+				aria-expanded={openAddMenu === key}
+				data-testid="add-line-end"
+			>
+				<Icon name="plus" /> Aggiungi riga
+			</button>
+		{:else}
+			<button
+				class="icon-btn"
+				onclick={(e) => {
+					e.stopPropagation();
+					openAddMenu = openAddMenu === key ? null : key;
+				}}
+				title="Aggiungi riga sotto"
+				aria-label="Aggiungi riga sotto"
+				aria-expanded={openAddMenu === key}
+				data-testid="add-line-below"
+			>
+				<Icon name="plus" />
+			</button>
+		{/if}
 		{#if openAddMenu === key}
-			<div class="menu" data-testid="add-line-menu">
+			<div class="menu" class:left={typeof key !== 'number'} data-testid="add-line-menu">
 				{#each lineTypes as t (t.testid)}
 					<button
 						onclick={() => {
@@ -586,58 +638,125 @@
 	/>
 {:else if tab === 'visual'}
 	<div class="visual-layout">
-	<div class="sheet" class:show-tools={showLineTools} data-testid="visual-editor">
+		<div class="sheet" class:show-tools={showLineTools} data-testid="visual-editor">
 			{#if song.lines.length === 0}
-			<p class="hint">
-				Nessun testo. Aggiungi righe qui sotto oppure incolla il testo nella scheda «ChordPro».
-			</p>
+				<p class="hint">
+					Nessun testo. Aggiungi righe qui sotto oppure incolla il testo nella scheda «ChordPro».
+				</p>
+			{/if}
+			{#if song.lines.length > 0}
+				<div class="add-top" class:open={openAddMenu === 'top'}>{@render addMenu(-1, 'top')}</div>
 			{/if}
 			{#each song.lines as line, idx (line)}
-				<div class="line-wrap" class:in-chorus={false}>
-				<div class="line-tools" class:open={openAddMenu === idx}>
-					<button onclick={() => deleteLine(idx)} title="Elimina riga" data-testid="delete-line">✕</button>
-						{@render addMenu(idx, idx)}
-					</div>
-					<div class="line-body">
-						{#if line.type === 'lyric'}
-							<LyricLineEditor
-								bind:line={song.lines[idx] as typeof line}
-								usedChords={usedChords}
-								displayChord={displayChord}
-							/>
-						{:else if line.type === 'empty'}
-							<div class="empty-line"></div>
-						{:else if line.type === 'chorus_start'}
-							<div class="marker">▼ ritornello</div>
-						{:else if line.type === 'chorus_end'}
-							<div class="marker">▲ fine ritornello</div>
-						{:else if line.type === 'comment'}
-						<input class="comment" bind:value={line.text} placeholder="Commento…" />
-						{:else if line.type === 'tab'}
-							<textarea
-								class="tab"
-								bind:value={line.text}
-								rows={line.text.split('\n').length + 1}
-								spellcheck="false"
-								placeholder="e|-----|"
-								data-testid="tab-editor"
-							></textarea>
-						{:else if line.type === 'pause'}
-							<label class="pause" data-testid="pause-line" title="Lo scorrimento del reader si ferma su questa riga">
-								⏸
-								<input
-									type="number"
-									min="1"
-									max={PAUSE_MAX}
-									bind:value={line.seconds}
-									onchange={() => clampPause(line)}
-									data-testid="pause-seconds"
+				<div class="line-wrap" class:in-chorus={inChorus[idx]}>
+					<div class="line-row" class:open={openAddMenu === idx} data-testid="line-row">
+						<div class="line-body">
+							{#if line.type === 'lyric'}
+								<LyricLineEditor
+									bind:this={lyricEditors[idx]}
+									bind:line={song.lines[idx] as typeof line}
+									usedChords={usedChords}
+									displayChord={displayChord}
 								/>
-								s
-							</label>
-						{:else if line.type === 'directive'}
-							<code class="directive">{line.raw}</code>
-						{/if}
+							{:else if line.type === 'empty'}
+								<div class="empty-line"></div>
+							{:else if line.type === 'chorus_start'}
+								<div class="marker">Ritornello</div>
+							{:else if line.type === 'chorus_end'}
+								<div class="marker">Fine ritornello</div>
+							{:else if line.type === 'comment'}
+								<label class="comment">
+									<Icon name="comment" />
+									<input bind:value={line.text} placeholder="Commento…" aria-label="Commento" />
+								</label>
+							{:else if line.type === 'tab'}
+								<textarea
+									class="tab"
+									bind:value={line.text}
+									rows={line.text.split('\n').length + 1}
+									spellcheck="false"
+									placeholder="e|-----|"
+									data-testid="tab-editor"
+								></textarea>
+							{:else if line.type === 'pause'}
+								<span
+									class="pause"
+									data-testid="pause-line"
+									title="Lo scorrimento del reader si ferma qui"
+								>
+									<Icon name="pause" />
+									<label>
+										pausa
+										<input
+											type="number"
+											min="1"
+											max={PAUSE_MAX}
+											bind:value={line.seconds}
+											onchange={() => clampPause(line)}
+											aria-label="Secondi di pausa"
+											data-testid="pause-seconds"
+										/>
+										s
+									</label>
+									<button
+										class="step"
+										onclick={() => stepPause(line, -1)}
+										disabled={line.seconds <= 1}
+										title="Un secondo in meno"
+										aria-label="Un secondo in meno"
+										data-testid="pause-less"
+									>
+										<Icon name="minus" />
+									</button>
+									<button
+										class="step"
+										onclick={() => stepPause(line, 1)}
+										disabled={line.seconds >= PAUSE_MAX}
+										title="Un secondo in più"
+										aria-label="Un secondo in più"
+										data-testid="pause-more"
+									>
+										<Icon name="plus" />
+									</button>
+								</span>
+							{:else if line.type === 'directive'}
+								<code class="directive">{line.raw}</code>
+							{/if}
+						</div>
+						<div class="line-tools">
+							{#if line.type === 'lyric'}
+								<button
+									class="icon-btn"
+									onclick={() => lyricEditors[idx]?.startTextEdit()}
+									title="Modifica testo"
+									aria-label="Modifica testo"
+									data-testid="edit-lyric-text"
+								>
+									<Icon name="pencil" />
+								</button>
+							{/if}
+							{#if isTimedLine(line) && song.lines[idx + 1]?.type !== 'pause'}
+								<button
+									class="icon-btn"
+									onclick={() => addLine(idx, { type: 'pause', seconds: 4 })}
+									title="Pausa dopo questa riga"
+									aria-label="Pausa dopo questa riga"
+									data-testid="add-pause-after"
+								>
+									<Icon name="pause" />
+								</button>
+							{/if}
+							{@render addMenu(idx, idx)}
+							<button
+								class="icon-btn danger"
+								onclick={() => deleteLine(idx)}
+								title="Elimina riga"
+								aria-label="Elimina riga"
+								data-testid="delete-line"
+							>
+								<Icon name="trash" />
+							</button>
+						</div>
 					</div>
 				</div>
 			{/each}
@@ -845,46 +964,102 @@
 	.hint {
 		color: var(--faint);
 	}
-	.line-wrap {
+	/* the chorus rail, as the reader draws it */
+	.line-wrap.in-chorus {
+		border-left: 3px solid var(--chorus);
+		margin-left: var(--space-3);
+		padding-left: var(--space-4);
+	}
+	.line-row {
 		display: flex;
 		align-items: flex-end;
-		gap: var(--space-2);
+		gap: var(--space-3);
+		padding: 0 var(--space-1) 2px var(--space-3);
+		border-radius: var(--radius-sm);
+	}
+	.line-row:hover,
+	.line-row:focus-within,
+	.line-row.open {
+		background: var(--surface-alt);
 	}
 	.line-tools {
 		display: flex;
-		flex-direction: column;
-		gap: 3px;
+		align-items: center;
+		gap: 2px;
+		flex-shrink: 0;
 		visibility: hidden;
-		width: 3.6rem;
-		flex-direction: row;
 	}
-	.line-wrap:hover .line-tools,
-	.line-tools.open {
+	.line-row:hover .line-tools,
+	.line-row:focus-within .line-tools,
+	.line-row.open .line-tools {
 		visibility: visible;
 	}
-	.line-tools > button,
-	.add-menu > button {
+	.icon-btn {
+		width: 2rem;
+		height: 2rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		border: none;
-		background: var(--border);
-		border-radius: var(--radius-xs);
-		cursor: pointer;
-		font-size: var(--text-xl);
-		line-height: 1;
-		padding: 3px var(--space-2);
+		border-radius: var(--radius-sm);
+		background: transparent;
 		color: var(--muted);
+		font-size: var(--text-xl);
+		padding: 0;
+		cursor: pointer;
 	}
-	.line-tools > button:hover,
-	.add-menu > button:hover {
-		background: var(--control-border);
+	.icon-btn:hover,
+	.icon-btn[aria-expanded='true'] {
+		background: var(--surface);
+		color: var(--text);
+		box-shadow: 0 1px 3px var(--shadow-sm);
+	}
+	.icon-btn.danger {
+		color: var(--danger);
+	}
+	.icon-btn.danger:hover {
+		background: var(--danger-bg);
 	}
 	.add-menu {
 		position: relative;
 		display: inline-flex;
 	}
+	/* insert before the first line: shown with the line tools */
+	.add-top {
+		visibility: hidden;
+		margin-bottom: var(--space-2);
+	}
+	.sheet:hover .add-top,
+	.sheet:focus-within .add-top,
+	.add-top.open {
+		visibility: visible;
+	}
+	.add-top-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		border: none;
+		border-radius: var(--radius-sm);
+		background: transparent;
+		color: var(--muted);
+		font-size: var(--text-sm);
+		padding: var(--space-1) var(--space-3);
+		cursor: pointer;
+	}
+	.add-top-btn:hover,
+	.add-top-btn[aria-expanded='true'] {
+		background: var(--surface-alt);
+		color: var(--text);
+	}
+	.add-end {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
 	.menu {
 		position: absolute;
 		top: 100%;
-		left: 0;
+		right: 0;
 		margin-top: 2px;
 		z-index: 10;
 		display: flex;
@@ -907,6 +1082,10 @@
 		font-size: var(--text-md);
 		color: var(--text);
 	}
+	.menu.left {
+		right: auto;
+		left: 0;
+	}
 	.menu button:hover {
 		background: var(--surface-alt);
 	}
@@ -918,22 +1097,36 @@
 		height: 1.2em;
 	}
 	.marker {
-		color: var(--success);
+		color: var(--muted);
 		font-size: var(--text-xs);
-		font-weight: 700;
+		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		padding: var(--space-1) 0;
+		padding: var(--space-2) 0;
 	}
 	.comment {
-		font-style: italic;
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
 		color: var(--muted);
-		background: var(--surface);
-		border: 1px dashed var(--control-border);
-		border-radius: var(--radius-xs);
-		padding: 0.15rem var(--space-3);
-		width: 100%;
 		font-size: var(--text-lg);
+	}
+	.comment input {
+		flex: 1;
+		min-width: 0;
+		font: inherit;
+		font-style: italic;
+		color: inherit;
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: var(--radius-xs);
+		padding: 0.15rem var(--space-2);
+	}
+	.comment input:hover,
+	.comment input:focus {
+		border-color: var(--control-border);
+		background: var(--surface);
+		outline: none;
 	}
 	.directive {
 		color: var(--faint);
@@ -942,18 +1135,64 @@
 	.pause {
 		display: inline-flex;
 		align-items: center;
-		gap: var(--space-2);
-		padding: 0.1rem var(--space-4);
+		gap: var(--space-1);
+		margin: var(--space-1) 0;
+		padding: 2px var(--space-1) 2px var(--space-4);
 		border-radius: var(--radius-pill);
 		background: var(--accent-bg);
-		color: var(--text);
-		font-size: var(--text-md);
+		color: var(--accent-text);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+	.pause label {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		margin-left: var(--space-1);
 	}
 	.pause input {
-		width: 3.2rem;
+		width: 2.6em;
 		font: inherit;
-		background: var(--surface);
+		text-align: center;
 		color: var(--text);
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: var(--radius-xs);
+		padding: 0;
+		appearance: textfield;
+		-moz-appearance: textfield;
+	}
+	.pause input::-webkit-inner-spin-button,
+	.pause input::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+	.pause input:hover,
+	.pause input:focus {
+		border-color: var(--control-border);
+		background: var(--surface);
+		outline: none;
+	}
+	.pause .step {
+		width: 1.5rem;
+		height: 1.5rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		border-radius: var(--radius-pill);
+		background: transparent;
+		color: inherit;
+		font-size: var(--text-md);
+		padding: 0;
+		cursor: pointer;
+	}
+	.pause .step:hover:not(:disabled) {
+		background: var(--surface);
+	}
+	.pause .step:disabled {
+		opacity: 0.4;
+		cursor: default;
 	}
 	.tab {
 		width: 100%;
@@ -995,11 +1234,16 @@
 		.meta {
 			grid-template-columns: 1fr;
 		}
-		.line-tools {
+		.line-tools,
+		.add-top {
 			display: none;
 		}
 		.sheet.show-tools .line-tools {
 			display: flex;
+			visibility: visible;
+		}
+		.sheet.show-tools .add-top {
+			display: block;
 			visibility: visible;
 		}
 	}

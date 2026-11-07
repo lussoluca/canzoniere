@@ -14,6 +14,11 @@ test.beforeEach(async ({ page }) => {
 	});
 });
 
+// the visual editor's row holding the n-th lyric line: its tools sit beside the line
+function lyricRow(page: import('@playwright/test').Page, n: number) {
+	return page.getByTestId('line-row').filter({ has: page.getByTestId('lyric-line') }).nth(n);
+}
+
 async function goto(page: import('@playwright/test').Page, url: string) {
 	await page.goto(url);
 	await page.locator('body[data-hydrated]').waitFor();
@@ -216,8 +221,8 @@ test('lyric line edit: Enter commits, Esc discards', async ({ page }) => {
 	const firstLine = page.getByTestId('lyric-line').nth(0);
 
 	// Enter commits
-	await firstLine.hover();
-	await firstLine.getByTestId('edit-lyric-text').click();
+	await lyricRow(page, 0).hover();
+	await lyricRow(page, 0).getByTestId('edit-lyric-text').click();
 	const input = page.getByTestId('lyric-text-input');
 	await expect(input).toBeFocused();
 	await input.fill('Stella del mattino splende');
@@ -225,8 +230,8 @@ test('lyric line edit: Enter commits, Esc discards', async ({ page }) => {
 	await expect(firstLine.getByTestId('lyric-text')).toContainText('splende');
 
 	// Esc discards
-	await firstLine.hover();
-	await firstLine.getByTestId('edit-lyric-text').click();
+	await lyricRow(page, 0).hover();
+	await lyricRow(page, 0).getByTestId('edit-lyric-text').click();
 	await input.fill('testo da scartare');
 	await input.press('Escape');
 	await expect(firstLine.getByTestId('lyric-text')).toContainText('splende');
@@ -240,16 +245,16 @@ test('lyric line edit keeps chords on their characters', async ({ page }) => {
 	await expect(pill).toHaveAttribute('data-pos', '4'); // "nel [Sol]cielo"
 
 	// text inserted before the chord moves it along
-	await secondLine.hover();
-	await secondLine.getByTestId('edit-lyric-text').click();
+	await lyricRow(page, 1).hover();
+	await lyricRow(page, 1).getByTestId('edit-lyric-text').click();
 	const input = page.getByTestId('lyric-text-input');
 	await input.fill('Sotto nel cielo di settembre');
 	await input.press('Enter');
 	await expect(pill).toHaveAttribute('data-pos', '10');
 
 	// a leading character removed moves it back
-	await secondLine.hover();
-	await secondLine.getByTestId('edit-lyric-text').click();
+	await lyricRow(page, 1).hover();
+	await lyricRow(page, 1).getByTestId('edit-lyric-text').click();
 	await input.fill('otto nel cielo di settembre');
 	await input.press('Enter');
 	await expect(pill).toHaveAttribute('data-pos', '9');
@@ -391,8 +396,8 @@ test('undo/redo: text edits and structural changes', async ({ page }) => {
 	await page.getByTestId('add-lyric').click();
 	const lyricLines = page.getByTestId('lyric-line');
 	await expect(lyricLines).toHaveCount(1);
-	await lyricLines.first().hover();
-	await lyricLines.first().getByTestId('edit-lyric-text').click();
+	await lyricRow(page, 0).hover();
+	await lyricRow(page, 0).getByTestId('edit-lyric-text').click();
 	await lyricLines.first().getByTestId('lyric-text-input').fill('Riga di testo');
 	await lyricLines.first().getByTestId('lyric-text-input').press('Enter');
 	await expect(lyricLines.first().getByTestId('lyric-text')).toContainText('Riga di testo');
@@ -757,6 +762,51 @@ test('pauses: add from the menu, edit the seconds, written as x_pause', async ({
 	expect(await page.getByTestId('raw-editor').inputValue()).toContain('{x_pause:7}');
 	await page.getByTestId('tab-visual').click();
 	await expect(page.getByTestId('pause-seconds')).toHaveValue('7');
+});
+
+test('line tools: pause after a line, seconds stepper, chorus rail, delete', async ({ page }) => {
+	const file = path.join(TMP, 'varie', 'strumenti_riga.cho');
+	fs.writeFileSync(
+		file,
+		'{title:Strumenti riga}\n{tag:Varie}\n\nuno\n{start_of_chorus}\ndue\n{end_of_chorus}\n{comment:Rit.}\n',
+		'utf-8'
+	);
+	await goto(page, '/edit/varie/strumenti_riga.cho');
+
+	// the pause goes right after the line, and that line offers no second one
+	const row = lyricRow(page, 0);
+	await row.hover();
+	await row.getByTestId('add-pause-after').click();
+	await expect(page.getByTestId('pause-seconds')).toHaveValue('4');
+	await row.hover();
+	await expect(row.getByTestId('add-pause-after')).toHaveCount(0);
+
+	await page.getByTestId('pause-more').click();
+	await page.getByTestId('pause-more').click();
+	await page.getByTestId('pause-less').click();
+	await expect(page.getByTestId('pause-seconds')).toHaveValue('5');
+
+	// start, line and end of the chorus sit on the rail
+	await expect(page.locator('.line-wrap.in-chorus')).toHaveCount(3);
+
+	await page.getByTestId('tab-raw').click();
+	expect(await page.getByTestId('raw-editor').inputValue()).toContain('uno\n{x_pause:5}\n');
+	await page.getByTestId('tab-visual').click();
+
+	const pauseRow = page.getByTestId('line-row').filter({ has: page.getByTestId('pause-line') });
+	await pauseRow.hover();
+	await pauseRow.getByTestId('delete-line').click();
+	await expect(page.getByTestId('pause-line')).toHaveCount(0);
+
+	// a line can go before the first one
+	await page.getByTestId('visual-editor').hover();
+	await page.getByTestId('add-line-top').click();
+	await page.getByTestId('add-chorus-start').click();
+	await page.getByTestId('tab-raw').click();
+	expect(await page.getByTestId('raw-editor').inputValue()).toMatch(
+		/\n\n\{start_of_chorus\}\nuno\n\{start_of_chorus\}/
+	);
+	fs.rmSync(file);
 });
 
 test('pauses: a proposal link is applied, a stale or malformed one is not', async ({ page }) => {

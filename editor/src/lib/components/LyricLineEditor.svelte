@@ -114,8 +114,8 @@
 		if (!wasDrag) openEditChord(idx);
 	}
 
-	// --- lyric text editing ---
-	function startTextEdit() {
+	// --- lyric text editing (opened from the line's tools in SongEditor) ---
+	export function startTextEdit() {
 		textDraft = line.text;
 		editingText = true;
 		queueMicrotask(() => textInputEl?.focus());
@@ -231,9 +231,6 @@
 				onclick={() => openNewChord(line.text.length)}
 			>
 				&nbsp;
-			</button>
-			<button class="edit-text" onclick={startTextEdit} title="Modifica testo" data-testid="edit-lyric-text">
-				✎
 			</button>
 		</div>
 	{/if}
@@ -359,19 +356,6 @@
 	.char:hover {
 		background: var(--brand);
 		color: var(--header-bg);
-	}
-	.edit-text {
-		visibility: hidden;
-		border: none;
-		background: none;
-		cursor: pointer;
-		color: var(--faint);
-		font-size: 1.3em;
-		padding: 0 0.15em;
-		line-height: 1;
-	}
-	.lyric-line:hover .edit-text {
-		visibility: visible;
 	}
 	.text-edit {
 		font: inherit;
