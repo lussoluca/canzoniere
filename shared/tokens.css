@@ -39,6 +39,7 @@
 	--chord: #a15c07;
 	--chorus: #d9c58a;
 	--directive: #7b2d8e; /* ChordPro {meta} directives */
+	--directive-x: #0f766e; /* the project's own {x_...} directives */
 	--diagram-ink: #1f2937;
 	--diagram-surface: #ffffff;
 	--diagram-muted: #999999;
@@ -122,6 +123,7 @@
 		--chord: #e3a95c;
 		--chorus: #8a7a45;
 		--directive: #d3a1e3;
+		--directive-x: #5cc8b8;
 		--diagram-ink: #e5e3dc;
 		--diagram-surface: #23262a;
 		--diagram-muted: #7d838b;
@@ -171,6 +173,7 @@
 	--chord: #e3a95c;
 	--chorus: #8a7a45;
 	--directive: #d3a1e3;
+	--directive-x: #5cc8b8;
 	--diagram-ink: #e5e3dc;
 	--diagram-surface: #23262a;
 	--diagram-muted: #7d838b;

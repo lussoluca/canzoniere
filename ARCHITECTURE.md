@@ -152,9 +152,10 @@ editor/src/
 ├── lib/
 │   ├── index.ts                                # Re-export barrel
 │   ├── slug.ts                                 # Title → filename slug converter
+│   ├── directives.ts                           # ChordPro directive catalog, autocomplete and checks
 │   ├── components/
 │   │   ├── LyricLineEditor.svelte             # Visual chord editor (see §3.3 detailed analysis)
-│   │   ├── ChordProEditor.svelte              # Syntax-highlighted textarea for raw .cho editing
+│   │   ├── ChordProEditor.svelte              # Highlighted textarea, directive autocomplete, problems list
 │   │   └── SongEditor.svelte                  # Parent component: tabs, metadata form, save logic
 │   ├── server/
 │   │   ├── songs.ts                            # CRUD & file I/O for .cho files
@@ -350,16 +351,20 @@ let { line = $bindable() }: Props = $props();
 
 **Concept**: Overlay a transparent textarea on top of a `<pre>` element with syntax highlighting.
 
-**Syntax Highlighting** (lines 9–36):
+**Directive catalog** (`editor/src/lib/directives.ts`): every directive the editor knows, with its kind (meta, `x_` custom, chorus, comment, other), the value it takes (none, optional, text, whole number in a range) and an Italian description. `analyze(source)` splits each directive line into name and value and flags the wrong ones: unknown name (with the closest known one as a hint), missing or invalid value, missing `}`, text after `}`, spaces before `{` (the parser then reads the line as lyrics), a pause before the first timed line. `completions(query)` lists the directives offered for what follows `{`.
 
-- Regex-based classification of directives.
-- `META` set: title, t, artist, tag, columns (purple).
-- `CHORUS` set: start_of_chorus, soc, end_of_chorus, eoc, chorus (brown/gold).
-- Chord brackets `[...]` (blue).
-- Comments & other directives (green italic, gray).
+**Syntax Highlighting**:
+
+- Directive lines take a class per kind (`hl-meta`, `hl-custom`, `hl-chorus`, `hl-comment`, `hl-directive`), with the value in its own span.
+- Errors are underlined (`hl-error`, `hl-warning`) on the part they are about, or on the whole line.
+- Chord brackets `[...]` (`hl-chord`); tab blocks verbatim.
 - HTML-escaped for safety.
 
-**Scroll Sync** (lines 38–43): When textarea scrolls, pre-element scrolls in sync (both positioned absolutely).
+**Autocomplete**: typing `{` at the start of a line opens a listbox placed at the caret, measured on the `<pre>`'s text nodes (it lays the text out exactly like the textarea). Arrows move, Enter/Tab or a click accepts, Esc closes. The accepted directive replaces the typed name and is closed with `}`; when it takes a value the caret lands on it, with the default (e.g. `4` for `x_pause`) selected.
+
+**Problems list**: below the editor, one row per flagged line; a click moves the caret to that line and scrolls to it.
+
+**Scroll Sync**: When textarea scrolls, pre-element scrolls in sync (both positioned absolutely); scrolling closes the autocomplete.
 
 ### SvelteKit Routes Overview
 
@@ -768,7 +773,7 @@ make build   # Uses Docker + ChordPro
 | File                                               | Lines | Purpose                                           |
 | -------------------------------------------------- | ----- | ------------------------------------------------- |
 | `editor/src/lib/components/LyricLineEditor.svelte` | 1–312 | Visual chord editor (character-level)             |
-| `editor/src/lib/components/ChordProEditor.svelte`  | 1–107 | Syntax-highlighted textarea                       |
+| `editor/src/lib/components/ChordProEditor.svelte`  | 1–406 | Highlighted textarea, directive autocomplete      |
 | `editor/src/lib/components/SongEditor.svelte`      | 1–405 | Parent: tabs, metadata, save logic                |
 | `reader/src/lib/components/SongSheet.svelte`       | 1–114 | Read-only song renderer (chord rows above lyrics) |
 
